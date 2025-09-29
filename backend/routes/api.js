@@ -3,8 +3,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const axios = require('axios');
 const multer = require('multer');
-const mongoose = require('mongoose');
-const cors = require('cors');
 const OpenAI = require('openai');
 require('dotenv').config();
 
@@ -16,28 +14,119 @@ const Chat = require('../models/chat');
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Initialize the client for an OpenAI-compatible service (like OpenRouter)
 const openrouter = new OpenAI({
-    baseURL: "https://openrouter.ai/api/v1",
-    apiKey: process.env.OPENROUTER_API_KEY,
+    baseURL: "https://openrouter.ai/api/v1",
+    apiKey: process.env.OPENROUTER_API_KEY,
 });
 
 // --- MIDDLEWARE ---
 const authMiddleware = (req, res, next) => {
-    const token = req.header('x-auth-token');
-    if (!token) {
-        return res.status(401).json({ message: 'No token, authorization denied.' });
-    }
-    try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = decoded.user;
-        next();
-    } catch (err) {
-        res.status(401).json({ message: 'Token is not valid.' });
-    }
+    const token = req.header('x-auth-token');
+    if (!token) {
+        return res.status(401).json({ message: 'No token, authorization denied.' });
+    }
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded.user;
+        next();
+    } catch (err) {
+        res.status(401).json({ message: 'Token is not valid.' });
+    }
 };
 
 // =============== USER AUTHENTICATION ROUTES ===============
+// Your /signup, /login, and /profile routes are correct and need no changes.
+router.post('/signup', async (req, res) => { /* ... your existing correct code ... */ });
+router.post('/login', async (req, res) => { /* ... your existing correct code ... */ });
+router.get('/profile', authMiddleware, async (req, res) => { /* ... your existing correct code ... */ });
+
+
+// =============== CORRECTED CHATBOT ROUTE (WITH VISION) ===============
+router.post('/chat', authMiddleware, upload.single('image'), async (req, res) => {
+    const { message, chatId, language } = req.body;
+    const imageFile = req.file;
+
+    if (!message && !imageFile) {
+        return res.status(400).json({ message: 'Message or image is required.' });
+    }
+
+    try {
+        let currentChat;
+        if (chatId) {
+            currentChat = await Chat.findOne({ _id: chatId, userId: req.user.id });
+        }
+        if (!currentChat) {
+            const title = message ? message.substring(0, 30) : "Image Analysis";
+            currentChat = new Chat({ userId: req.user.id, title, history: [] });
+        }
+        
+        // **FIXED**: Format user's input for a multimodal model
+        const userMessageContent = [];
+        if (message) {
+            userMessageContent.push({ type: "text", text: message });
+        }
+        if (imageFile) {
+            const base64Image = imageFile.buffer.toString('base64');
+            userMessageContent.push({
+                type: "image_url",
+                image_url: { "url": `data:${imageFile.mimetype};base64,${base64Image}` }
+            });
+        }
+        // **FIXED**: Use the simpler, API-compatible format for history
+        currentChat.history.push({ role: 'user', content: userMessageContent });
+
+        // Prepare the full conversation history for the AI
+        let systemInstructionText = `You are FarmWise Bot, an expert agricultural assistant. If the user uploads an image of a plant, your primary goal is to identify any visible diseases, pests, or nutrient deficiencies. Provide a concise diagnosis and suggest practical treatment options. If the user asks a general question, answer it helpfully.`;
+        const languageMap = { 'ta': 'Tamil', 'ml': 'Malayalam' };
+        if (language && languageMap[language]) {
+            systemInstructionText += ` IMPORTANT: You must provide your entire response ONLY in the ${languageMap[language]} language.`;
+        }
+
+        const messagesForAPI = [
+            { role: 'system', content: systemInstructionText },
+            ...currentChat.history // History is already in the correct format
+        ];
+
+        // Call the multimodal AI model
+        const completion = await openrouter.chat.completions.create({
+            model: "google/gemini-pro-vision", // **FIXED**: Using a model that can see images
+            messages: messagesForAPI,
+        });
+
+        const botReplyText = completion.choices[0].message?.content;
+        if (!botReplyText) {
+            throw new Error("AI model returned an empty response.");
+        }
+        
+        // **FIXED**: Save bot response in the simpler format
+        const botMessage = { role: 'assistant', content: botReplyText };
+        currentChat.history.push(botMessage);
+        await currentChat.save();
+
+        res.json({ 
+            reply: botReplyText, 
+            newChatId: currentChat.isNew ? currentChat._id : undefined 
+        });
+
+    } catch (error) {
+        console.error("Chat API Error:", error.message);
+        res.status(500).json({ message: 'Failed to get response from AI model.' });
+    }
+});
+
+
+// =============== CHAT HISTORY & WEATHER ROUTES ===============
+// Your other routes are correct and need no changes.
+router.get('/chats', authMiddleware, async (req, res) => { /* ... your existing correct code ... */ });
+router.get('/chat/:chatId', authMiddleware, async (req, res) => { /* ... your existing correct code ... */ });
+router.delete('/chat/:chatId', authMiddleware, async (req, res) => { /* ... your existing correct code ... */ });
+router.get('/weather/forecast', authMiddleware, async (req, res) => { /* ... your existing correct code ... */ });
+
+
+module.exports = router;
+
+// --- PASTE YOUR EXISTING CORRECT CODE FOR THE ROUTES BELOW ---
+
 router.post('/signup', async (req, res) => {
     const { username, email, phone, password, state } = req.body;
     try {
@@ -86,73 +175,6 @@ router.get('/profile', authMiddleware, async (req, res) => {
     }
 });
 
-
-// =============== CHATBOT ROUTE ===============
-router.post('/chat', authMiddleware, upload.single('image'), async (req, res) => {
-    const { message, chatId, language } = req.body;
-
-    if (!message && !req.file) {
-        return res.status(400).json({ message: 'Message or image is required.' });
-    }
-
-    try {
-        let currentChat;
-        if (chatId) {
-            currentChat = await Chat.findOne({ _id: chatId, userId: req.user.id });
-        } else {
-            const title = message ? message.substring(0, 30) + '...' : "New Image Chat";
-            currentChat = new Chat({ userId: req.user.id, title, history: [] });
-        }
-        if (!currentChat) return res.status(404).json({ message: "Chat not found" });
-        
-        // Handle message for a text-only model like Gemma
-        const userMessageContent = req.file 
-            ? `${message || ''} (An image was uploaded, but I am a text-only AI and cannot see it. Please describe the image if you want me to know what it is.)`.trim()
-            : message;
-            
-        currentChat.history.push({ role: 'user', parts: [{ text: userMessageContent }] });
-
-        // System prompt for the AI model
-        let systemInstructionText = "You are FarmWise Bot, an expert agricultural assistant. Your primary function is to help with farming questions. Be concise and helpful.";
-        const languageMap = { 'ta': 'Tamil', 'ml': 'Malayalam' };
-        if (language && languageMap[language]) {
-            systemInstructionText += ` IMPORTANT: You must provide your entire response ONLY in the ${languageMap[language]} language.`;
-        }
-
-        // Transform history into the format required by the OpenAI-compatible API
-        const messagesForAPI = currentChat.history.map(msg => ({
-            role: msg.role === 'model' ? 'assistant' : 'user',
-            content: msg.parts.map(part => part.text).join(' ')
-        }));
-
-        messagesForAPI.unshift({ role: 'system', content: systemInstructionText });
-
-        // API call is now made using the OpenAI library
-        const completion = await openrouter.chat.completions.create({
-            model: "google/gemma-3-27b-it", // The specified Gemma model
-            messages: messagesForAPI,
-        });
-
-        const botReplyText = completion.choices[0].message.content;
-        if (!botReplyText) {
-            console.error("Invalid API Response:", completion);
-            return res.status(500).json({ message: 'AI model returned an invalid response.' });
-        }
-        
-        const botMessage = { role: 'model', parts: [{ text: botReplyText }] };
-        currentChat.history.push(botMessage);
-        await currentChat.save();
-
-        res.json({ reply: botReplyText, newChatId: !chatId ? currentChat.id : undefined });
-
-    } catch (error) {
-        console.error("API Error:", error);
-        res.status(500).json({ message: 'Failed to get response from AI model.' });
-    }
-});
-
-
-// =============== CHAT HISTORY ROUTES ===============
 router.get('/chats', authMiddleware, async (req, res) => {
     try {
         const chats = await Chat.find({ userId: req.user.id }).sort({ createdAt: -1 });
@@ -190,7 +212,6 @@ router.delete('/chat/:chatId', authMiddleware, async (req, res) => {
     }
 });
 
-// =============== WEATHER ROUTE ===============
 router.get('/weather/forecast', authMiddleware, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
@@ -206,12 +227,10 @@ router.get('/weather/forecast', authMiddleware, async (req, res) => {
 
         const forecastUrl = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=minutely,alerts&appid=${apiKey}&units=metric`;
         const forecastResponse = await axios.get(forecastUrl);
-        
+        
         res.json(forecastResponse.data);
     } catch (err) {
         console.error("Weather Forecast Error:", err.message);
         res.status(500).json({ message: "Could not fetch weather forecast." });
     }
 });
-
-module.exports = router;
