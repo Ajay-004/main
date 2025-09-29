@@ -13,13 +13,13 @@
             --text-color: #333;
             --label-color: #555;
             --border-color: #ddd;
+            --danger-red: #d9534f;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
         
         body {
             min-height: 100vh;
-            /* MODIFIED: Added a white overlay to dim the background image, making text easier to read */
-            background-image: linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url('kerala.jpg');
+            background-image: linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url('https://images.unsplash.com/photo-1597992923368-ca2452b27074?q=80&w=2070');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -87,7 +87,6 @@
             font-size: 4rem;
             font-weight: 700;
             color: var(--primary-color);
-            /* MODIFIED: Stronger text shadow for readability */
             text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4);
         }
         .branding-title p {
@@ -96,7 +95,6 @@
             color: #245738;
             margin-top: 5px;
             margin-bottom: 50px;
-            /* MODIFIED: Added text shadow for readability */
             text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
         }
         
@@ -106,7 +104,6 @@
             width: 100%;
             max-width: 450px;
         }
-
         .feature-item {
             position: absolute; top: 0; left: 0; width: 100%;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -122,7 +119,6 @@
             font-size: 1.6rem;
             font-weight: 500;
             color: #333;
-            /* MODIFIED: Added text shadow for readability */
             text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
         }
 
@@ -135,25 +131,21 @@
         .submit-button:hover { background-color: #245738; }
         .form-footer { text-align: center; margin-top: 25px; color: var(--label-color); }
         .form-footer a { color: var(--primary-color); text-decoration: none; font-weight: 600; }
+        
+        #error-message {
+            color: var(--danger-red);
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: 500;
+            min-height: 1.2em; /* Prevents layout shift when message appears */
+        }
 
         @media (max-width: 850px) {
-            .main-container {
-                grid-template-columns: 1fr;
-                min-height: 0;
-            }
-            .branding-section {
-                order: -1; 
-                padding: 60px 20px 40px 20px;
-            }
-            .branding-title h1 {
-                font-size: 3rem;
-            }
-            .feature-item h3 {
-                font-size: 1.3rem;
-            }
-            .login-section {
-                padding-bottom: 40px;
-            }
+            .main-container { grid-template-columns: 1fr; min-height: 0; }
+            .branding-section { order: -1; padding: 60px 20px 40px 20px; }
+            .branding-title h1 { font-size: 3rem; }
+            .feature-item h3 { font-size: 1.3rem; }
+            .login-section { padding-bottom: 40px; }
         }
     </style>
 </head>
@@ -170,17 +162,18 @@
     </div>
 
     <div class="main-container">
-
         <div class="login-section">
             <div class="form-container">
                 <form id="login-form">
                     <h2 id="form-title">Welcome Back!</h2>
                     
+                    <div id="error-message"></div>
+
                     <div class="input-group"><label for="username" id="label-username">Username</label><input type="text" id="username" required></div>
                     <div class="input-group"><label for="password" id="label-password">Password</label><input type="password" id="password" required></div>
                     <button type="submit" class="submit-button" id="submit-btn">Login</button>
                     <div class="form-footer">
-                        <p><span id="footer-text">Don't have an account?</span> <a href="sign.html" id="footer-link">Sign Up</a></p>
+                        <span id="footer-text">Don't have an account?</span> <a href="sign.html" id="footer-link">Sign Up</a>
                     </div>
                 </form>
             </div>
@@ -188,8 +181,8 @@
 
         <div class="branding-section">
             <div class="branding-title">
-                <h1 id="brand-title">Farm Wise</h1>
-                <p id="brand-subtitle">"your farm's intelligence"</p>
+                <h1 id="brand-title">FarmWise</h1>
+                <p id="brand-subtitle">"Your Farm's Intelligence"</p>
             </div>
             <div class="features-slider">
                 <div class="feature-item active"><i class="fa-solid fa-robot"></i><h3 id="feature-1">Krishi Sahayi Bot</h3></div>
@@ -201,97 +194,108 @@
     </div>
 
     <script>
-        const loginForm = document.getElementById('login-form');
-        const loaderOverlay = document.getElementById('loader-overlay');
-        const languageSelector = document.getElementById('language-selector');
-
-        // Define your new Render backend URL as a constant
-        const RENDER_API_BASE_URL = 'https://backend-wbat.onrender.com';
-        
-        const translations = {
-            en: { 
-                "form-title": "Welcome Back!", "form-subtitle": "Please enter your details to sign in.", "label-username": "Username", "label-password": "Password", "submit-btn": "Sign In", "footer-text": "Don't have an account?", "footer-link": "Sign Up",
-                "brand-title": "Farm Wise", "brand-subtitle": "\"your farm's intelligence\"",
-                "feature-1": "Krishi Sahayi Bot", "feature-2": "Crop Disease Diagnosis", "feature-3": "Weather Prediction", "feature-4": "Farmer Community"
-            },
-            ta: { 
-                "form-title": "மீண்டும் வருக!", "form-subtitle": "உள்நுழைய உங்கள் விவரங்களை உள்ளிடவும்.", "label-username": "பயனர்பெயர்", "label-password": "கடவுச்சொல்", "submit-btn": "உள்நுழைய", "footer-text": "கணக்கு இல்லையா?", "footer-link": "பதிவுபெறுக",
-                "brand-title": "ஃபார்ம் வைஸ்", "brand-subtitle": "\"உங்கள் பண்ணையின் நுண்ணறிவு\"",
-                "feature-1": "கிருஷி சாயி பாட்", "feature-2": "பயிர் நோய் கண்டறிதல்", "feature-3": "வானிலை முன்னறிவிப்பு", "feature-4": "உழவர் சமூகம்"
-            },
-            ml: { 
-                "form-title": "വീണ്ടും സ്വാഗതം!", "form-subtitle": "സൈൻ ഇൻ ചെയ്യുന്നതിന് നിങ്ങളുടെ വിശദാംശങ്ങൾ നൽകുക.", "label-username": "ഉപയോക്തൃനാമം", "label-password": "പാസ്വേഡ്", "submit-btn": "സൈൻ ഇൻ ചെയ്യുക", "footer-text": "ഒരു അക്കൗണ്ട് ഇല്ലേ?", "footer-link": "സൈൻ അപ്പ് ചെയ്യുക",
-                "brand-title": "ഫാം വൈസ്", "brand-subtitle": "\"നിങ്ങളുടെ ഫാമിന്റെ ഇന്റലിജൻസ്\"",
-                "feature-1": "കൃഷി സഹായി ബോട്ട്", "feature-2": "വിള രോഗനിർണയം", "feature-3": "കാലാവസ്ഥാ പ്രവചനം", "feature-4": "കർഷക സമൂഹം"
-            }
-        };
-
-        const changeLanguage = (lang) => {
-            const langData = translations[lang];
-            for (const key in langData) {
-                const element = document.getElementById(key);
-                if (element) { element.textContent = langData[key]; }
-            }
-        };
-        
-        languageSelector.addEventListener('change', (event) => {
-            changeLanguage(event.target.value);
-            localStorage.setItem('preferredLanguage', event.target.value);
-        });
-        
-        const savedLang = localStorage.getItem('preferredLanguage') || 'en';
-        languageSelector.value = savedLang;
-        changeLanguage(savedLang);
-
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            loaderOverlay.style.display = 'flex';
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            try {
-                // MODIFIED: Concatenate the new Render API URL with the specific route
-                const response = await fetch(`${RENDER_API_BASE_URL}/api/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                
-                const data = await response.json();
-                
-                // IMPORTANT: Replaced alert() with a console log/message box display, 
-                // but since this is an HTML file for deployment, we stick to the original plan 
-                // of redirecting or throwing an error, but using the original alert() call.
-                if (!response.ok) throw new Error(data.message || "Unknown error occurred.");
-                
-                localStorage.setItem('token', data.token);
-                window.location.href = 'index.html';
-
-            } catch (error) {
-                loaderOverlay.style.display = 'none';
-                // Using alert() as per the original user code structure
-                alert('Login failed: ' + error.message); 
-            }
-        });
-
         document.addEventListener('DOMContentLoaded', () => {
+            // --- CONFIGURATION ---
+            const API_BASE_URL = 'https://main-back-g4pq.onrender.com';
+
+            // --- DOM ELEMENTS ---
+            const loginForm = document.getElementById('login-form');
+            const loaderOverlay = document.getElementById('loader-overlay');
+            const languageSelector = document.getElementById('language-selector');
+            const errorMessageDiv = document.getElementById('error-message');
+
+            // --- TRANSLATION DATA & LOGIC ---
+            const translations = {
+                en: { 
+                    "form-title": "Welcome Back!", "label-username": "Username", "label-password": "Password", "submit-btn": "Login", "footer-text": "Don't have an account?", "footer-link": "Sign Up",
+                    "brand-title": "FarmWise", "brand-subtitle": "\"Your Farm's Intelligence\"",
+                    "feature-1": "Krishi Sahayi Bot", "feature-2": "Crop Disease Diagnosis", "feature-3": "Weather Prediction", "feature-4": "Farmer Community"
+                },
+                ta: { 
+                    "form-title": "மீண்டும் வருக!", "label-username": "பயனர்பெயர்", "label-password": "கடவுச்சொல்", "submit-btn": "உள்நுழைய", "footer-text": "கணக்கு இல்லையா?", "footer-link": "பதிவுபெறுக",
+                    "brand-title": "ஃபார்ம் வைஸ்", "brand-subtitle": "\"உங்கள் பண்ணையின் நுண்ணறிவு\"",
+                    "feature-1": "கிருஷி சாயி பாட்", "feature-2": "பயிர் நோய் கண்டறிதல்", "feature-3": "வானிலை முன்னறிவிப்பு", "feature-4": "உழவர் சமூகம்"
+                },
+                ml: { 
+                    "form-title": "വീണ്ടും സ്വാഗതം!", "label-username": "ഉപയോക്തൃനാമം", "label-password": "പാസ്വേഡ്", "submit-btn": "സൈൻ ഇൻ ചെയ്യുക", "footer-text": "ഒരു അക്കൗണ്ട് ഇല്ലേ?", "footer-link": "സൈൻ അപ്പ് ചെയ്യുക",
+                    "brand-title": "ഫാം വൈസ്", "brand-subtitle": "\"നിങ്ങളുടെ ഫാമിന്റെ ഇന്റലിജൻസ്\"",
+                    "feature-1": "കൃഷി സഹായി ബോട്ട്", "feature-2": "വിള രോഗനിർണയം", "feature-3": "കാലാവസ്ഥാ പ്രവചനം", "feature-4": "കർഷക സമൂഹം"
+                }
+            };
+
+            const changeLanguage = (lang) => {
+                const langData = translations[lang];
+                for (const key in langData) {
+                    const element = document.getElementById(key);
+                    if (element) { 
+                        if (element.tagName === 'INPUT' || element.tagName === 'BUTTON') {
+                            element.textContent = langData[key];
+                        } else {
+                            element.textContent = langData[key];
+                        }
+                    }
+                }
+            };
+            
+            languageSelector.addEventListener('change', (event) => {
+                changeLanguage(event.target.value);
+                localStorage.setItem('preferredLanguage', event.target.value);
+            });
+            
+            const savedLang = localStorage.getItem('preferredLanguage') || 'en';
+            languageSelector.value = savedLang;
+            changeLanguage(savedLang);
+
+            // --- LOGIN FORM SUBMISSION ---
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                loaderOverlay.style.display = 'flex';
+                errorMessageDiv.textContent = ''; // Clear previous errors
+                
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                
+                try {
+                    const response = await fetch(`${API_BASE_URL}/api/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(data.message || "An unknown error occurred.");
+                    }
+                    
+                    localStorage.setItem('token', data.token);
+                    window.location.href = 'index.html';
+
+                } catch (error) {
+                    loaderOverlay.style.display = 'none';
+                    errorMessageDiv.textContent = error.message; // Display error on the page
+                }
+            });
+
+            // --- FEATURE SLIDER ANIMATION ---
             const features = document.querySelectorAll('.feature-item');
             let currentFeatureIndex = 0;
             setInterval(() => {
                 const currentFeature = features[currentFeatureIndex];
                 const nextFeatureIndex = (currentFeatureIndex + 1) % features.length;
                 const nextFeature = features[nextFeatureIndex];
+                
                 currentFeature.classList.remove('active');
                 currentFeature.classList.add('exit');
                 nextFeature.classList.add('active');
+                
                 setTimeout(() => {
                     currentFeature.classList.remove('exit');
                 }, 800);
+                
                 currentFeatureIndex = nextFeatureIndex;
             }, 3000);
         });
     </script>
 </body>
 </html>
-
-
