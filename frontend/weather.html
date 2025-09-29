@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Forecast - FarmWise</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <script>
+        // Set theme on initial load to prevent flashing
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+    <style>
+        :root {
+            /* Light Theme (Default) */
+            --bg-main: #f6f8fa; --bg-secondary: #ffffff; --border-color: #d0d7de;
+            --text-primary: #24292f; --text-secondary: #586069; --accent-green: #238636;
+            --shadow-color: rgba(140, 149, 159, 0.15); --danger-red: #d73a49;
+        }
+        html.dark {
+            /* Dark Theme Overrides */
+            --bg-main: #0D1117; --bg-secondary: #161b22; --border-color: #30363d;
+            --text-primary: #c9d1d9; --text-secondary: #8b949e; --accent-green: #2ECC71;
+            --shadow-color: rgba(0,0,0,0.4); --danger-red: #e74c3c;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-primary); transition: background-color 0.3s ease, color 0.3s ease; }
+        a { text-decoration: none; color: inherit; }
+
+        /* --- HEADER / NAVBAR STYLES --- */
+        .navbar { background-color: var(--bg-secondary); padding: 15px 0; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; position: relative; }
+        .navbar-container { display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .logo { font-size: 24px; font-weight: 800; color: var(--accent-green); }
+        .location-button { background-color: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 12px; border-radius: 6px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background-color 0.2s, color 0.2s; }
+        .location-button:hover { background-color: var(--border-color); color: var(--text-primary); }
+        .nav-menu { display: none; } /* Hide on mobile by default */
+        @media (min-width: 992px) { .nav-menu { display: flex; align-items: center; gap: 30px; } }
+        .nav-menu a { color: var(--text-primary); display: flex; align-items: center; gap: 8px; font-weight: 500; }
+        .nav-menu a:hover { color: var(--accent-green); }
+        .nav-actions { display: flex; align-items: center; gap: 15px; }
+        .language-dropdown { position: relative; }
+        .language-selector { background: none; border: none; color: var(--text-primary); font-size: 15px; cursor: pointer; padding: 5px 10px; border-radius: 6px; display: flex; align-items: center; gap: 5px; }
+        .dropdown-content { display: none; position: absolute; background-color: var(--bg-secondary); min-width: 150px; box-shadow: 0 8px 16px var(--shadow-color); z-index: 1; list-style: none; padding: 8px 0; border-radius: 6px; border: 1px solid var(--border-color); right: 0; top: 100%; margin-top: 10px; }
+        .dropdown-content.show { display: block; }
+        .dropdown-content li a { color: var(--text-primary); padding: 10px 15px; display: block; font-size: 14px; }
+        .dropdown-content li a:hover, .language-selector:hover { background-color: var(--border-color); }
+        .theme-button { background: none; border: none; color: var(--text-primary); font-size: 18px; cursor: pointer; border-radius: 6px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; transition: background-color 0.3s ease; }
+        .theme-button:hover { background-color: var(--border-color); }
+        #theme-toggle .fa-moon { display: none; }
+        html.dark #theme-toggle .fa-sun { display: none; }
+        html.dark #theme-toggle .fa-moon { display: inline-block; }
+        
+        /* Mobile menu styles */
+        .hamburger-btn { display: block; background: none; border: none; font-size: 18px; color: var(--text-primary); cursor: pointer; }
+        @media (min-width: 992px) { .hamburger-btn { display: none; } }
+        .mobile-nav-dropdown {
+          display: none; position: absolute; top: 100%; left: 0; width: 100%;
+          background-color: var(--bg-secondary); border-top: 1px solid var(--border-color);
+          padding: 10px 0; box-shadow: 0 8px 16px rgba(0,0,0,0.1); z-index: 99;
+        }
+        .mobile-nav-dropdown.show { display: block; }
+        .mobile-nav-dropdown .nav-menu {
+          display: flex; flex-direction: column; align-items: flex-start;
+          gap: 0; padding: 0 20px;
+        }
+        .mobile-nav-dropdown .nav-menu a {
+          padding: 15px 0; width: 100%; font-size: 16px; border-bottom: 1px solid var(--border-color);
+        }
+        .mobile-nav-dropdown .nav-menu a:last-child { border-bottom: none; }
+        html.dark .mobile-nav-dropdown .nav-menu a { border-color: var(--border-color); }
+
+        /* --- WEATHER PAGE STYLES --- */
+        .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
+        .loading-overlay { display: flex; justify-content: center; align-items: center; height: 80vh; flex-direction: column; gap: 1rem; }
+        .loader { border: 5px solid var(--border-color); border-top: 5px solid var(--accent-green); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .weather-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+        .card { background-color: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; box-shadow: 0 4px 12px var(--shadow-color); }
+        .card-title { font-size: 1.2rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 20px; }
+        .current-weather .temp { font-size: 4rem; font-weight: 700; }
+        .current-weather .condition { font-size: 1.2rem; text-transform: capitalize; }
+        .current-weather .details { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .current-weather .detail-item { font-size: 1rem; }
+        .current-weather .detail-item span { color: var(--text-secondary); font-weight: 600; }
+        .hourly-forecast-container { display: flex; overflow-x: auto; gap: 15px; padding-bottom: 15px; }
+        .hourly-item { text-align: center; flex: 0 0 60px; }
+        .hourly-item .time { font-size: 0.9rem; color: var(--text-secondary); }
+        .hourly-item img { width: 50px; height: 50px; }
+        .hourly-item .temp { font-size: 1.1rem; font-weight: 600; }
+        .daily-item, .alert-item { display: flex; align-items: center; padding: 15px 0; border-bottom: 1px solid var(--border-color); }
+        .daily-item:last-child, .alert-item:last-child { border-bottom: none; }
+        .daily-item .day { font-weight: 600; flex-basis: 100px; }
+        .daily-item img { width: 40px; height: 40px; }
+        .daily-item .temps { margin-left: auto; text-align: right; }
+        .daily-item .temps .high { font-weight: 600; }
+        .daily-item .temps .low { color: var(--text-secondary); }
+        .alert-item { gap: 15px; }
+        .alert-item i { font-size: 1.2rem; color: var(--danger-red); }
+
+        /* --- ADDED: Media query for small mobile screens --- */
+        @media (max-width: 600px) {
+            .container { padding: 0 15px; margin-top: 15px; }
+            .card { padding: 20px; }
+            .current-weather .temp { font-size: 3.5rem; }
+            .location-button { display: none; } /* Hide location button on very small screens to save space */
+        }
+
+    </style>
+</head>
+<body>
+    <header class="navbar">
+        <div class="navbar-container">
+            <div class="header-left">
+                <a href="index.html" class="logo" data-lang-key="header_title">FarmWise</a>
+                <button id="get-location-btn" class="location-button" data-lang-key="location_btn">
+                    <i class="fa-solid fa-location-crosshairs"></i> Use My Location
+                </button>
+            </div>
+            <nav class="nav-menu">
+                <a href="index.html" data-lang-key="nav_home"><i class="fa-solid fa-home"></i> Home</a>
+                <a href="chatbot.html" data-lang-key="nav_bot"><i class="fa-solid fa-robot"></i> Krishi Sahayi Bot</a>
+                <a href="plant.html" data-lang-key="nav_disease"><i class="fa-solid fa-leaf"></i> Crop Disease Diagnosis</a>
+                <a href="weather.html" data-lang-key="nav_weather"><i class="fa-solid fa-cloud-sun"></i> Weather Prediction</a>
+                <a href="community.html" data-lang-key="nav_community"><i class="fa-solid fa-users"></i> Farmer Community</a>
+            </nav>
+            <div class="nav-actions">
+                <div class="language-dropdown">
+                    <button class="language-selector" id="language-selector-btn">
+                       <span id="current-lang-display">English</span> <i class="fa-solid fa-angle-down" style="font-size: 0.8rem; margin-left: 5px;"></i>
+                    </button>
+                    <ul class="dropdown-content" id="language-dropdown-content">
+                        <li><a href="#" data-lang="en">English</a></li>
+                        <li><a href="#" data-lang="ta">தமிழ் (Tamil)</a></li>
+                        <li><a href="#" data-lang="ml">മലയാളം (Malayalam)</a></li>
+                    </ul>
+                </div>
+                <button id="theme-toggle" class="theme-button" title="Toggle Theme">
+                    <i class="fa-solid fa-sun"></i>
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <button class="hamburger-btn" id="hamburger-btn"><i class="fa-solid fa-bars"></i></button>
+            </div>
+        </div>
+        <div class="mobile-nav-dropdown" id="mobile-nav-dropdown">
+            <nav class="nav-menu">
+                <a href="index.html" data-lang-key="nav_home"><i class="fa-solid fa-home"></i> Home</a>
+                <a href="chatbot.html" data-lang-key="nav_bot"><i class="fa-solid fa-robot"></i> Krishi Sahayi Bot</a>
+                <a href="plant.html" data-lang-key="nav_disease"><i class="fa-solid fa-leaf"></i> Crop Disease Diagnosis</a>
+                <a href="weather.html" data-lang-key="nav_weather"><i class="fa-solid fa-cloud-sun"></i> Weather Prediction</a>
+                <a href="community.html" data-lang-key="nav_community"><i class="fa-solid fa-users"></i> Farmer Community</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container" id="weather-container" style="display: none;">
+    </div>
+
+    <div class="loading-overlay" id="loader">
+        <div class="loader"></div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        const dummyData = {
+            current: { temp: 29.5, feels_like: 32.1, humidity: 78, wind_speed: 5.1, weather: [{ description: "scattered clouds", icon: "03d", main: "Clouds" }] },
+            hourly: [ { dt: 1664191200, temp: 28.5, weather: [{ icon: "04n", main: "Clouds" }] }, { dt: 1664194800, temp: 27.9, weather: [{ icon: "04n", main: "Clouds" }] }, { dt: 1664198400, temp: 27.2, weather: [{ icon: "10n", main: "Rain" }] }, { dt: 1664202000, temp: 26.8, weather: [{ icon: "10n", main: "Rain" }] }, { dt: 1664205600, temp: 26.5, weather: [{ icon: "04n", main: "Clouds" }] }, { dt: 1664209200, temp: 26.1, weather: [{ icon: "03n", main: "Clouds" }] }, { dt: 1664212800, temp: 25.9, weather: [{ icon: "03n", main: "Clouds" }] }, { dt: 1664216400, temp: 25.5, weather: [{ icon: "02n", main: "Clouds" }] }, { dt: 1664220000, temp: 26.0, weather: [{ icon: "02d", main: "Clouds" }] }, { dt: 1664223600, temp: 27.2, weather: [{ icon: "01d", main: "Clear" }] }, { dt: 1664227200, temp: 28.9, weather: [{ icon: "01d", main: "Clear" }] }, { dt: 1664230800, temp: 30.1, weather: [{ icon: "02d", main: "Clouds" }] } ],
+            daily: [ { dt: 1664166600, temp: { min: 24.5, max: 32.8 }, weather: [{ icon: "03d", main: "Clouds" }] }, { dt: 1664253000, temp: { min: 23.9, max: 31.5 }, weather: [{ icon: "10d", main: "Rain" }] }, { dt: 1664339400, temp: { min: 23.5, max: 30.0 }, weather: [{ icon: "11d", main: "Thunderstorm" }] }, { dt: 1664425800, temp: { min: 24.1, max: 32.2 }, weather: [{ icon: "01d", main: "Clear" }] }, { dt: 1664512200, temp: { min: 25.0, max: 33.1 }, weather: [{ icon: "02d", main: "Clouds" }] }, { dt: 1664598600, temp: { min: 24.8, max: 31.9 }, weather: [{ icon: "03d", main: "Clouds" }] }, { dt: 1664685000, temp: { min: 23.7, max: 30.5 }, weather: [{ icon: "10d", main: "Rain" }] }, { dt: 1664771400, temp: { min: 23.9, max: 30.8 }, weather: [{ icon: "10d", main: "Rain" }] } ]
+        };
+
+        const loader = document.getElementById('loader');
+        const weatherContainer = document.getElementById('weather-container');
+        const getLocationBtn = document.getElementById('get-location-btn');
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const mobileNavDropdown = document.getElementById('mobile-nav-dropdown');
+
+        const translations = {
+            en: { header_title: "FarmWise", nav_home: "Home", location_btn: "Use My Location", nav_bot: "Krishi Sahayi Bot", nav_disease: "Crop Disease Diagnosis", nav_weather: "Weather Prediction", nav_community: "Farmer Community", card_title_current: "Current Weather in", card_title_alerts: "Farming Alerts", card_title_hourly: "Hourly Forecast", card_title_daily: "7-Day Forecast" },
+            ta: { header_title: "ஃபார்ம்வைஸ்", nav_home: "முகப்பு", location_btn: "எனது இருப்பிடத்தைப் பயன்படுத்து", nav_bot: "கிருஷி சஹாயி பாட்", nav_disease: "பயிர் நோய் கண்டறிதல்", nav_weather: "வானிலை முன்னறிவிப்பு", nav_community: "உழவர் சமூகம்", card_title_current: "தற்போதைய வானிலை", card_title_alerts: "விவசாய எச்சரிக்கைகள்", card_title_hourly: "மணிநேர முன்னறிவிப்பு", card_title_daily: "7-நாள் முன்னறிவிப்பு" },
+            ml: { header_title: "ഫാംവൈസ്", nav_home: "ഹോം", location_btn: "എന്റെ സ്ഥലം ഉപയോഗിക്കുക", nav_bot: "കൃഷി സഹായി ബോട്ട്", nav_disease: "വിള രോഗനിർണയം", nav_weather: "കാലാവസ്ഥാ പ്രവചനം", nav_community: "കർഷക സമൂഹം", card_title_current: "ഇപ്പോഴത്തെ കാലാവസ്ഥ", card_title_alerts: "കർഷക ജാഗ്രത", card_title_hourly: "മണിക്കൂർ പ്രവചനം", card_title_daily: "7 ദിവസത്തെ പ്രവചനം" }
+        };
+        const langBtn = document.getElementById('language-selector-btn');
+        const langDropdown = document.getElementById('language-dropdown-content');
+        const currentLangDisplay = document.getElementById('current-lang-display');
+        
+        const setLanguage = (lang) => {
+            localStorage.setItem('language', lang);
+            const langName = lang === 'ta' ? 'தமிழ்' : lang === 'ml' ? 'മലയാളം' : 'English';
+            currentLangDisplay.textContent = langName;
+            
+            document.querySelectorAll('[data-lang-key]').forEach(el => {
+                const key = el.getAttribute('data-lang-key');
+                if (translations[lang] && translations[lang][key]) {
+                    if (key === 'card_title_current') {
+                        const locationName = el.textContent.split(' in ')[1] || 'Coimbatore';
+                        const translatedPrefix = translations[lang][key];
+                        if (lang === 'en') {
+                            el.textContent = `${translatedPrefix} ${locationName}`;
+                        } else {
+                            el.textContent = `${translatedPrefix} (${locationName})`;
+                        }
+                    } else {
+                        const icon = el.querySelector('i');
+                        el.innerHTML = (icon ? icon.outerHTML + ' ' : '') + translations[lang][key];
+                    }
+                }
+            });
+        };
+
+        langBtn.addEventListener('click', (e) => { e.stopPropagation(); langDropdown.classList.toggle('show'); });
+        langDropdown.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                setLanguage(e.target.dataset.lang);
+                langDropdown.classList.remove('show');
+            });
+        });
+
+        const applyTheme = (theme) => {
+            document.documentElement.classList.toggle('dark', theme === 'dark');
+        };
+        themeToggleBtn.addEventListener('click', () => {
+            const newTheme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+            applyTheme(newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+
+        getLocationBtn.addEventListener('click', () => {
+            alert('Live location feature is disabled in this demo. Please add your OpenWeatherMap API key to enable it.');
+        });
+
+        hamburgerBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            mobileNavDropdown.classList.toggle('show');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!langBtn.parentElement.contains(e.target)) {
+                langDropdown.classList.remove('show');
+            }
+            if (!hamburgerBtn.contains(e.target) && !mobileNavDropdown.contains(e.target)) {
+                mobileNavDropdown.classList.remove('show');
+            }
+        });
+        
+        const renderAllWeather = (data, locationName) => {
+            const currentLang = localStorage.getItem('language') || 'en';
+            weatherContainer.innerHTML = `
+                <div class="weather-grid">
+                    <div style="display: flex; flex-direction: column; gap: 20px;">
+                        <div class="card current-weather">
+                            <h2 class="card-title" data-lang-key="card_title_current">${translations[currentLang].card_title_current} in ${locationName}</h2>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div>
+                                    <p class="temp">${Math.round(data.current.temp)}°</p>
+                                    <p class="condition">${data.current.weather[0].description}</p>
+                                </div>
+                                <img src="https://openweathermap.org/img/wn/${data.current.weather[0].icon}@2x.png" alt="weather icon">
+                            </div>
+                            <div class="details">
+                                <div class="detail-item"><span>Feels like:</span> <span>${Math.round(data.current.feels_like)}°</span></div>
+                                <div class="detail-item"><span>Humidity:</span> <span>${data.current.humidity}%</span></div>
+                                <div class="detail-item"><span>Wind:</span> <span>${(data.current.wind_speed * 3.6).toFixed(1)} km/h</span></div>
+                            </div>
+                        </div>
+                        <div class="card">
+                            <h2 class="card-title" data-lang-key="card_title_alerts">${translations[currentLang].card_title_alerts}</h2>
+                            <div id="alerts-container"></div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h2 class="card-title" data-lang-key="card_title_hourly">${translations[currentLang].card_title_hourly}</h2>
+                        <div class="hourly-forecast-container" id="hourly-container"></div>
+                    </div>
+                    <div class="card">
+                        <h2 class="card-title" data-lang-key="card_title_daily">${translations[currentLang].card_title_daily}</h2>
+                        <div id="daily-container"></div>
+                    </div>
+                </div>`;
+            
+            renderHourlyForecast(data.hourly);
+            renderDailyForecast(data.daily);
+            renderFarmingAlerts(data.hourly, data.daily);
+
+            loader.style.display = 'none';
+            weatherContainer.style.display = 'block';
+        };
+
+        const renderHourlyForecast = (hourly) => {
+            const container = document.getElementById('hourly-container');
+            container.innerHTML = hourly.slice(0, 12).map(hour => {
+                const time = new Date(hour.dt * 1000).getHours();
+                return `
+                    <div class="hourly-item">
+                        <p class="time">${time}:00</p>
+                        <img src="https://openweathermap.org/img/wn/${hour.weather[0].icon}.png" alt="icon">
+                        <p class="temp">${Math.round(hour.temp)}°</p>
+                    </div>`;
+            }).join('');
+        };
+
+        const renderDailyForecast = (daily) => {
+            const container = document.getElementById('daily-container');
+            container.innerHTML = daily.slice(1).map(day => {
+                const dayName = new Date(day.dt * 1000).toLocaleDateString('en-US', { weekday: 'short' });
+                return `
+                    <div class="daily-item">
+                        <span class="day">${dayName}</span>
+                        <img src="https://openweathermap.org/img/wn/${day.weather[0].icon}.png" alt="icon">
+                        <span class="temps">
+                            <span class="high">${Math.round(day.temp.max)}°</span> / 
+                            <span class="low">${Math.round(day.temp.min)}°</span>
+                        </span>
+                    </div>`;
+            }).join('');
+        };
+        
+        const renderFarmingAlerts = (hourly, daily) => {
+            const container = document.getElementById('alerts-container');
+            container.innerHTML = '';
+            let alertsFound = false;
+            
+            const next12Hours = hourly.slice(0, 12);
+            if (next12Hours.some(hour => hour.weather[0].main.includes('Rain') || hour.weather[0].main.includes('Thunderstorm'))) {
+                container.innerHTML += `<div class="alert-item"><i class="fa-solid fa-cloud-showers-heavy"></i><p><strong>Immediate Warning:</strong> Rain expected in the next few hours. Secure equipment and prepare for wet conditions.</p></div>`;
+                alertsFound = true;
+            }
+            const next3Days = daily.slice(1, 4);
+            if (next3Days.some(day => day.weather[0].main.includes('Rain') || day.weather[0].main.includes('Thunderstorm'))) {
+                 container.innerHTML += `<div class="alert-item"><i class="fa-solid fa-cloud-rain"></i><p><strong>3-Day Outlook:</strong> Rain is forecast this week. Consider delaying pesticide or fertilizer application.</p></div>`;
+                alertsFound = true;
+            }
+            if (!alertsFound) {
+                container.innerHTML = '<p>No critical weather alerts for the upcoming days.</p>';
+            }
+        };
+
+        const displayDefaultWeather = () => {
+            setTimeout(() => {
+                renderAllWeather(dummyData, 'Coimbatore');
+                setLanguage(localStorage.getItem('language') || 'en');
+            }, 500);
+        };
+        
+        // --- Initialize page ---
+        const savedLang = localStorage.getItem('language') || 'en';
+        setLanguage(savedLang);
+        displayDefaultWeather();
+    });
+    </script>
+</body>
+</html>

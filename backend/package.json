@@ -1,0 +1,25 @@
+{
+  "name": "farmwise-backend",
+  "version": "1.0.0",
+  "description": "Simplified backend for FarmWise",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@huggingface/inference": "^4.9.0",
+    "axios": "^1.12.2",
+    "bcryptjs": "^2.4.3",
+    "cohere-ai": "^7.19.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "groq-sdk": "^0.32.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^7.0.3",
+    "multer": "^2.0.2",
+    "openai": "^5.23.1",
+    "serverless-http": "^4.0.0"
+  }
+}

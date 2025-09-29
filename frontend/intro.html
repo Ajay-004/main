@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to FarmWise</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="intro-page-body">
+
+    <div id="loader-overlay">
+        <div class="loader"></div>
+    </div>
+
+    <div class="intro-container">
+        
+        <div class="language-selector-container">
+            <i class="fa-solid fa-globe"></i>
+            <select id="language-selector">
+                <option value="en">English</option>
+                <option value="ta">தமிழ் (Tamil)</option>
+                <option value="ml">മലയാളം (Malayalam)</option>
+            </select>
+        </div>
+
+        <div class="intro-content">
+            <h1 id="main-title" class="intro-title-local">உங்கள் விவசாயத்தை மேம்படுத்துங்கள்</h1>
+            <p id="subtitle" class="intro-subtitle-english">Elevate Your Farming</p>
+            
+            <p id="description" class="intro-description">
+                Get AI advice, weather updates, and market prices—all in one place.
+            </p>
+
+            <div class="features-preview">
+                <div class="feature-item">
+                    <i class="fa-solid fa-robot"></i>
+                    <span id="feature-ai">AI Assistant</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fa-solid fa-leaf"></i>
+                    <span id="feature-health">Plant Health</span>
+                </div>
+                <div class="feature-item">
+                    <i class="fa-solid fa-cloud-sun"></i>
+                    <span id="feature-weather">Weather</span>
+                </div>
+            </div>
+
+            <a href="login.html" id="get-started-btn" class="intro-button">Get Started</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- 1. LANGUAGE SWITCHER LOGIC ---
+
+            const translations = {
+                en: {
+                    mainTitle: "Elevate Your Farming",
+                    subtitle: "SMART SOLUTIONS FOR MODERN AGRICULTURE",
+                    description: "Get AI advice and weather updates to optimize your crops.",
+                    featureAI: "AI Assistant",
+                    featureHealth: "Plant Health",
+                    featureWeather: "Weather",
+                    getStarted: "Get Started"
+                },
+                ta: {
+                    mainTitle: "உங்கள் விவசாயத்தை மேம்படுத்துங்கள்",
+                    subtitle: "நவீன விவசாயத்திற்கான ஸ்மார்ட் தீர்வுகள்",
+                    description: "உங்கள் பயிர்களை மேம்படுத்த AI ஆலோசனைகளையும் வானிலை அறிவிப்புகளையும் பெறுங்கள்.",
+                    featureAI: "AI உதவியாளர்",
+                    featureHealth: "பயிர் ஆரோக்கியம்",
+                    featureWeather: "வானிலை",
+                    getStarted: "தொடங்கவும்"
+                },
+                ml: {
+                    mainTitle: "നിങ്ങളുടെ കൃഷി മെച്ചപ്പെടുത്തുക",
+                    subtitle: "ആധുനിക കൃഷിക്കുള്ള മികച്ച പരിഹാരങ്ങൾ",
+                    description: "നിങ്ങളുടെ വിളകൾ ഒപ്റ്റിമൈസ് ചെയ്യുന്നതിന് AI ഉപദേശവും കാലാവസ്ഥാ അപ്‌ഡേറ്റുകളും നേടുക.",
+                    featureAI: "AI അസിസ്റ്റന്റ്",
+                    featureHealth: "സസ്യ ആരോഗ്യം",
+                    featureWeather: "കാലാവസ്ഥ",
+                    getStarted: "തുടങ്ങുക"
+                }
+            };
+
+            const languageSelector = document.getElementById('language-selector');
+
+            const changeLanguage = (lang) => {
+                const content = translations[lang];
+                document.getElementById('main-title').textContent = content.mainTitle;
+                document.getElementById('subtitle').textContent = content.subtitle;
+                document.getElementById('description').textContent = content.description;
+                document.getElementById('feature-ai').textContent = content.featureAI;
+                document.getElementById('feature-health').textContent = content.featureHealth;
+                document.getElementById('feature-weather').textContent = content.featureWeather;
+                document.getElementById('get-started-btn').textContent = content.getStarted;
+
+                if (lang === 'ta') {
+                    document.getElementById('main-title').style.fontSize = '2.8rem';
+                } else {
+                    document.getElementById('main-title').style.fontSize = '3rem';
+                }
+            };
+
+            changeLanguage('en');
+
+            languageSelector.addEventListener('change', (event) => {
+                changeLanguage(event.target.value);
+            });
+
+
+            // --- 2. LOADING ANIMATION LOGIC ---
+
+            const getStartedBtn = document.getElementById('get-started-btn');
+            const loaderOverlay = document.getElementById('loader-overlay');
+
+            getStartedBtn.addEventListener('click', (event) => {
+                event.preventDefault();
+                loaderOverlay.style.display = 'flex';
+                setTimeout(() => {
+                    window.location.href = getStartedBtn.href;
+                }, 1500);
+            });
+        });
+    </script>
+    
+</body>
+</html>

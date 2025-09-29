@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Crop Disease Diagnosis - FarmWise</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
+
+      :root {
+        /* Light Theme (Default) */
+        --primary-color: #2a6f2a;
+        --secondary-color: #3d8c40;
+        --accent-color: #e74c3c;
+        --background-color: #f7f9fc;
+        --text-color: #3d3d3d;
+        --heading-color: #103e7e;
+        --container-bg: #ffffff;
+        --border-light: #e0e0e0;
+        --subtle-bg: rgba(42, 111, 42, 0.1);
+        --text-white: #ffffff;
+      }
+
+      /* Dark Theme Variables */
+      body.dark-theme {
+        --primary-color: #4ade80;
+        --secondary-color: #3d8c40;
+        --accent-color: #f87171;
+        --background-color: #1e293b;
+        --text-color: #cbd5e1;
+        --heading-color: #ffffff;
+        --container-bg: #2c3e50;
+        --border-light: #4a5568;
+        --subtle-bg: rgba(74, 222, 128, 0.1);
+      }
+      
+      body {
+        font-family: 'Poppins', Arial, sans-serif;
+        background: var(--background-color);
+        margin: 0;
+        color: var(--text-color);
+        transition: background-color 0.3s, color 0.3s;
+      }
+
+      a { text-decoration: none; color: inherit; }
+
+      /* --- HEADER / NAVBAR STYLES --- */
+      .navbar {   
+        background-color: var(--container-bg);   
+        padding: 15px 0;   
+        border-bottom: 1px solid var(--border-light);   
+        position: sticky; top: 0;   
+        z-index: 1000;   
+        transition: background-color 0.3s ease, border-color 0.3s ease;   
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        position: relative; /* For dropdown positioning */
+      }
+      .navbar-container {   
+        display: flex;   
+        justify-content: space-between;   
+        align-items: center;   
+        max-width: 1400px;   
+        margin: 0 auto;   
+        padding: 0 20px;   
+      }
+      .logo {   
+        font-size: 24px;   
+        font-weight: 800;   
+        color: var(--primary-color);   
+      }
+      .nav-menu {   
+        display: flex;   
+        align-items: center;   
+        gap: 30px;   
+      }
+      .nav-menu a {   
+        color: var(--text-color);   
+        display: flex;   
+        align-items: center;   
+        gap: 8px;   
+        transition: color 0.3s ease;
+        font-weight: 500;
+      }
+      .nav-menu a:hover {   
+        color: var(--primary-color);   
+      }
+      .nav-actions {   
+        display: flex;   
+        align-items: center;   
+        gap: 15px;   
+      }
+      
+      .language-dropdown { position: relative; }
+      .language-selector {   
+        background: none; border: 1px solid var(--border-light); color: var(--text-color);   
+        font-size: 14px; cursor: pointer; padding: 8px 12px; border-radius: 8px;   
+        display: flex; align-items: center; gap: 5px; transition: background-color 0.3s;
+      }
+      .language-selector:hover { background-color: var(--subtle-bg); }
+      .dropdown-content {   
+        display: none; position: absolute; background-color: var(--container-bg); min-width: 150px;   
+        box-shadow: 0 8px 16px rgba(0,0,0,0.1); z-index: 100; list-style: none; padding: 8px 0;   
+        border-radius: 8px; border: 1px solid var(--border-light); right: 0; top: 100%; margin-top: 5px;   
+      }
+      .dropdown-content.show { display: block; }
+      .dropdown-content li a { color: var(--text-color); padding: 10px 15px; display: block; font-size: 14px; }
+      .dropdown-content li a:hover { background-color: var(--border-light); }
+      
+      .theme-button {   
+        background: none; border: none; color: var(--text-color); font-size: 22px; cursor: pointer;   
+        border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center;   
+        justify-content: center; transition: background-color 0.3s ease, transform 0.2s ease;
+      }
+      .theme-button:hover { background-color: var(--subtle-bg); transform: scale(1.1); }
+      
+      /* --- Mobile Menu Styles --- */
+      #hamburger-btn {
+        display: none; /* Hidden on desktop */
+        background: none; border: none; color: var(--text-color); font-size: 22px; cursor: pointer;
+        border-radius: 50%; width: 40px; height: 40px;
+        align-items: center; justify-content: center; transition: background-color 0.3s ease;
+      }
+      #hamburger-btn:hover { background-color: var(--subtle-bg); }
+
+      .mobile-nav-dropdown {
+          display: none; position: absolute; top: 100%; left: 0; width: 100%;
+          background-color: var(--container-bg); border-top: 1px solid var(--border-light);
+          padding: 10px 0; box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+      }
+      .mobile-nav-dropdown.show { display: block; }
+      .mobile-nav-dropdown .nav-menu {
+          display: flex; flex-direction: column; align-items: flex-start;
+          gap: 0; padding: 0 20px;
+      }
+      .mobile-nav-dropdown .nav-menu a {
+          padding: 15px 0; width: 100%; font-size: 16px; border-bottom: 1px solid var(--border-light);
+      }
+       .mobile-nav-dropdown .nav-menu a:last-child { border-bottom: none; }
+
+      /* --- MAIN CONTAINER & CONTENT --- */
+      .main-content-wrapper { padding: 20px; }
+      .container {
+        max-width: 800px; margin: auto; background: var(--container-bg);
+        border-radius: 16px; padding: 25px 35px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        transition: background-color 0.3s;
+      }
+      h1 {
+        color: var(--heading-color); margin-bottom: 25px; font-weight: 700;
+        font-size: 2rem; text-align: center;
+      }
+      .search-row { display: flex; gap: 10px; margin-bottom: 20px; }
+      #searchInput {
+        flex: 1; padding: 14px 20px; font-size: 16px; border-radius: 8px;
+        border: 2px solid var(--border-light); background-color: var(--background-color);
+        color: var(--text-color); transition: border-color 0.3s, box-shadow 0.3s;
+      }
+      #searchInput:focus {
+        border-color: var(--secondary-color);
+        box-shadow: 0 0 0 3px var(--subtle-bg); outline: none;
+      }
+      #searchBtn {
+        padding: 14px 24px; font-size: 16px; font-weight: 600; border-radius: 8px;
+        border: none; background-color: var(--secondary-color); color: white;
+        cursor: pointer; transition: background-color 0.3s;
+      }
+      #searchBtn:hover { background-color: var(--primary-color); }
+      .section-title { text-align: center; color: var(--heading-color); margin: 30px 0 15px; font-weight: 500; }
+      #featuredCrops { display: flex; gap: 18px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px; }
+      .featured-card { cursor: pointer; text-align: center; transition: transform 0.3s ease; }
+      .featured-card:hover { transform: translateY(-5px); }
+      .featured-card img { width: 120px; height: 120px; border-radius: 12px; object-fit: cover; border: 3px solid var(--container-bg); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+      .featured-card .crop-name { margin-top: 8px; font-weight: 600; color: var(--heading-color); }
+      #imageResults { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; margin-bottom: 30px; min-height: 50px; }
+      .thumb-card { cursor: pointer; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.07); border: 3px solid transparent; background: var(--container-bg); transition: all 0.3s ease; display: flex; flex-direction: column; align-items: center; }
+      .thumb-card:hover { transform: translateY(-5px); box-shadow: 0 6px 20px rgba(74, 222, 128, 0.2); }
+      .thumb-card.active { border-color: var(--secondary-color); box-shadow: 0 6px 20px rgba(74, 222, 128, 0.25); }
+      .thumb-img { width: 100%; height: 120px; object-fit: cover; }
+      .thumb-title { font-weight: 600; font-size: 1rem; color: var(--heading-color); margin: 10px 0 4px 0; text-align: center; padding: 0 8px; }
+      .thumb-crop { font-size: 0.85rem; color: var(--secondary-color); margin-bottom: 12px; font-weight: 500; }
+      #detailSection { background: var(--background-color); border-radius: 12px; padding: 25px 30px 30px 30px; border: 1px solid var(--border-light); position: relative; display: none; opacity: 0; transition: opacity 0.5s ease, background-color 0.3s; }
+      #detailSection.visible { display: block; opacity: 1; }
+      #detailSection img { width: 100%; max-height: 320px; object-fit: cover; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); }
+      #detailSection h2 { font-size: 1.8rem; color: var(--heading-color); margin-top: 0; margin-bottom: 20px; font-weight: 700; }
+      #detailSection p { color: var(--text-color); line-height: 1.7; margin-bottom: 16px; font-size: 1rem; }
+      #detailSection strong { color: var(--primary-color); font-weight: 600; }
+      #closeBtn { position: absolute; top: 15px; right: 15px; background: var(--border-light); border: none; color: var(--text-color); font-size: 20px; font-weight: bold; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; line-height: 36px; text-align: center; transition: all 0.2s ease; }
+      #closeBtn:hover { background-color: var(--accent-color); color: white; transform: rotate(90deg); }
+      .loader-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 0; }
+      .loader { width: 50px; height: 50px; border: 5px solid var(--border-light); border-top: 5px solid var(--secondary-color); border-radius: 50%; animation: spin 1s linear infinite; }
+      @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+      .loading-text { text-align: center; font-size: 1.1rem; color: var(--primary-color); margin-top: 20px; font-weight: 600; }
+
+      @media(max-width: 768px) {
+        .nav-menu { display: none; }
+        #hamburger-btn { display: flex; } 
+      }
+      @media(max-width: 600px) {  
+        .main-content-wrapper { padding: 10px; }
+        .container { padding: 20px; }  
+        h1 { font-size: 1.5rem; }  
+        .featured-card img { width: 100px; height: 100px; }  
+        #imageResults { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }  
+      }
+      @media(max-width: 480px) {  
+        #imageResults { grid-template-columns: 1fr 1fr; }  
+      }
+    </style>
+</head>
+<body>
+  <header class="navbar">
+      <div class="navbar-container">
+          <a href="#" class="logo" data-lang-key="logo_text">FarmWise</a>
+          <nav class="nav-menu">
+              <a href="index.html" data-lang-key="nav_home"><i class="fa-solid fa-home"></i> Home</a>
+              <a href="chatbot.html" data-lang-key="nav_bot"><i class="fa-solid fa-robot"></i> Krishi Sahayi Bot</a>
+              <a href="plant.html" data-lang-key="nav_disease"><i class="fa-solid fa-leaf"></i> Crop Disease Diagnosis</a>
+              <a href="weather.html" data-lang-key="nav_weather"><i class="fa-solid fa-cloud-sun"></i> Weather Prediction</a>
+              <a href="community.html" data-lang-key="nav_community"><i class="fa-solid fa-users"></i> Farmer Community</a>
+          </nav>
+          <div class="nav-actions">
+              <div class="language-dropdown">
+                  <button class="language-selector">English <i class="fa-solid fa-angle-down"></i></button>
+                  <ul class="dropdown-content">
+                      <li><a href="#" data-lang="en">English</a></li>
+                      <li><a href="#" data-lang="ta">தமிழ் (Tamil)</a></li>
+                      <li><a href="#" data-lang="ml">മലയാളം (Malayalam)</a></li>
+                  </ul>
+              </div>
+              <button id="theme-toggle" class="theme-button" title="Toggle Theme"><i class="fa-solid fa-sun"></i></button>
+              <button id="hamburger-btn" title="Toggle Menu"><i class="fa-solid fa-bars"></i></button>
+          </div>
+      </div>
+      <div class="mobile-nav-dropdown" id="mobile-nav-dropdown">
+          <nav class="nav-menu">
+              <a href="index.html" data-lang-key="nav_home"><i class="fa-solid fa-home"></i> Home</a>
+              <a href="chatbot.html" data-lang-key="nav_bot"><i class="fa-solid fa-robot"></i> Krishi Sahayi Bot</a>
+              <a href="plant.html" data-lang-key="nav_disease"><i class="fa-solid fa-leaf"></i> Crop Disease Diagnosis</a>
+              <a href="weather.html" data-lang-key="nav_weather"><i class="fa-solid fa-cloud-sun"></i> Weather Prediction</a>
+              <a href="community.html" data-lang-key="nav_community"><i class="fa-solid fa-users"></i> Farmer Community</a>
+          </nav>
+      </div>
+  </header>
+
+<div class="main-content-wrapper">
+    <div class="container">
+        <h1 data-lang-key="main_title">Crop Disease Diagnosis</h1>
+        <div class="search-row">
+            <input type="text" id="searchInput" placeholder="Enter crop name" autocomplete="off" data-lang-key="search_placeholder" />
+            <button id="searchBtn" data-lang-key="search_button">Search</button>
+        </div>
+        <h2 class="section-title" data-lang-key="select_crop_title">Or Select a Crop</h2>
+        <div id="featuredCrops">
+            <div class="featured-card" data-crop="Tomato">
+                <img src="images/tomato.jpg" alt="Tomato">
+                <div class="crop-name" data-lang-key="crop_tomato">Tomato</div>
+            </div>
+            <div class="featured-card" data-crop="Banana">
+                <img src="images/banana.jpg" alt="Banana">
+                <div class="crop-name" data-lang-key="crop_banana">Banana</div>
+            </div>
+            <div class="featured-card" data-crop="Pepper">
+                <img src="images/pepper.jpg" alt="Pepper">
+                <div class="crop-name" data-lang-key="crop_pepper">Pepper</div>
+            </div>
+            <div class="featured-card" data-crop="Rice">
+                <img src="images/rice.jpg" alt="Rice">
+                <div class="crop-name" data-lang-key="crop_rice">Rice</div>
+            </div>
+        </div>
+        <hr style="border: 0; border-top: 1px solid var(--border-light); margin: 30px 0;">
+        <div id="imageResults"></div>
+        <div id="detailSection"></div>
+    </div>
+</div>
+
+<script>
+    const languageData = {
+        en: { 
+            logo_text: "FarmWise", nav_home: "Home", nav_bot: "Krishi Sahayi Bot", nav_disease: "Crop Disease Diagnosis", nav_weather: "Weather Prediction", nav_community: "Farmer Community",
+            main_title: "Crop Disease Diagnosis", select_crop_title: "Or Select a Crop", search_placeholder: "Enter crop name", search_button: "Search", no_results: "No matching crops found.", loading_details: "Loading details...", label_problem: "Problem", label_cause: "Cause", label_solution: "Solution", label_prevention: "Prevention", tooltip_close: "Close details", crop_tomato: "Tomato", crop_banana: "Banana", crop_pepper: "Pepper", crop_rice: "Rice" 
+        },
+        ta: { 
+            logo_text: "பார்ம்வைஸ்", nav_home: "முகப்பு", nav_bot: "கிருஷி சஹாயி பாட்", nav_disease: "பயிர் நோய் கண்டறிதல்", nav_weather: "வானிலை முன்னறிவிப்பு", nav_community: "விவசாயிகள் சமூகம்",
+            main_title: "பயிர் நோய் கண்டறிதல்", select_crop_title: "அல்லது ஒரு பயிரைத் தேர்ந்தெடுக்கவும்", search_placeholder: "பயிரின் பெயரை உள்ளிடவும்", search_button: "தேடு", no_results: "பொருத்தமான பயிர்கள் எதுவும் இல்லை.", loading_details: "விவரங்கள் ஏற்றப்படுகின்றன...", label_problem: "பிரச்சனை", label_cause: "காரணம்", label_solution: "தீர்வு", label_prevention: "தடுப்பு", tooltip_close: "விவரங்களை மூடு", crop_tomato: "தக்காளி", crop_banana: "வாழை", crop_pepper: "மிளகு", crop_rice: "நெல்" 
+        },
+        ml: { 
+            logo_text: "ഫാംവൈസ്", nav_home: "ഹോം", nav_bot: "കൃഷി സഹായി ബോട്ട്", nav_disease: "വിള രോഗനിർണയം", nav_weather: "കാലാവസ്ഥാ പ്രവചനം", nav_community: "കർഷക സമൂഹം",
+            main_title: "വിള രോഗനിർണയം", select_crop_title: "അല്ലെങ്കിൽ ഒരു വിള തിരഞ്ഞെടുക്കുക", search_placeholder: "വിളയുടെ പേര് നൽകുക", search_button: "തിരയുക", no_results: "യോജിക്കുന്ന വിളകളൊന്നും കണ്ടെത്തിയില്ല.", loading_details: "വിവരങ്ങൾ ലോഡുചെയ്യുന്നു...", label_problem: "പ്രശ്നം", label_cause: "കാരണം", label_solution: "പരിഹാരം", label_prevention: "പ്രതിരോധം", tooltip_close: "വിവരങ്ങൾ അടയ്ക്കുക", crop_tomato: "തക്കാളി", crop_banana: "വാഴ", crop_pepper: "കുരുമുളക്", crop_rice: "നെല്ല്" 
+        }
+    };
+
+    const data = [ { id: "t_bacterial_leaf_spot", crop: "Tomato", crop_ta: "தக்காளி", crop_ml: "തക്കാളി", disease: "Bacterial leaf Spot", disease_ta: "பாக்டீரியா இலைப்புள்ளி", disease_ml: "ബാക്ടീരിയൽ ലീഫ് സ്പോട്ട്", image: "images/tomato_bacterial_spot_leaf.jpg", problem_en: "The leaves have small brown spots often with yellow rings. The spots may be on leaf edges or tips. Leaves can turn yellow and fall off. This makes the plant weak and reduces fruit.", problem_ta: "இலைகளில் மஞ்சள் வளையங்களுடன் கூடிய சிறிய பழுப்பு நிறப் புள்ளிகள் காணப்படும். இந்தப் புள்ளிகள் இலைகளின் ஓரங்கள் அல்லது நுனிகளில் இருக்கலாம். இலைகள் மஞ்சள் நிறமாக மாறி உதிர்ந்துவிடும். இது செடியை பலவீனப்படுத்தி பழங்களின் எண்ணிக்கையைக் குறைக்கிறது.", problem_ml: "ഇലകളിൽ മഞ്ഞ വലയങ്ങളോടുകൂടിയ ചെറിയ തവിട്ടുനിറത്തിലുള്ള പാടുകൾ കാണപ്പെടുന്നു. ഈ പാടുകൾ ഇലകളുടെ അരികുകളിലോ അറ്റത്തോ ആകാം. ഇലകൾ മഞ്ഞനിറമാകുകയും കൊഴിഞ്ഞുപോകുകയും ചെയ്യാം. ഇത് ചെടിയെ ദുർബലമാക്കുകയും കായ്ഫലം കുറയ്ക്കുകയും ചെയ്യുന്നു.", cause_en: "This problem is caused by tiny bacteria called 'bacterial spot' that get inside the plant through wounds or wet leaves. They like warm, wet weather.", cause_ta: "காயங்கள் அல்லது ஈரமான இலைகள் வழியாக செடிக்குள் நுழையும் 'பாக்டீரியா ஸ்பாட்' எனப்படும் சிறிய பாக்டீரியாக்களால் இந்தப் பிரச்சனை ஏற்படுகிறது. அவை சூடான, ஈரமான காலநிலையை விரும்புகின்றன.", cause_ml: "മുറിവുകളിലൂടെയോ നനഞ്ഞ ഇലകളിലൂടെയോ ചെടിയിൽ പ്രവേശിക്കുന്ന 'ബാക്ടീരിയൽ സ്പോട്ട്' എന്ന ചെറിയ ബാക്ടീരിയകളാണ് ഈ പ്രശ്നത്തിന് കാരണം. അവ ചൂടുള്ളതും ഈർപ്പമുള്ളതുമായ കാലാവസ്ഥ ഇഷ്ടപ്പെടുന്നു.", solution_en: "Spray copper-based sprays on leaves when you first see spots. Take off and destroy leaves with spots to stop spread. Avoid watering plants from above to keep leaves dry. Plant seeds and seedlings that don’t have this disease.", solution_ta: "புள்ளிகளை முதலில் காணும்போது இலைகளில் தாமிரம் சார்ந்த தெளிப்புகளைத் தெளிக்கவும். பரவலைத் தடுக்க புள்ளிகளுடன் கூடிய இலைகளை அகற்றி அழிக்கவும். இலைகளை உலர வைக்க செடிகளுக்கு மேலிருந்து தண்ணீர் பாய்ச்சுவதைத் தவிர்க்கவும். இந்த நோய் இல்லாத விதைகள் மற்றும் நாற்றுகளை நடவும்.", solution_ml: "പാടുകൾ കണ്ടുതുടങ്ങുമ്പോൾ ഇലകളിൽ കോപ്പർ അടങ്ങിയ സ്പ്രേകൾ തളിക്കുക. രോഗം പടരാതിരിക്കാൻ പാടുകളുള്ള ഇലകൾ നീക്കം ചെയ്ത് നശിപ്പിക്കുക. ഇലകൾ നനയാതിരിക്കാൻ ചെടികളുടെ മുകളിൽ നിന്ന് നനയ്ക്കുന്നത് ഒഴിവാക്കുക. ഈ രോഗമില്ലാത്ത വിത്തുകളും തൈകളും നടുക.", prevention_en: "Don’t grow tomatoes or similar plants in the same soil every year. Choose tomato plants that resist this disease. Clean up all plant remains after harvest. Keep tools clean and water plants carefully to avoid wet leaves.", prevention_ta: "ஒவ்வொரு ஆண்டும் ஒரே மண்ணில் தக்காளி அல்லது அதுபோன்ற செடிகளை வளர்க்க வேண்டாம். இந்த நோயை எதிர்க்கும் தக்காளி செடிகளைத் தேர்ந்தெடுக்கவும். அறுவடைக்குப் பிறகு அனைத்து தாவர மிச்சங்களையும் சுத்தம் செய்யவும். கருவிகளை சுத்தமாக வைத்து, இலைகள் ஈரமாகாமல் கவனமாக செடிகளுக்கு நீர் பாய்ச்சவும்.", prevention_ml: "എല്ലാ വർഷവും ഒരേ മണ്ണിൽ തക്കാളിയോ സമാനമായ ചെടികളോ വളർത്തരുത്. ഈ രോഗത്തെ പ്രതിരോധിക്കുന്ന തക്കാളി ചെടികൾ തിരഞ്ഞെടുക്കുക. വിളവെടുപ്പിന് ശേഷം എല്ലാ സസ്യ അവശിഷ്ടങ്ങളും വൃത്തിയാക്കുക. ഉപകരണങ്ങൾ വൃത്തിയായി സൂക്ഷിക്കുക, ഇലകൾ നനയാതിരിക്കാൻ ശ്രദ്ധയോടെ നനയ്ക്കുക." }, { id: "t_early_blight_leaf", crop: "Tomato", crop_ta: "தக்காளி", crop_ml: "തക്കാളി", disease: "Early Blight leaf", disease_ta: "இளம் கருகல் இலை", disease_ml: "ഏർലി ബ്ലൈറ്റ് ഇല", image: "images/tomato_early_blight_leaf.jpg", problem_en: "Large brown spots with dark concentric rings (target-like pattern) appear on older leaves, often with a yellow border. Leaves can turn yellow, dry out, and fall off, reducing plant health and fruit yield.", problem_ta: "பழைய இலைகளில் அடர் செறிவு வளையங்களுடன் (இலக்கு போன்ற அமைப்பு) பெரிய பழுப்பு நிறப் புள்ளிகள் தோன்றும், பெரும்பாலும் மஞ்சள் ஓரத்துடன் இருக்கும். இலைகள் மஞ்சள் நிறமாகி, காய்ந்து, உதிர்ந்து, செடியின் ஆரோக்கியத்தையும் பழ விளைச்சலையும் குறைக்கும்.", problem_ml: "പഴയ ഇലകളിൽ ഇരുണ്ട വൃത്താകൃതിയിലുള്ള (ഒരു ലക്ഷ്യം പോലെ) വലിയ തവിട്ടുനിറത്തിലുള്ള പാടുകൾ കാണപ്പെടുന്നു, പലപ്പോഴും മഞ്ഞ അരികുകളോടുകൂടിയായിരിക്കും. ഇലകൾ മഞ്ഞനിറമാകുകയും ഉണങ്ങി കൊഴിഞ്ഞുപോകുകയും ചെയ്യും, ഇത് ചെടിയുടെ ആരോഗ്യത്തെയും കായ്ഫലത്തെയും കുറയ്ക്കും.", cause_en: "Caused by a fungus called Alternaria solani that spreads in warm, wet conditions. The fungus survives in plant debris and spreads by wind and rain.", cause_ta: "சூடான, ஈரமான நிலையில் பரவும் ஆல்டர்னேரியா சொலானி என்ற பூஞ்சையால் ஏற்படுகிறது. இந்தப் பூஞ்சை தாவர குப்பைகளில் உயிர்வாழ்ந்து காற்று மற்றும் மழை மூலம் பரவுகிறது.", cause_ml: "ചൂടുള്ളതും ഈർപ്പമുള്ളതുമായ സാഹചര്യങ്ങളിൽ പടരുന്ന ആൾട്ടർനേറിയ സൊളാനി എന്ന ഫംഗസാണ് കാരണം. ഈ ഫംഗസ് സസ്യ അവശിഷ്ടങ്ങളിൽ അതിജീവിക്കുകയും കാറ്റിലൂടെയും മഴയിലൂടെയും പടരുകയും ചെയ്യുന്നു.", solution_en: "Remove and destroy infected leaves. Use fungicides like chlorothalonil or copper-based sprays early if necessary, and avoid wetting the leaves during irrigation.", solution_ta: "பாதிக்கப்பட்ட இலைகளை அகற்றி அழிக்கவும். தேவைப்பட்டால், குளோரோதலோனில் அல்லது தாமிரம் சார்ந்த பூஞ்சைக் கொல்லிகளை முன்கூட்டியே பயன்படுத்தவும், நீர்ப்பாசனத்தின் போது இலைகள் நனைவதைத் தவிர்க்கவும்.", solution_ml: "രോഗം ബാധിച്ച ഇലകൾ നീക്കം ചെയ്ത് നശിപ്പിക്കുക. ആവശ്യമെങ്കിൽ ക്ലോറോത്തലോണിൽ അല്ലെങ്കിൽ കോപ്പർ അടങ്ങിയ കുമിൾനാശിനികൾ നേരത്തെ ഉപയോഗിക്കുക, നനയ്ക്കുമ്പോൾ ഇലകൾ നനയാതിരിക്കാൻ ശ്രദ്ധിക്കുക.", prevention_en: "Rotate crops each year, choose resistant tomato varieties if possible, space plants for good air flow, and keep the garden free of old plant debris.", prevention_ta: "ஒவ்வொரு ஆண்டும் பயிர்களை சுழற்சி முறையில் பயிரிடவும், முடிந்தால் எதிர்ப்பு சக்தி கொண்ட தக்காளி வகைகளைத் தேர்ந்தெடுக்கவும், நல்ல காற்றோட்டத்திற்காக செடிகளுக்கு இடையில் இடைவெளி விடவும், பழைய தாவர குப்பைகள் இல்லாமல் தோட்டத்தை வைத்திருக்கவும்.", prevention_ml: "എല്ലാ വർഷവും വിളകൾ മാറ്റി നടുക, സാധ്യമെങ്കിൽ പ്രതിരോധശേഷിയുള്ള തക്കാളി ഇനങ്ങൾ തിരഞ്ഞെടുക്കുക, നല്ല വായു സഞ്ചാരത്തിനായി ചെടികൾക്ക് ഇടയിൽ അകലം നൽകുക, തോട്ടം പഴയ സസ്യ അവശിഷ്ടങ്ങളിൽ നിന്ന് മുക്തമാക്കുക." },
+      {
+      id: "t_healthy",
+      crop: "Tomato",
+      crop_ta: "தக்காளி",
+      crop_ml: "തക്കാളി",
+      disease: "Healthy",
+      disease_ta: "ஆரோக்கியமானது",
+      disease_ml: "ആരോഗ്യമുള്ളത്",
+      image: "images/tomato_healthy_leaf.jpg",
+      problem_en: "Leaf is green and smooth, showing no spots, discoloration, or damage. The plant is healthy and can grow normally.",
+      problem_ta: "இலை பச்சை நிறமாகவும், மென்மையாகவும், புள்ளிகள், நிறமாற்றம் அல்லது சேதம் எதுவும் இல்லாமல் உள்ளது. செடி ஆரோக்கியமாக உள்ளது மற்றும் சாதாரணமாக வளரக்கூடியது.",
+      problem_ml: "ഇല പച്ചയും മിനുസമുള്ളതുമാണ്, പാടുകളോ നിറവ്യത്യാസമോ കേടുപാടുകളോ ഇല്ല. ചെടി ആരോഗ്യമുള്ളതും സാധാരണഗതിയിൽ വളരാൻ കഴിയുന്നതുമാണ്.",
+      cause_en: "No disease or pest present.",
+      cause_ta: "நோய் அல்லது பூச்சி எதுவும் இல்லை.",
+      cause_ml: "രോഗങ്ങളോ കീടങ്ങളോ ഇല്ല.",
+      solution_en: "No action needed. Continue regular care and good gardening practices.",
+      solution_ta: "எந்த நடவடிக்கையும் தேவையில்லை. வழக்கமான பராமரிப்பு மற்றும் நல்ல தோட்டக்கலை நடைமுறைகளைத் தொடரவும்.",
+      solution_ml: "പ്രത്യേകിച്ച് ഒന്നും ചെയ്യേണ്ടതില്ല. പതിവ് പരിചരണവും നല്ല കൃഷിരീതികളും തുടരുക.",
+      prevention_en: "Maintain healthy soil, water properly, and monitor regularly for early signs of problems.",
+      prevention_ta: "ஆரோக்கியமான மண்ணைப் பராமரிக்கவும், சரியாக தண்ணீர் பாய்ச்சவும், பிரச்சனைகளின் ஆரம்ப அறிகுறிகளுக்கு தவறாமல் கண்காணிக்கவும்.",
+      prevention_ml: "ആരോഗ്യമുള്ള മണ്ണ് നിലനിർത്തുക, ശരിയായി നനയ്ക്കുക, പ്രശ്നങ്ങളുടെ ആദ്യ ലക്ഷണങ്ങൾക്കായി പതിവായി നിരീക്ഷിക്കുക."
+    },
+    {
+      id: "t_blossom_end_rot",
+      crop: "Tomato",
+      crop_ta: "தக்காளி",
+      crop_ml: "തക്കാളി",
+      disease: "Blossom End Rot",
+      disease_ta: "பூ முனை அழுகல்",
+      disease_ml: "ബ്ലോസം എൻഡ് റോട്ട്",
+      image: "images/tomato_blossom_end_rot_fruit.jpg",
+      problem_en: "Dark, sunken, leathery spot develops at the bottom (blossom end) of the fruit. The spot grows larger, turns black and causes the fruit to rot.",
+      problem_ta: "பழத்தின் அடிப்பகுதியில் (பூ முனை) அடர், அமிழ்ந்த, தோல் போன்ற புள்ளி உருவாகிறது. இந்தப் புள்ளி பெரிதாகி, கருப்பாக மாறி, பழம் அழுகக் காரணமாகிறது.",
+      problem_ml: "പഴത്തിന്റെ അടിഭാഗത്ത് (പൂവ് വിരിയുന്ന അറ്റം) ഇരുണ്ടതും കുഴിഞ്ഞതും തുകൽ പോലുള്ളതുമായ ഒരു പാട് ഉണ്ടാകുന്നു. ഈ പാട് വലുതാകുകയും കറുപ്പ് നിറമാകുകയും പഴം അഴുകാൻ കാരണമാകുകയും ചെയ്യുന്നു.",
+      cause_en: "Caused by calcium deficiency in the fruit, often made worse by irregular watering or rapid plant growth.",
+      cause_ta: "பழத்தில் கால்சியம் குறைபாட்டால் ஏற்படுகிறது, இது பெரும்பாலும் ஒழுங்கற்ற நீர்ப்பாசனம் அல்லது விரைவான தாவர வளர்ச்சியால் மோசமடைகிறது.",
+      cause_ml: "പഴത്തിലെ കാൽസ്യത്തിന്റെ കുറവാണ് ഇതിന് കാരണം, ക്രമരഹിതമായ നനയ്ക്കൽ അല്ലെങ്കിൽ ദ്രുതഗതിയിലുള്ള ചെടിയുടെ വളർച്ച എന്നിവ ഇത് വഷളാക്കുന്നു.",
+      solution_en: "Keep watering regular and even. Mulch around plants to hold in moisture. Remove affected fruits to help the plant focus on healthy ones.",
+      solution_ta: "தொடர்ந்து சீராக தண்ணீர் பாய்ச்சவும். ஈரப்பதத்தைத் தக்கவைக்க செடிகளைச் சுற்றி தழைக்கூளம் இடவும். பாதிக்கப்பட்ட பழங்களை அகற்றி, ஆரோக்கியமான பழங்களில் செடி கவனம் செலுத்த உதவவும்.",
+      solution_ml: "സ്ഥിരമായും തുല്യമായും നനയ്ക്കുക. ഈർപ്പം നിലനിർത്താൻ ചെടികൾക്ക് ചുറ്റും പുതയിടുക. രോഗം ബാധിച്ച പഴങ്ങൾ നീക്കം ചെയ്യുക, ഇത് ആരോഗ്യമുള്ള പഴങ്ങളിൽ ശ്രദ്ധ കേന്ദ്രീകരിക്കാൻ ചെടിയെ സഹായിക്കും.",
+      prevention_en: "Water tomato plants consistently, avoid excessive use of fertilizer, and ensure soil has enough calcium.",
+      prevention_ta: "தக்காளி செடிகளுக்கு தொடர்ந்து தண்ணீர் பாய்ச்சவும், அதிகப்படியான உரப் பயன்பாட்டைத் தவிர்க்கவும், மண்ணில் போதுமான கால்சியம் இருப்பதை உறுதி செய்யவும்.",
+      prevention_ml: "തക്കാളി ചെടികൾ സ്ഥിരമായി നനയ്ക്കുക, അമിതമായ വളപ്രയോഗം ഒഴിവാക്കുക, മണ്ണിൽ ആവശ്യത്തിന് കാൽസ്യം ഉണ്ടെന്ന് ഉറപ്പാക്കുക."
+    },
+    {
+      id: "t_fusarium_wilt",
+      crop: "Tomato",
+      crop_ta: "தக்காளி",
+      crop_ml: "തക്കാളി",
+      disease: "Fusarium Wilt",
+      disease_ta: "ஃபியுசேரியம் வாடல்",
+      disease_ml: "ഫ്യൂസേറിയം വിൽറ്റ്",
+      image: "images/tomato_bacterial_spot_fruits.jpg",
+      problem_en: "Yellowing and wilting of lower leaves, often on one side of the plant or a single branch. The plant becomes stunted and may eventually die.",
+      problem_ta: "கீழ் இலைகள் மஞ்சள் நிறமாகி வாடிவிடும், இது பெரும்பாலும் செடியின் ஒரு பக்கம் அல்லது ஒரு கிளையில் மட்டும் ஏற்படும். செடி குட்டையாகி இறுதியில் இறந்துவிடும்.",
+      problem_ml: "ചെടിയുടെ ഒരു വശത്തോ അല്ലെങ്കിൽ ഒരു ശാഖയിലോ മാത്രമായി താഴത്തെ ഇലകൾ മഞ്ഞളിക്കുകയും വാടുകയും ചെയ്യുന്നു. ചെടിയുടെ വളർച്ച മുരടിക്കുകയും ഒടുവിൽ നശിച്ചുപോകുകയും ചെയ്യാം.",
+      cause_en: "Caused by a soil-borne fungus, Fusarium oxysporum, which enters the plant through the roots and clogs water-conducting tissues.",
+      cause_ta: "மண்ணில் பரவும் ஃபியுசேரியம் ஆக்ஸிஸ்போரம் என்ற பூஞ்சையால் ஏற்படுகிறது, இது வேர்கள் வழியாக செடிக்குள் நுழைந்து நீர் கடத்தும் திசுக்களை அடைக்கிறது.",
+      cause_ml: "മണ്ണിൽ കാണപ്പെടുന്ന ഫ്യൂസേറിയം ഓക്സിസ്പോറം എന്ന ഫംഗസാണ് ഇതിന് കാരണം. ഇത് വേരുകളിലൂടെ ചെടിയിൽ പ്രവേശിച്ച് ജലം കൊണ്ടുപോകുന്ന കുഴലുകളെ അടയ്ക്കുന്നു.",
+      solution_en: "There is no cure once a plant is infected. Remove and destroy infected plants immediately to reduce soil contamination.",
+      solution_ta: "ஒருமுறை செடி பாதிக்கப்பட்டால் அதற்கு சிகிச்சை இல்லை. மண் மாசுபடுவதைக் குறைக்க பாதிக்கப்பட்ட செடிகளை உடனடியாக அகற்றி அழிக்கவும்.",
+      solution_ml: "ചെടിക്ക് രോഗം ബാധിച്ചാൽ ചികിത്സയില്ല. മണ്ണ് മലിനമാകുന്നത് കുറയ്ക്കാൻ രോഗം ബാധിച്ച ചെടികൾ ഉടൻ തന്നെ നീക്കം ചെയ്ത് നശിപ്പിക്കുക.",
+      prevention_en: "Plant resistant varieties (labeled 'F'). Raise soil pH to 6.5-7.0. Practice long crop rotations with non-susceptible plants.",
+      prevention_ta: "எதிர்ப்பு சக்தி கொண்ட வகைகளை ('F' என பெயரிடப்பட்டவை) நடவும். மண்ணின் pH அளவை 6.5-7.0 ஆக உயர்த்தவும். பாதிக்கப்படாத செடிகளுடன் நீண்ட பயிர் சுழற்சிகளைப் பின்பற்றவும்.",
+      prevention_ml: "പ്രതിരോധശേഷിയുള്ള ഇനങ്ങൾ ('F' എന്ന് ലേബൽ ചെയ്തവ) നടുക. മണ്ണിന്റെ പിഎച്ച് 6.5-7.0 ആയി ഉയർത്തുക. രോഗം വരാത്ത ചെടികളുമായി ദീർഘകാല വിളപരിക്രമം ശീലിക്കുക."
+    },
+    {
+      id: "t_bacterial_spot_fruit",
+      crop: "Tomato",
+      crop_ta: "தக்காளி",
+      crop_ml: "തക്കാളി",
+      disease: "Bacterial Spot (Fruit)",
+      disease_ta: "பாக்டீரியா புள்ளி (பழம்)",
+      disease_ml: "ബാക്ടീരിയൽ സ്പോട്ട് (കായ്)",
+      image: "images/tomato_bacterial_spot_fruit.jpg",
+      problem_en: "Small, dark, raised or sunken spots with possible yellow halos appear on fruit, making it rough and scabby.",
+      problem_ta: "பழத்தில் சிறிய, கருமையான, உயர்ந்த அல்லது அமிழ்ந்த புள்ளிகள் மஞ்சள் வளையங்களுடன் தோன்றி, அதை சொரசொரப்பாகவும் சிரங்கு போலவும் ஆக்குகின்றன.",
+      problem_ml: "പഴങ്ങളിൽ മഞ്ഞ വലയങ്ങളോടുകൂടിയ ചെറുതും ഇരുണ്ടതും ഉയർന്നതോ കുഴിഞ്ഞതോ ആയ പാടുകൾ പ്രത്യക്ഷപ്പെടുന്നു, ഇത് പഴത്തിന്റെ ഉപരിതലം പരുക്കനാക്കുന്നു.",
+      cause_en: "Caused by Xanthomonas bacteria that spread in warm, humid weather through splashing water or contaminated tools.",
+      cause_ta: "சூடான, ஈரப்பதமான காலநிலையில் நீர் தெறிப்பதன் மூலமாகவோ அல்லது பாதிக்கப்பட்ட கருவிகள் மூலமாகவோ பரவும் சாந்தோமோனாஸ் பாக்டீரியாக்களால் ஏற்படுகிறது.",
+      cause_ml: "ചൂടുള്ളതും ഈർപ്പമുള്ളതുമായ കാലാവസ്ഥയിൽ വെള്ളം തെറിക്കുന്നതിലൂടെയോ മലിനമായ ഉപകരണങ്ങളിലൂടെയോ പടരുന്ന സാന്തോമോണാസ് ബാക്ടീരിയകളാണ് കാരണം.",
+      solution_en: "Remove affected fruits, spray copper-based bactericides, water at the base, and avoid wetting fruits or leaves.",
+      solution_ta: "பாதிக்கப்பட்ட பழங்களை அகற்றவும், தாமிரம் சார்ந்த பாக்டீரியா கொல்லிகளைத் தெளிக்கவும், அடிப்பகுதியில் தண்ணீர் பாய்ச்சவும், பழங்கள் அல்லது இலைகள் நனைவதைத் தவிர்க்கவும்.",
+      solution_ml: "രോഗം ബാധിച്ച പഴങ്ങൾ നീക്കം ചെയ്യുക, കോപ്പർ അടങ്ങിയ ബാക്ടീരിയനാശിനികൾ തളിക്കുക, ചെടിയുടെ ചുവട്ടിൽ നനയ്ക്കുക, പഴങ്ങളോ ഇലകളോ നനയാതിരിക്കാൻ ശ്രദ്ധിക്കുക.",
+      prevention_en: "Use disease-free seed, rotate tomato crops, destroy plant debris, and space plants for better airflow.",
+      prevention_ta: "நோய் இல்லாத விதைகளைப் பயன்படுத்தவும், தக்காளி பயிர்களை சுழற்சி முறையில் பயிரிடவும், தாவர குப்பைகளை அழிக்கவும், சிறந்த காற்றோட்டத்திற்காக செடிகளுக்கு இடையில் இடைவெளி விடவும்.",
+      prevention_ml: "രോഗവിമുക്തമായ വിത്തുകൾ ഉപയോഗിക്കുക, തക്കാളി വിളകൾ മാറ്റി നടുക, സസ്യ അവശിഷ്ടങ്ങൾ നശിപ്പിക്കുക, മികച്ച വായുസഞ്ചാരത്തിനായി ചെടികൾക്ക് ഇടയിൽ അകലം നൽകുക."
+    },
+    {
+      id: "t_bacterial_canker",
+      crop: "Tomato",
+      crop_ta: "தக்காளி",
+      crop_ml: "തക്കാളി",
+      disease: "Bacterial Canker",
+      disease_ta: "பாக்டீரியா புற்றுநோய்",
+      disease_ml: "ബാക്ടീരിയൽ കാങ്കർ",
+      image: "images/tomato_bacterial_canker_fruit.jpg",
+      problem_en: "Fruits have small spots with dark centers and white halos, often called 'bird's-eye spots'. These spots may merge and cause the fruit to rot or crack.",
+      problem_ta: "பழங்களில் அடர் மையங்கள் மற்றும் வெள்ளை வளையங்களுடன் கூடிய சிறிய புள்ளிகள் உள்ளன, அவை பெரும்பாலும் 'பறவையின் கண் புள்ளிகள்' என்று அழைக்கப்படுகின்றன. இந்தப் புள்ளிகள் இணைந்து பழம் அழுக அல்லது வெடிக்கக் காரணமாகலாம்.",
+      problem_ml: "പഴങ്ങളിൽ ഇരുണ്ട മധ്യഭാഗവും വെളുത്ത വലയങ്ങളുമുള്ള ചെറിയ പാടുകൾ കാണപ്പെടുന്നു, ഇവയെ 'പക്ഷിക്കണ്ണ് പാടുകൾ' എന്ന് വിളിക്കുന്നു. ഈ പാടുകൾ ഒന്നിച്ചുചേർന്ന് പഴം അഴുകുന്നതിനോ പൊട്ടുന്നതിനോ കാരണമാകാം.",
+      cause_en: "Caused by Clavibacter michiganensis bacteria that infect the plant through wounds, contaminated tools, or infected seeds, thriving in warm and wet conditions.",
+      cause_ta: "காயங்கள், பாதிக்கப்பட்ட கருவிகள் அல்லது பாதிக்கப்பட்ட விதைகள் மூலம் செடியைத் தாக்கும் கிளாவிபாக்டர் மிச்சிகனென்சிஸ் என்ற பாக்டீரியாவால் ஏற்படுகிறது, இது சூடான மற்றும் ஈரமான நிலையில் செழித்து வளரும்.",
+      cause_ml: "മുറിവുകളിലൂടെയോ മലിനമായ ഉപകരണങ്ങളിലൂടെയോ രോഗം ബാധിച്ച വിത്തുകളിലൂടെയോ ചെടിയിൽ പ്രവേശിക്കുന്ന ക്ലവിബാക്റ്റർ മിഷിഗനെൻസിസ് എന്ന ബാക്ടീരിയയാണ് ഇതിന് കാരണം. ചൂടും ഈർപ്പവുമുള്ള സാഹചര്യങ്ങളിൽ ഇത് തഴച്ചുവളരുന്നു.",
+      solution_en: "Remove and destroy infected fruits and plants. Use copper-based sprays to limit spread and disinfect all tools after use.",
+      solution_ta: "பாதிக்கப்பட்ட பழங்கள் மற்றும் செடிகளை அகற்றி அழிக்கவும். பரவலைக் கட்டுப்படுத்த தாமிரம் சார்ந்த தெளிப்புகளைப் பயன்படுத்தவும், பயன்பாட்டிற்குப் பிறகு அனைத்து கருவிகளையும் கிருமி நீக்கம் செய்யவும்.",
+      solution_ml: "രോഗം ബാധിച്ച പഴങ്ങളും ചെടികളും നീക്കം ചെയ്ത് നശിപ്പിക്കുക. രോഗം പടരുന്നത് തടയാൻ കോപ്പർ അടങ്ങിയ സ്പ്രേകൾ ഉപയോഗിക്കുക, ഉപയോഗശേഷം എല്ലാ ഉപകരണങ്ങളും അണുവിമുക്തമാക്കുക.",
+      prevention_en: "Use certified disease-free seeds, rotate crops, avoid injuring plants, and sanitize tools regularly.",
+      prevention_ta: "சான்றளிக்கப்பட்ட நோய் இல்லாத விதைகளைப் பயன்படுத்தவும், பயிர்களை சுழற்சி முறையில் பயிரிடவும், செடிகளுக்கு காயம் ஏற்படுவதைத் தவிர்க்கவும், கருவிகளை தவறாமல் சுத்தப்படுத்தவும்.",
+      prevention_ml: "രോഗവിമുക്തമായ വിത്തുകൾ ഉപയോഗിക്കുക, വിളകൾ മാറ്റി നടുക, ചെടികൾക്ക് മുറിവേൽക്കുന്നത് ഒഴിവാക്കുക, ഉപകരണങ്ങൾ പതിവായി അണുവിമുക്തമാക്കുക."
+    },
+    {
+      id: "t_septoria_leaf_spot",
+      crop: "Tomato",
+      crop_ta: "தக்காளி",
+      crop_ml: "തക്കാളി",
+      disease: "Septoria Leaf Spot",
+      disease_ta: "செப்டோரியா இலைப்புள்ளி",
+      disease_ml: "സെപ്റ്റോറിയ ലീഫ് സ്പോട്ട്",
+      image: "images/tomato_septoria_leaf_spot.jpg",
+      problem_en: "Leaves have many small, round spots with dark brown edges and light gray centers. The leaf turns yellow, dries up, and may fall off early.",
+      problem_ta: "இலைகளில் அடர் பழுப்பு ஓரங்கள் மற்றும் வெளிர் சாம்பல் மையங்களுடன் கூடிய பல சிறிய, வட்டமான புள்ளிகள் உள்ளன. இலை மஞ்சள் நிறமாகி, காய்ந்து, முன்கூட்டியே உதிர்ந்துவிடும்.",
+      problem_ml: "ഇലകളിൽ കടും തവിട്ടുനിറത്തിലുള്ള അരികുകളും ഇളം ചാരനിറത്തിലുള്ള മധ്യഭാഗവുമുള്ള ധാരാളം ചെറിയ, വൃത്താകൃതിയിലുള്ള പാടുകൾ കാണപ്പെടുന്നു. ഇല മഞ്ഞനിറമാകുകയും ഉണങ്ങി നേരത്തെ കൊഴിഞ്ഞുപോകുകയും ചെയ്യാം.",
+      cause_en: "Caused by the fungus Septoria lycopersici that thrives in humid, wet weather and spreads through water splash, infected debris, or contaminated tools.",
+      cause_ta: "ஈரப்பதமான, ஈரமான காலநிலையில் செழித்து வளரும் செப்டோரியா லைகோபெர்சிசி என்ற பூஞ்சையால் ஏற்படுகிறது மற்றும் நீர் தெறித்தல், பாதிக்கப்பட்ட குப்பைகள் அல்லது பாதிக்கப்பட்ட கருவிகள் மூலம் பரவுகிறது.",
+      cause_ml: "ഈർപ്പമുള്ളതും നനഞ്ഞതുമായ കാലാവസ്ഥയിൽ തഴച്ചുവളരുന്ന സെപ്റ്റോറിയ ലൈക്കോപെർസിക്കി എന്ന ഫംഗസാണ് ഇതിന് കാരണം. വെള്ളം തെറിക്കുന്നതിലൂടെയോ രോഗം ബാധിച്ച അവശിഷ്ടങ്ങളിലൂടെയോ മലിനമായ ഉപകരണങ്ങളിലൂടെയോ ഇത് പടരുന്നു.",
+      solution_en: "Remove infected leaves and plant debris. Use fungicides if needed. Water plants at the base and prune for good airflow.",
+      solution_ta: "பாதிக்கப்பட்ட இலைகள் மற்றும் தாவர குப்பைகளை அகற்றவும். தேவைப்பட்டால் பூஞ்சைக் கொல்லிகளைப் பயன்படுத்தவும். செடிகளின் அடிப்பகுதியில் தண்ணீர் பாய்ச்சி, நல்ல காற்றோட்டத்திற்காக கత్తిரிக்கவும்.",
+      solution_ml: "രോഗം ബാധിച്ച ഇലകളും സസ്യ അവശിഷ്ടങ്ങളും നീക്കം ചെയ്യുക. ആവശ്യമെങ്കിൽ കുമിൾനാശിനികൾ ഉപയോഗിക്കുക. ചെടികളുടെ ചുവട്ടിൽ നനയ്ക്കുകയും നല്ല വായുസഞ്ചാരത്തിനായി കൊമ്പുകോതുകയും ചെയ്യുക.",
+      prevention_en: "Rotate crops every year, keep plants spaced for ventilation, use disease-free seeds, and clean garden tools after use.",
+      prevention_ta: "ஒவ்வொரு ஆண்டும் பயிர்களை சுழற்சி முறையில் பயிரிடவும், காற்றோட்டத்திற்காக செடிகளை இடைவெளியில் வைத்திருக்கவும், நோய் இல்லாத விதைகளைப் பயன்படுத்தவும், பயன்பாட்டிற்குப் பிறகு தோட்டக் கருவிகளை சுத்தம் செய்யவும்.",
+      prevention_ml: "എല്ലാ വർഷവും വിളകൾ മാറ്റി നടുക, വായുസഞ്ചാരത്തിനായി ചെടികൾക്ക് ഇടയിൽ അകലം നൽകുക, രോഗവിമുക്തമായ വിത്തുകൾ ഉപയോഗിക്കുക, ഉപയോഗശേഷം കൃഷി ഉപകരണങ്ങൾ വൃത്തിയാക്കുക."
+    },
+    {
+      id: "t_yellow_leaf_curl_virus",
+      crop: "Tomato",
+      crop_ta: "தக்காளி",
+      crop_ml: "തക്കാളി",
+      disease: "Yellow Leaf Curl Virus",
+      disease_ta: "மஞ்சள் இலை சுருள் வைரஸ்",
+      disease_ml: "യെല്ലോ ലീഫ് കേൾ വൈറസ്",
+      image: "images/tomato_yellow_leaf_curl_virus.jpg",
+      problem_en: "Young leaves become yellow, curled, and crumpled, and plant growth is stunted. The plant may look bushy and fruit production drops.",
+      problem_ta: "இளம் இலைகள் மஞ்சள் நிறமாகி, சுருண்டு, நொறுங்கி, தாவர வளர்ச்சி குன்றிவிடும். செடி புதர் போல தோற்றமளிக்கலாம் மற்றும் பழ உற்பத்தி குறைகிறது.",
+      problem_ml: "ചെറു ഇലകൾ മഞ്ഞനിറമാകുകയും ചുരുളുകയും ചെയ്യുന്നു, ചെടിയുടെ വളർച്ച മുരടിക്കുന്നു. ചെടി ഒരു കുറ്റിച്ചെടി പോലെ കാണപ്പെടുകയും കായ്ഫലം കുറയുകയും ചെയ്യാം.",
+      cause_en: "Caused by Tomato Yellow Leaf Curl Virus (TYLCV), spread by whiteflies from plant to plant. Virus multiplies rapidly in warm regions.",
+      cause_ta: "தக்காளி மஞ்சள் இலை சுருள் வைரஸால் (TYLCV) ஏற்படுகிறது, இது வெள்ளை ஈக்களால் ஒரு செடியிலிருந்து மற்றொரு செடிக்கு பரவுகிறது. சூடான பகுதிகளில் வைரஸ் வேகமாகப் பெருகும்.",
+      cause_ml: "തക്കാളി യെല്ലോ ലീഫ് കേൾ വൈറസ് (TYLCV) ആണ് ഇതിന് കാരണം, ഇത് വെള്ളീച്ചകളിലൂടെ ഒരു ചെടിയിൽ നിന്ന് മറ്റൊന്നിലേക്ക് പടരുന്നു. ചൂടുള്ള പ്രദേശങ്ങളിൽ വൈറസ് അതിവേഗം പെരുകുന്നു.",
+      solution_en: "Remove infected plants promptly. Use insecticidal soap to control whiteflies. Grow virus-resistant varieties if possible.",
+      solution_ta: "பாதிக்கப்பட்ட செடிகளை உடனடியாக அகற்றவும். வெள்ளை ஈக்களைக் கட்டுப்படுத்த பூச்சிக்கொல்லி சோப்பைப் பயன்படுத்தவும். முடிந்தால் வைரஸ் எதிர்ப்பு வகைகளை வளர்க்கவும்.",
+      solution_ml: "രോഗം ബാധിച്ച ചെടികൾ ഉടൻ നീക്കം ചെയ്യുക. വെള്ളീച്ചകളെ നിയന്ത്രിക്കാൻ കീടനാശിനി സോപ്പ് ഉപയോഗിക്കുക. സാധ്യമെങ്കിൽ വൈറസ് പ്രതിരോധശേഷിയുള്ള ഇനങ്ങൾ വളർത്തുക.",
+      prevention_en: "Protect tomato plants from whiteflies with netting, remove weeds, and buy virus-free plants. Rotate crops to reduce virus build-up.",
+      prevention_ta: "வலை கொண்டு தக்காளி செடிகளை வெள்ளை ஈக்களிடமிருந்து பாதுகாக்கவும், களைகளை அகற்றவும், வைரஸ் இல்லாத செடிகளை வாங்கவும். வைரஸ் பெருக்கத்தைக் குறைக்க பயிர்களை சுழற்சி முறையில் பயிரிடவும்.",
+      prevention_ml: "വല ഉപയോഗിച്ച് തക്കാളി ചെടികളെ വെള്ളീച്ചകളിൽ നിന്ന് സംരക്ഷിക്കുക, കളകൾ നീക്കം ചെയ്യുക, വൈറസ് രഹിത ചെടികൾ വാങ്ങുക. വൈറസ് വ്യാപനം കുറയ്ക്കാൻ വിളകൾ മാറ്റി നടുക."
+    },
+    {
+      id: "t_yellow_shoulder_disorder",
+      crop: "Tomato",
+      crop_ta: "தக்காளி",
+      crop_ml: "തക്കാളി",
+      disease: "Yellow Shoulder Disorder",
+      disease_ta: "மஞ்சள் தோள்பட்டை கோளாறு",
+      disease_ml: "യെല്ലോ ഷോൾഡർ ഡിസോർഡർ",
+      image: "images/tomato_yellow_shoulder_fruit.jpg",
+      problem_en: "Tomato fruits show yellow or green patches on the shoulders near the stem and fail to ripen to red. The affected areas are firm and lack flavor.",
+      problem_ta: "தக்காளி பழங்கள் தண்டின் அருகே உள்ள தோள்களில் மஞ்சள் அல்லது பச்சை திட்டுகளைக் காட்டுகின்றன மற்றும் சிவப்பாக பழுக்கத் தவறுகின்றன. பாதிக்கப்பட்ட பகுதிகள் உறுதியாகவும் சுவையற்றதாகவும் இருக்கும்.",
+      problem_ml: "തക്കാളി പഴങ്ങളുടെ തണ്ടിനടുത്തുള്ള മുകൾ ഭാഗത്ത് മഞ്ഞയോ പച്ചയോ പാടുകൾ കാണപ്പെടുകയും അവ ചുവന്ന നിറത്തിൽ പഴുക്കാതിരിക്കുകയും ചെയ്യുന്നു. രോഗം ബാധിച്ച ഭാഗങ്ങൾ ഉറപ്പുള്ളതും രുചിയില്ലാത്തതുമായിരിക്കും.",
+      cause_en: "Caused by factors like high temperature, low potassium in soil, excessive sunlight, or poor soil conditions. Not a disease, but a physiological disorder.",
+      cause_ta: "அதிக வெப்பநிலை, மண்ணில் குறைந்த பொட்டாசியம், அதிகப்படியான சூரிய ஒளி அல்லது மோசமான மண் நிலைமைகள் போன்ற காரணிகளால் ஏற்படுகிறது. இது ஒரு நோய் அல்ல, ஒரு உடலியல் கோளாறு.",
+      cause_ml: "ഉയർന്ന താപനില, മണ്ണിലെ പൊട്ടാസ്യത്തിന്റെ കുറവ്, അമിതമായ സൂര്യപ്രകാശം, അല്ലെങ്കിൽ മോശം മണ്ണ് തുടങ്ങിയ ഘടകങ്ങളാണ് ഇതിന് കാരണം. ഇതൊരു രോഗമല്ല, മറിച്ച് ഒരു ശാരീരിക തകരാറാണ്.",
+      solution_en: "Increase potassium in soil as recommended by a soil test. Provide light shade or better foliage cover to reduce fruit temperature.",
+      solution_ta: "மண் பரிசோதனையின் பரிந்துரைப்படி மண்ணில் பொட்டாசியத்தை அதிகரிக்கவும். பழத்தின் வெப்பநிலையைக் குறைக்க லேசான நிழல் அல்லது சிறந்த இலை மூடியை வழங்கவும்.",
+      solution_ml: "മണ്ണ് പരിശോധനയുടെ ശുപാർശ പ്രകാരം മണ്ണിൽ പൊട്ടാസ്യം വർദ്ധിപ്പിക്കുക. പഴത്തിന്റെ താപനില കുറയ്ക്കാൻ ഇളം തണലോ നല്ല ഇലകൾ കൊണ്ടുള്ള ആവരണമോ നൽകുക.",
+      prevention_en: "Rotate crops each year, test soil and amend potassium levels before planting, avoid excessive leaf removal, and select resistant varieties.",
+      prevention_ta: "ஒவ்வொரு ஆண்டும் பயிர்களை சுழற்சி முறையில் பயிரிடவும், நடுவதற்கு முன் மண்ணைப் பரிசோதித்து பொட்டாசியம் அளவை சரிசெய்யவும், அதிகப்படியான இலைகளை அகற்றுவதைத் தவிர்க்கவும், எதிர்ப்பு சக்தி கொண்ட வகைகளைத் தேர்ந்தெடுக்கவும்.",
+      prevention_ml: "എല്ലാ വർഷവും വിളകൾ മാറ്റി നടുക, നടുന്നതിന് മുമ്പ് മണ്ണ് പരിശോധിച്ച് പൊട്ടാസ്യത്തിന്റെ അളവ് ക്രമീകരിക്കുക, അമിതമായി ഇലകൾ നീക്കം ചെയ്യുന്നത് ഒഴിവാക്കുക, പ്രതിരോധശേഷിയുള്ള ഇനങ്ങൾ തിരഞ്ഞെടുക്കുക."
+    },
+    {id: "banana_cordana_leaf_spot",
+     crop: "Banana",
+     crop_ta: "வாழை",
+      crop_ml: "വാഴ",
+      disease: "Cordana Leaf Spot",
+      disease_ta: "கோர்டனா இலை் பருப்பு",
+      disease_ml: "കോർഡാന ഇല പാടുകൾ",
+      image: "images/banana_cordana_leaf_spot.jpg",
+       problem_en: "Large, pale brown oval to diamond-shaped patches or long pale brown stripes appear on the edges or margins of lower banana leaves. Older spots develop a yellow halo or bright border and may have grey, concentric zones. These lesions can coalesce, turning large portions of the leaf brown and causing drying, reducing the plant's photosynthetic area and yield.",
+       problem_ta: "கீழ்ப்புற வாழை இலைகளின் ஓரங்களில் பெரிய, போதுமை நிறம் கொண்ட உட்சுற்று புள்ளிகள் அல்லது நீளமான பழுப்பு நிற பட்டைகள் ஏற்படும். பழைய புள்ளிகள் மஞ்சள் எல்லையோடு அல்லது பிரகாசமான ஓரத்துடன் காணப்படலாம். பல புள்ளிகள் சேர்ந்து பெரிய பழுப்பு புள்ளிகளை உருவாக்கி, இலைகள் உலரவைக்கும், செடியின் ஆரோக்கியத்தையும் விளைச்சலையும் குறைக்கும்.",
+      problem_ml: "താഴത്തെ വാഴ ഇലകളുടെ അറ്റത്തോട് ചേർന്ന് വലിയ, വൃത്താകൃതിയിലോ, വൈലപ്പുഴക്കനിലിലോ ഉള്ള തവിട്ടുനിറത്തിലുള്ള പാടുകൾ അല്ലെങ്കിൽ നീളം കൂടിയ പാളികൾ കാണാം. പഴയ പാടുകൾക്ക് മഞ്ഞ അരികോ, തെളിഞ്ഞ ചുവപ്പ് അതിര്‍വരമ്പോ ഉണ്ടാകുന്നുണ്ട്. ഇവ ചെറുതായി കൂട്ടിയിടിച്ച് ഇലയുടെ വലിയ ഭാഗങ്ങൾ ഉണങ്ങുകയും ചെടിയുടെ ആരോഗ്യം, ഉല്പാദനം കുറയുകയും ചെയ്യും.",
+      cause_en: "Caused by the fungus Neocordana musae (formerly Cordana musae), which spreads in wet, humid weather, especially in dense plantations. The fungus survives in infected plant debris and can spread through water splashes, wind, or infected tools. It mainly infects leaves that are damaged or stressed.",
+      cause_ta: "நியோக்கோர்டனா முஸாய் (முன்னாள் கோர்டனா முஸாய்) எனும் பூஞ்சை இதற்குக் காரணம். ஈரப்பதம் மற்றும் அடர்ந்த நட்டு வயல்களில் இது வேகமாக பரவுகிறது. பூஞ்சை பாதிக்கப்பட்ட தாவரக் கழிவுகளில் உயிர்வாழும்; தண்ணீரின் தெறிப்புகள், காற்று அல்லது கருவிகள் மூலம் பரவக்கூடும். சாதாரணமாக, சேதமடைந்த அல்லது அழற்சி கொண்ட இலைகளில் அறுவடைக்கப்படுகிறது.",
+       cause_ml: "നിയോകൊർഡാന മുസായ് (മുൻപ് കോർഡാന മുസായ്) എന്ന ഫംഗസ് കുഴഞ്ഞ, ഈർപ്പം കൂടിയ കാലാവസ്ഥയിൽ വ്യാപകമായി പടരുന്നു. ഫംഗസ് ബാധിച്ച ഇലാവശിഷ്ടങ്ങളിൽ നിന്ന് ജീവനോടെ തുടരുകയും വെള്ളകുടിവെള്ളം, കാറ്റ്, ഉപകരണങ്ങൾ മുതലായവ വഴി പടരുകയും ചെയ്യും. സാധാരണയായി പരിക്കേറ്റതോ ക്ഷീണിച്ചതോ ആയ ഇലകളിലാണ് അണുബാധ കാണപ്പെടുന്നത്.",
+       solution_en: "Remove and destroy infected leaves. Improve air circulation by proper plant spacing and regular pruning. Apply copper-based or mancozeb fungicides like Bordeaux mixture (1%) if infection is severe. Neem oil sprays and compost teas may help in organic settings. Avoid overhead irrigation and reduce leaf wetness.",
+       solution_ta: "பாதிக்கப்பட்ட இலைகளை அகற்றி அழிக்கவும். செடிகளுக்கு இடைவெளி மரியாதை மற்றும் வழக்கமான கிளைப்பருப்பு மூலம் காற்றோட்டத்தை அதிகரிக்கவும். கடுமையான பாதிப்புகள் இருந்தால், பொரோடோ மிஷ்சர் (1%) போன்ற தாமிரம் சார்ந்த பூஞ்சைநாசினிகள் அல்லது மான்கொஜெப் பயன்படுத்தலாம். இயற்கை வழிகளில் நீம் எண்ணெய் தெளிப்பு மற்றும் கால்வரி டீ பயன்படுத்தலாம். உச்சிகுடி நீர்ப்பாசனத்தை தவிர்க்கவும், இலைகள் நீர் நனைவு குறைக்கவும்.",
+      solution_ml: "ബാധിച്ച ഇലകൾ നീക്കം ചെയ്ത് നശിപ്പിക്കുക. ചെടികൾക്കിടയിൽ അകലം പാലിച്ച് വായു സഞ്ചാരം മെച്ചപ്പെടുത്തുക, ഇലകൾ വെട്ടി കഴുകുക. ഗുരുതരമായ അവസ്ഥാനങ്ങൾക്കായി 1% ബോർഡോ മിശ്രിതം പോലെയുള്ള കോപ്പർ അധിഷ്ഠിത ഫംഗിസൈഡുകൾ അഥവാ മാൻകോസെബ് സ്പ്രേ ചെയ്യാം. ജൈവകൃഷിയിലാണെങ്കിൽ നീം ഓയിൽ സ്പ്രേയും കോംപോസ്റ്റ് ടീസും സാന്ദ്രമായി ഉപയോഗിക്കാം. ഇലകൾ നനയാതിരിക്കാൻ ഉച്ചിയിൽ വെള്ളം ഒഴിച്ച് പകർച്ച ഒഴിവാക്കുക.",
+       prevention_en: "Plant resistant or tolerant varieties where possible. Space plants adequately for good airflow. Practice crop sanitation by removing fallen or dried leaves. Avoid waterlogging and maintain field drainage. Use clean tools, and rotate crops to reduce inoculum build-up.",
+      prevention_ta: "முடிந்தால் எதிர்ப்பு சக்தி கொண்ட வகைகளைப் பயன்படுத்தவும். செடிகளுக்கிடையே போதிய இடைவெளி விடவும். உதிர்ந்த அல்லது உலர்ந்த இலைகளை நேரத்தில் அகற்றி தூய்மை வழிமுறைகளை பின்பற்றவும். நிலத்தில் நீர்செழிப்பு தவிர்க்கவும்; உடைவுகளை சுத்தமாக வைத்திருங்கள், பருவசுழற்சி பயிரிடவும்.",
+       prevention_ml: "സാധ്യമെങ്കിൽ പ്രതിരോധശേഷിയുള്ള ഇനങ്ങൾ തെരഞ്ഞെടുക്കുക. ഇലകൾക്ക് ഇടയിൽ നല്ല വായു സൗകര്യം ഉണ്ടാക്കാൻ അകലം പാലിക്കുക. വീണുവീണ അല്ലെങ്കിൽ ഉണക്കിയ ഇലകൾ നീക്കം ചെയ്യുക, പരിപാലനം ഉറപ്പാക്കുക. വെള്ളപ്പൊക്കം ഒഴിവാക്കി വയൽ മാറി നനയുന്നതിനു ഡ്രൈനേജ് പുലർത്തുക. ഉപകരണങ്ങൾ ശുദ്ധിയാക്കുക, വിള മാറി നടുക."
+    },
+    {
+     
+      id: "banana_black_sigatoka",
+      crop: "Banana",
+       crop_ta: "வாழை",
+       crop_ml: "വാഴ",
+       disease: "Black Sigatoka (Black leaf streak)",
+       disease_ta: "கருப்பு சிகடோகா (கருப்பு இலை கோடு நோய்)",
+     disease_ml: "ബ്ലാക് സിഗടോക (കരികള് ഉള്ള ഇല പാട്)",
+      image: "images/banana_black_sigatoka.jpg",
+     problem_en: "Small yellowish or reddish-brown flecks first appear on the underside of banana leaves, developing into dark brown to black streaks that run parallel to the veins. Lesions enlarge, merge, and turn into large necrotic patches with gray centers and yellow halos. Leaves turn brown, dry out, and collapse, leading to reduced photosynthesis, premature fruit ripening, and significant yield loss.",
+     problem_ta: "வாழை இலைகளின் கீழ்ப்பகுதியில் முதலில் சிறிய மஞ்சள் அல்லது சிகப்பு-பழுப்பு புள்ளிகள் தோன்றும், பின்னர் அவை இருண்ட பழுப்பு முதல் கருப்பு நிற கோடுகளாக விரியும். இந்த புள்ளிகள் ஒரு சேர பெரிய நீரிழிவு பகுதிகளாக மாறும்; பச்சை மையம் மற்றும் மஞ்சள் எல்லையுடன் இருக்கும். இலைகள் பழுப்பு நிறமாக உலர்ந்து கீழே விழும்; இது செடியின் உணவுப்பாதையை குறைத்து, பழங்கள் மிக நேரத்திற்கு முன்பு பழுக்கவும், விளைச்சல் மிக அதிகம் பாதிக்கவும் செய்கிறது.",
+     problem_ml: "വാഴ ഇലയുടെ അടിവശത്ത് ആദ്യം മഞ്ഞയും ചുവപ്പും നിറത്തിലുള്ള ചെറിയ പാടുകള്‍ കാണപ്പെടും. പിന്നീട് അവ കറുത്ത നിറത്തിലുള്ള സൂക്ഷ്മ രേഖകള്‍ ആയി മാറുന്നു. ഈ പാടുകള്‍ കൂട്ടിചേര്‍ന്ന് കറുപ്പ്-ചാര നിറത്തിലുള്ള വലിയ ഉണങ്ങിയ ഭാഗങ്ങളായിത്തീരുന്നു. ഇലകള്‍ ഉണങ്ങി തണുപ്പുകയും ചെടിയുടെ ഉല്‍പാദനശേഷി അപകടവിധേയമായും മുരുകിയ കായ്ക്കല്‍, വിളവില്‍ വലിയ കുറവുകളും ഉണ്ടാക്കുന്നു.",
+     cause_en: "Caused by the fungus Mycosphaerella fijiensis (also called Pseudocercospora fijiensis), which thrives in hot, humid, and rainy environments. The fungus spreads via wind-borne ascospores and splash-dispersed conidia, infecting banana leaves through stomata and persisting in plant debris.",
+      cause_ta: "Mycosphaerella fijiensis (Pseudocercospora fijiensis) எனும் பூஞ்சை உண்டாகும்; இது சூடான மற்றும் ஈரமான களத்தில் வலுவாக வளரும். பூஞ்சை காற்றில் பறக்கும் விரிவாக்க கனிகள், தண்ணீர் தெறிப்பில் பகிரும் கொனிடியா மூலமாகவும் பரவுகிறது, செடியின் இலைகளிலும் வேரும்.",
+     cause_ml: "Mycosphaerella fijiensis (Pseudocercospora fijiensis) എന്ന ഫംഗസ് ആണ് രോഗത്തിന് കാരണം. ഉഷ്ണവും ഈര്‍പ്പവും മഴപെയ്യുന്ന സാഹചര്യവും ഫംഗസിന്റെ വളര്‍ച്ചക്ക് സഹായകമാണ്. അസ്കോസ്ബോറുകള്‍ കാറ്റിലൂടെ, കൊണിഡിയ കട്ടുത കൊണ്ട് വെള്ളം തളിച്ചുള്ള പടര്‍ച്ചയിലൂടെയുമാണ് രോഗം വ്യാപിക്കുന്നത്.",
+       solution_en: "Remove and destroy infected leaves. Improve air circulation by proper plant spacing and pruning. Use fungicides with different modes of action, such as triazoles, mancozeb, or approved biological fungicides. Rotate fungicides to prevent resistance. Practice under-canopy/drip irrigation and avoid overhead watering.",
+    solution_ta: "பாதிக்கப்பட்ட இலைகளை அப்புறப்படுத்தி அழிக்கவும். செடிகளுக்கிடையே இடைவெளி சீரமைத்து காற்றோட்டம் அதிகரிக்கவும். டிரயசோல், மான்கொஜெப் அல்லது அனுமதிக்கப்பட்ட உயிரி பூஞ்சைநாசினிகள் பயன்படுத்தவும்; பூஞ்சைநாசினிகளை மாற்றி மாற்றி பயன்படுத்து. மேல் நீர்ப்பாசனத்தை தவிர்த்து, அடிகீழ் அல்லது தொட்டித் தண்ணீர் பாசனத்தை பின்பற்றவும்.",
+     solution_ml: "ബാധിച്ച ഇലകള്‍ നീക്കം ചെയ്ത് നശിപ്പിക്കുക. ചെടികള്‍ക്കിടയില്‍ അകലം പാലിച്ച് വായു സഞ്ചാരം മെച്ചപ്പെടുത്തുക. ട്രൈസോള്‍, മാന്‍കോസെബ് അല്ലെങ്കില്‍ അംഗീകരിച്ച ജൈവകൂറ്റന്‍ നാഷിനികള്‍ ഉപയോഗിക്കുക, ഇവ മാറ്റി മാറ്റി തളിക്കുക. മേല്‍വെള്ളം ഒഴിക്കുന്ന പദ്ധതി ഒഴിവാക്കി ഡ്രിപ് ഇറിഗേഷന്‍ ജനനം പുലര്‍ത്തുക.",
+       prevention_en: "Plant resistant varieties if available. Prune and space plants for airflow. Remove old and fallen leaves, maintain field sanitation, and avoid excess moisture. Rotate crops and avoid continuous banana cropping in the same field.",
+     prevention_ta: "எதிர்ப்பு வகைகள் பயன்படுத்தவும். செடிகளுக்கு இடைவெளி மற்றும் முறையான கிளை பராமரிப்பு கீழ்ப்புற இலைகளை அகற்றவும், நிலத்தை தூய்மையாக வைத்திருக்கவும், அழுத்தமான ஈரப்பதத்தை தவிர்க்கவும். பயிர் சுழற்சி மற்றும் தொடர்ந்த வாழை நட்டதைக் குறைக்கவும்.",
+    prevention_ml: "പ്രതിരോധശേഷിയുള്ള ഇനങ്ങള്‍ തെരഞ്ഞെടുത്ത് നടുക. ഇലകള്‍ വെട്ടി കളയുക, ചെടികള്‍ക്കിടയില്‍ ഹരിതം വളര്‍ത്തുക. പഴയ ഇലകളും വീണ ഇലകളും നീക്കി വയല്‍ ശുചിത്വം പാലിക്കുക, അതികം ഈര്‍പ്പം ഒഴിവാക്കുക. വിള മാറ്റി നടുന്നതും തുടര്‍ന്ന് അതേ പ്രദേശത്ത് വാഴ കൃഷി ഒഴിവാക്കുന്നതും പ്രാവര്‍ത്തികമാണ്."
+   },
+  {
+   
+id: "banana_yellow_sigatoka",
+crop: "Banana",
+crop_ta: "வாழை",
+crop_ml: "വാഴ",
+disease: "Yellow Sigatoka (Leaf spot disease)",
+disease_ta: "மஞ்சள் சிகடோகா (இலைப் பூச்சி நோய்)",
+disease_ml: "യെല്ലോ സിഗടോക (ഇല പാടു രോഗം)",
+image: "images/banana_yellow_sigatoka.jpg",
+problem_en: "Small yellow or brownish green streaks appear near the tip or margin of the banana leaf and midrib. These enlarge and become spindle to elliptical brown spots, often with a light grey center and a yellow halo. The spots may coalesce to form large irregular patches, leading to rapid drying and defoliation of leaves, significant reduction in photosynthesis, and yield loss.",
+problem_ta: "வாழை இலைகளின் முனை மற்றும் ஓரங்களில், மற்றும் மத்தியில் முதலில் சிறிய மஞ்சள் அல்லது பழுப்பு விரிகுடிகள் தோன்றும். பின்னர் அவை நீளமான அல்லது ஓவல் வடிவ பழுப்பு புள்ளிகளாக மாறி, பெரும்பாலும் மஞ்சள் எல்லையுடனும், வெளிர் சாம்பல் மையத்துடனும் காணப்படும். புள்ளிகள் ஒன்றே ஒன்று இணைந்து பெரிய அலங்காப் பகுதிகளாக ஏற்பட்டு, இலைகள் விரைவாக உலர்ந்து வாடக்கூடும், விளைச்சல் குறையக்கூடும்.",
+problem_ml: "വാഴ ഇലയുടെ അറ്റത്തോടും അരയോടും കൂടെ പ്രാരംഭത്തിൽ ചെറിയ മഞ്ഞയല്ല് അല്ലെങ്കിൽ തവിട്ടു പച്ച സ്റ്റ്രീക്കുകൾ കാണപ്പെടും. ഈ പാടുകൾ വലുതായി വിഴുങ്ങിയോവൽ ആകൃതിയിലായിരിക്കും, മഞ്ഞ അരികുമായും ഇടയിൽ ചാരനിറം കാണാനാവും. പാടുകൾ ചേർന്ന് വലിയ ഉണങ്ങിയ ഭാഗങ്ങൾ രൂപപ്പെടുത്തി, ഇലകള്‍ വേഗത്തിൽ ഉണങ്ങുകയും ചെടി ദുശക്തമായും വിളവിലും കുറയുകയും ചെയ്യും.",
+cause_en: "Caused by the fungus Pseudocercospora musae (formerly Mycosphaerella musicola). The fungus thrives in warm, humid, and wet weather. It spreads via wind-borne and rain-splashed spores, infecting banana leaves and surviving in plant debris.",
+cause_ta: "Pseudocercospora musae (Mycosphaerella musicola) எனும் பூஞ்சை காரணமாகும். இது சூடான, ஈரமான மற்றும் மழை கால நிபந்தனைகளில் அதிகமாக உண்டாகிறது. பூஞ்சை காற்று மற்றும் தண்ணீர் தெறிப்பில் பரவும் பாரம்பரிய கனிகளால் பரவும்; தாவரக் கழிவுகளிலும் உயிர்வாழும்.",
+cause_ml: "Pseudocercospora musae (Mycosphaerella musicola) എന്ന ഫംഗസ് ആണ് കാരണം. ചൂടും ഈര്‍പ്പവും മഴയുമുള്ള കാലാവസ്ഥയിലാണ് രോഗം വ്യാപകമാകുന്നത്. ഫംഗസ് കാറ്റ് കൊണ്ടും മഴ കൊണ്ടുമാണ് വ്യാപിക്കുന്നത്, പഴയ ഇലകളിലും ശേഷിക്കുന്നു.",
+solution_en: "Remove and destroy affected leaves. Keep the banana field weed-free and prune suckers timely. Avoid close spacing and ensure proper drainage. Apply recommended fungicides like Propiconazole, Carbendazim, or Mancozeb at the disease's initial stage and repeat at 10-15 day intervals. Use alternate systemic and contact fungicides to prevent resistance.",
+solution_ta: "பாதிக்கப்பட்ட இலைகளை அகற்றி அழிக்கவும். வயலிலிருந்து கொடிகளைத் தூரேற்றவும், உறைவிடம் சுத்தம் செய்யவும். செடிகளுக்கிடையே இடைவெளை விட்டு நண்கு வடிகால் அமைத்தை உறுதி செய்யவும். நோய் ஆரம்ப கட்டத்திலேவே பரிந்துரைக்கப்பட்ட பூஞ்சைநாசினிகள் (ப்ரொபிகோனாசோல், கார்பென்டஜிம், மான்கொஜெப்) தெளிக்கவும். பூஞ்சைநாசினிகளை மாற்றி மீண்டும் மீண்டும் பயன்படுத்த வேண்டும்.",
+solution_ml: "ബാധിച്ച ഇലകൾ നീക്കം ചെയ്ത് നശിപ്പിക്കുക. വയൽ വീട്ടിടവും സാന്ദ്രതയും പരിമിതപ്പെടുത്തുക, പറമ്പ് കുഴുപ്പുകൾ ഒഴിവാക്കുക. ആദ്യ ഘട്ടത്തിൽ തന്നെ ശുപാര്‍ശ ചെയ്ത ഫംഗിസൈഡുകൾ (പ്രൊപിക്കോണാസോൾ, കാർബൻഡസിം, മൻകോസെബ്) തളിക്കുക. ഫംഗിസൈഡുകൾ സാമ്യമില്ലാത്തവ മാറിമാറ്റി ഉപയോഗിച്ചാൽ കൂടുതൽ ഫലം ലഭിക്കും.",
+prevention_en: "Grow resistant varieties where possible. Ensure proper spacing and field sanitation, remove and destroy infected leaves, maintain balanced fertilization, and avoid overhead irrigation. Irrigate only under the plant canopy to avoid leaf wetness.",
+prevention_ta: "முடிந்தவரை எதிர்ப்பு சக்தி உள்ள வகைகளை பயிரிடவும். செடியை இடைவெளியில் நட்டு, வயல் விரிவையும் சுத்தமாகவும் வைத்திருக்கவும். பாதிக்கப்பட்ட இலைகளை அகற்றவும். உரங்களை சமநிலையிலா பயன்படுத்தவும். மேல் நீர்ப்பாசனத்தை தவிர்த்து நடுக்களில் மட்டும் நீர் தெளிக்கவும்.",
+prevention_ml: "പ്രതിരോധ ശേഷിയുള്ള ഇനങ്ങൾ ഉപയോഗിക്കുക. സംയോജിത വളച്ചേരികൾ പാലിക്കുക. ഇലകൾക്ക് ഇടയിൽ അകലം പാലിക്കുക. രോഗം ബാധിച്ച ഇലകൾ കത്തിച്ചു നീക്കം ചെയ്യുക. മേൽ വെള്ളം ഒഴിക്കുന്നതും ഒഴിവാക്കുക."
+},
+{
+id: "banana_eumusae_leaf_spot",
+crop: "Banana",
+crop_ta: "வாழை",
+crop_ml: "വാഴ",
+disease: "Eumusae Leaf Spot",
+disease_ta: "யூமுசே இலைப்புள்ளி",
+disease_ml: "യൂമുസേ ഇല പാട്",
+image: "images/banana_eumusae_leaf_spot.jpg",
+problem_en: "Early symptoms are small, linear, light-brown streaks on the banana leaf blade, which quickly expand and darken. Mature lesions are oval to elliptical, with grey-white centers and dark brown edges, often surrounded by yellow halos. Spots can merge into large necrotic patches, causing rapid leaf drying and substantial reduction in photosynthesis and yield. Severe infection leads to uneven fruit ripening and poor bunch weight.",
+problem_ta: "ஆரம்பக் கட்டங்களில் வாழை இலைகளில் சிறிய நேர்மறை மற்றும் வெளிர் பழுப்பு கோடுகள் தோன்றும்; அவை விரைவில் பெரிதாகி இருண்டெழும். வளர்ந்த புள்ளிகள் மணப்பாகம் அல்லது நீள் வடிவத்தில் இருண்ட ஓரத்துடன் வெளிர் சாம்பல் மையமாகும் மற்றும் மஞ்சள் எல்லையுடன் காணப்படும். புள்ளிகள் இணைந்து பெரிய மரத்துப்போன பகுதிகள் ஏற்பட்டு, இலைகள் விரைவாக உலர்ந்து, ஒளிசேர்க்கை மற்றும் விளைச்சல் குறைகிறது. கடுமையான தாக்குதல் பழங்களின் ஒரு மாதிரிக் பழுத்தல் மற்றும் குறைந்த குவளை எடைக்கு வழிவகுக்கும்.",
+problem_ml: "തുടക്കംവെച്ച് വാഴ ഇലയുടെ മേൽഭാഗത്ത് ചെറിയ വരയുള്ള തെളിച്ചമുള്ള തവിട്ട് പാടുകൾ വരുന്നു; അവ വേഗത്തിൽ വലുതായും കറുപ്പിയുമാകുന്നു. വളർച്ചപൂർണമായ പാടുകൾ ഓവൽ അല്ലെങ്കിൽ ദീർഘാകൃതിയിലും, കറുപ്പ് അതിരോടു കൂടിയ ചാരനിറം ഉള്ളകവും, മഞ്ഞ വട്ടം ചുറ്റുമായിരിക്കും. കേന്ദ്ര ഭാഗങ്ങൾ കൂട്ടിച്ചേർത്ത് വലിയ നെക്രോട്ടിക് പ്രദേശങ്ങൾ ഉണ്ടാക്കും, ഇത് ഇലകളുടെ വേഗത്തിലുള്ള ഉണങ്ങി പോയി, ഫോട്ടോസിന്തസിസ് കുറയുകയും വിളവിൽ നഷ്ടം വരിക്കുകയും ചെയ്യും. ഗുരുതരമായ ബാധയിൽ കായ്ക്കലിൽ അസമമായ പഴുത്തൽ, കുറഞ്ഞ കിടാങ്ങള്‍ ഉണ്ടാകും.",
+cause_en: "Caused by the fungus Mycosphaerella eumusae (anamorph Pseudocercospora eumusae). The disease thrives in humid tropical climates and spreads mainly through wind- or water-dispersed spores and movement of infected plant material. It can infect even some banana cultivars that resist black and yellow Sigatoka.",
+cause_ta: "Mycosphaerella eumusae (Pseudocercospora eumusae) என்ற பூஞ்சை காரணமாகும். சூடான, ஈரப்பதம் மிகுந்த இடங்களில் பரவலாகக் காணப்படுகிறது. பூஞ்சைக் கனிகள் காற்று மற்றும் நீர் மூலமாகவும், பாதிக்கப்பட்ட இலை/செடியைப் பயிரிடுவதாலும் பரவும். சில எதிர்ப்பு சக்தி கொண்ட வகைகளையும் தாக்கும்.",
+cause_ml: "Mycosphaerella eumusae (Pseudocercospora eumusae) എന്ന ഫംഗസ് ആണ് രോഗത്തിന് കാരണം; ഈർപ്പമുള്ള വാനിലായ സ്ഥലങ്ങളിൽ വ്യാപകമാണ്. കാറ്റു, വെള്ളം, രോഗബാധിത ഇലകളുടെ ചലനം എന്നിവയിലൂടെ പടരുന്നു. കറുപ്പ്, മഞ്ഞ സിഗടോക്കയ്ക്ക് പ്രതിരോധം കാണിക്കുന്ന വാഴ ഇനങ്ങളിൽ പോലും ബാധയുണ്ടാക്കും.",
+solution_en: "Remove and destroy infected leaves, and use only pest-free planting material. Apply fungicides like mancozeb, triazoles, or strobilurins in rotation to avoid resistance. Support field airflow and avoid overhead irrigation. For organic management, periodic inspection, field sanitation, and use of bio-fungicides (such as Trichoderma) can help limit disease spread.",
+solution_ta: "பாதிக்கப்பட்ட இலைகளை அகற்றி அழிக்கவும்; தொற்று இல்லாத நட்டுகள் பயன்படுத்தவும். நோய் எதிர்ப்பு நேர்ச்சிகை நோக்கி மான்கொஜெப், டிரயசோல், ஸ்ட்ரோபில்யூரின் வகை பூஞ்சைநாசினிகள் மாற்றி மாற்றி தெளிக்கவும். வயலில் காற்றோட்டம் அதிகரிக்கவும், மேல் பாசனை தவிர்க்கவும். இயற்கை முறையில் பூஞ்சைத் தோற்றுவிக்கும் தொழில்நுட்பங்களை (உதாரணமாக: டிரைகோடர்மா) பயன்படுத்தவும்.",
+solution_ml: "ബാധിച്ച ഇലകള്‍ എടുക്കുകയും വേണ്ടത്ര അകലം പാലിച്ച് രോഗരഹിത നട്ടു ഉപയോഗിക്കുകയും ചെയ്യുക. മാന്‍കോസെബ്, ട്രൈസോള്‍, സ്ട്രോബില്യൂറിന്‍ വിഭാഗം ഫംഗിസൈഡുകള്‍ മാറ്റി മാറ്റി തളിച്ച് പ്രതിരോധം ഉറപ്പാക്കുക. വയലില്‍ വായുസഞ്ചാരം മെച്ചപ്പെടുത്തുകയും മേല്‍വെള്ളം ഒഴിവാക്കുകയും ചെയ്യുക. ബയോ ഫംഗിസൈഡുകള്‍ (ട്രൈക്കോഡേര്‍മ തുടങ്ങിയവ) ഉപയോഗിക്കാനും ശുചിത്വം പാലിക്കാനും ശ്രദ്ധിക്കുക.",
+prevention_en: "Use certified disease-free planting material. Monitor regularly for symptoms and destroy infected leaves immediately. Promote field drainage and airflow. Rotate fungicides with different action mechanisms to delay resistance. Avoid movement of banana plants from infected to disease-free areas.",
+prevention_ta: "தோல் இலவசமான நடுக்களை மட்டும் பயன்படுத்தவும். தடயங்கள் தெரிந்தவுடன் இலைகளை அகற்றி அழிக்கவும். வயலில் வடிகால் மற்றும் காற்றோட்டத்தை மேம்படுத்தவும். பூஞ்சைநாசினிகளை மாற்றிக்கொண்டே பயன்படுத்தவும். தொற்று பரவாத பகுதிகளுக்குள் வாழை செடிகளை நகர்த்த வேண்டாம்.",
+prevention_ml: "രോഗരഹിത നട്ടു മാത്രം ഉപയോഗിക്കുക. പതിവായി നിരീക്ഷണം നടത്തുക, രോഗബാധിത ഇലകള്‍ ഉടന്‍ നീക്കം ചെയ്ത് നശിപ്പിക്കുക. വയലില്‍ ചൂട്‌ചാലും ഓട്ടവും ഉറപ്പാക്കുക. ഫംഗിസൈഡുകള്‍ വര്‍ണ്ണിച്ചുകള്‍ മാറ്റി മാറ്റി തളിക്കുക. രോഗബാധശൂന്യ പ്രദേശങ്ങളിലെ വാഴചെടികള്‍ അനാവശ്യം മാറ്റിവെയ്ക്കരുത്."
+},
+{
+id: "banana_bunchy_top_virus",
+crop: "Banana",
+crop_ta: "வாழை",
+crop_ml: "വാഴ",
+disease: "Banana Bunchy Top Virus (BBTV)",
+disease_ta: "வாழை பஞ்சி டாப் வைரஸ் (BBTV)",
+disease_ml: "വാഴ ബഞ്ചി ടോപ്പ് വൈറസ് (BBTV)",
+image: "images/banana_bunchy_top_virus.jpg",
+problem_en: "Early symptoms include dark green, dot-dash streaks ('Morse code' pattern) or hooks along the leaf midrib and veins, as well as on the petiole. Leaves become narrow, erect, stunted, with yellow margins, and gather as a rosette at the top ('bunchy top'). Newly emerging leaves are crinkled, do not expand normally, and may be chlorotic. Severely affected plants fail to produce fruits, or produce small, distorted bunches. Black aphid colonies, the vector, are often visible in leaf axils.",
+problem_ta: "ஆரம்பமாக, இலை நடுநரம்பில் மற்றும் நரம்புகளில் இருண்ட பச்சை நிற 'டாட்-டாஷ்' (மோர்ஸ் கோட்) கோடுகள் தோன்றும், இலைத்தண்டு பகுதியிலும் காணப்படும். இலைகள் மடங்கி, ஒல்லியாக, மஞ்சள் ஓரத்துடன் உச்சியில் சொட்டாக கூடும் (‘பஞ்சி டாப்’). புதிய இலைகள் விரிவாக இல்லாமல், எழும்பி நின்று, சுருண்டு, அழற்சி நிறம் காணப்படும். அதிக பாதிப்பில் பழங்கள் உருவாகாது, உருவாகினாலும் சின்னம், வளைந்தவையாக இருப்பது காணப்படும். கருப்பு அலி குழுக்கள் இலைக் குறுக்கு பகுதிகளில் அதிகமாக காணப்படும்.",
+problem_ml: "പുതിയ ഇലയുടെ നടുവിലും നാരുകളും ഇലത്തണ്ടിലും മഞ്ഞയിൽ 'ഡോട്ടുഡ്-ഡാഷ്' രേഖകൾ (‘മോഴ്സ് കോഡ്’) കാണപ്പെടുന്നു. ഇലകൾ ഉരുണ്ടിരിക്കും, നേരായും കട്ടിയുള്ളതും മഞ്ഞനിറമൂടിയതുമായിരിക്കും, മുകളിൽ കൂട്ടമായി ('ബഞ്ചി ടോപ്പ്') ഇണങ്ങും. പുതിയ ഇലകൾ ചുളിവുള്ളതാകും, സാധാരണപോലെ പടരില്ല, ചിലപ്പോൾ മഞ്ഞനിറത്തിലായിരിക്കും. ഗുരുതരമായി ബാധിച്ച വാഴകൾക്കു കായില കൂടി, ചെറുതും വക്രവുമാണ്. വേര്‍ക ളില്‍ കറുപ്പ് അലയ്ക്കളുടെ കൂട്ടം കാണാം.",
+cause_en: "Caused by the Banana Bunchy Top Virus (BBTV), a nanovirus transmitted by the banana aphid (Pentalonia nigronervosa). Local spread occurs via aphid feeding, while long-distance spread is mainly through the movement of infected suckers or planting materials.",
+cause_ta: "Banana Bunchy Top Virus (BBTV) என்ற நானோ வைரஸ் இதற்குக் காரணம். Pentalonia nigronervosa என்ற வாழை அலி வழியாக பரவுகிறது. பாரம்பரிய இடமாற்றம் பாதிப்புள்ள நடுக்களினாலும், பகிரப்பட்ட அலிகள் மூலமும் ஏற்படுகிறது.",
+cause_ml: "വാഴ ബഞ്ചി ടോപ്പ് വൈറസ് (BBTV) എന്നാൽ നാനോവൈറസ് ആണ് കാരണം. വാഴഅലി (Pentalonia nigronervosa) വഴി തൊട്ട് രോഗം സ്ഥലംമാറ്റം ചെയ്യുന്നു. സങ്കരജാതി ചെടികളും രോഗം പകരാൻ പ്രധാന ഘടകമാണ്.",
+solution_en: "There is no cure for BBTV after infection. Immediately remove and destroy infected plants by uprooting and burning or burying. Control aphid populations with insecticidal soaps or registered insecticides, applying thoroughly to leaf axils. Always use certified virus-free planting material. Quarantine and restrict movement of plant parts from infested to BBTV-free areas.",
+solution_ta: "BBTVக்கு பாதிக்கப்பட்ட பிறகு தடுப்பூசி இல்லை. பாதிக்கப்பட்ட செடிகளை உடனடியாக பிடுங்கி அழிக்கவும், எரிக்கவும் அல்லது மண்ணில் புதைக்கவும். அலிகளை கட்டுப்படுத்த பூச்சி எரிகல் கடலைத் தயாரிப்புகளை அல்லது பரிந்துரைக்கப்பட்ட பூச்சிக் கொல்லிகளை பயிரிடவும். மனுசூடு இல்லாத நடுக்களை பயன்படுத்தவும். தொற்று இல்லாத பகுதிகளில் விளையாட்டை அனுமதிக்க வேண்டாம்.",
+solution_ml: "BBTVയെ ബാധിച്ച ശേഷം പ്രഖ്യാപിത ചികിത്സയില്ല. സ്വീകരിച്ച ഇലകൾ വേരോടെ കെറി കത്തിക്കുക അല്ലെങ്കിൽ മണ്ണിൽ പറിച്ച് നശിപ്പിക്കുക. അലിയ്ക്കള്‍ നിയന്ത്രണത്തിന് രേഖപ്പെടുത്തിയ കീടനാശിനികൾ അല്ലെങ്കിൽ കീടനാശിനി സോപ്പ് തളിക്കുക. രോഗരഹിത നട്ടുവസ്തു ഉപയോഗിക്കുക. രോഗപകർച്ചയുള്ള പ്രദേശങ്ങളിൽനിന്ന് മറ്റു സ്കാന്റുകളിലേക്ക് ചെടികൾ മാറ്റരുത്.",
+prevention_en: "Regularly inspect and immediately remove symptomatic plants. Use only certified virus-free suckers for planting. Control aphids through field hygiene and safe insecticide use. Remove weeds and alternate hosts that can harbor aphids. Restrict the movement of planting material from infested areas.",
+prevention_ta: "உடனடியாக அறிகுறிகள் தெரியும்போது செடியை அகற்றவும். தரமான, வைரஸ் இல்லாத நடுக்களை மட்டும் பயிரிடவும். அலிகளை கட்டுப்படுத்த சரியான பூச்சிக் கொல்லிகள் பயன்படுத்தவும். குறுக்கு வனக்கொடி செடிகளை நீக்கவும். இருந்த பகுதிகளிலிருந்து நடுக்களை எடுத்துச் செல்லக்கூடாது.",
+prevention_ml: "രോഗലക്ഷണങ്ങൾ കാണുന്നതിന് ഉടനെ ചെടികൾ നീക്കം ചെയ്യുക. രോഗരഹിത നട്ടുവസ്തുവേ ഉപയോഗിക്കുക. അലിയ്ക്കള്‍ കൈവശം വയ്ക്കുന്നതിന് അണുക്കളും കീടനാശിനികളും ഉപയോഗിക്കുക. പാരസിറ്റ് ഇനങ്ങൾ നീക്കം ചെയ്യുക. രോഗബാധയുള്ള പ്രദേശങ്ങളിൽനിന്ന് നട്ടുവസ്തു മാറ്റരുത്."
+},  
+{
+id: "banana_mosaic_disease",
+crop: "Banana",
+crop_ta: "வாழை",
+crop_ml: "വാഴ",
+disease: "Banana Mosaic Disease",
+disease_ta: "வாழை மோசெயிக் நோய்",
+disease_ml: "വാഴ മോസേയ് രോഗം",
+image: "images/Banana Mosaic Disease.jpg",
+problem_en: "Typical symptoms are mottled, mosaic, or discontinuous linear streaks forming yellowish-green patches and bands from the leaf margin to the midrib. Infected leaves appear twisted, narrowed, and thickened; young leaves may become smaller, curled, and display abnormal erectness. Severe infection leads to stunted plant growth, delayed or absent bunch production, and heart rot when the central portion decays. Flower bracts and pseudostems may show reddish-brown or spindle-shaped streaks. Yield loss and misshapen fruits are common.",
+problem_ta: "இலை ஓரத்திலிருந்து நடுநரம்பு வரை மஞ்சள் பச்சை மாசை, செதுக்கப்பட்ட கோடுகள் அல்லது வெட்டப்பட்ட வரிகளாக பிரத்யேகமாக காணப்படுகிறது. பாதிக்கப்பட்ட இலைகள் சுருண்டு, ஒல்லியாகவும் தடிப்பாகவும் காணப்படும்; இளம் இலைகள் பொருந்தாமல், சுருண்டும், செதி எழும்பும் சூழலில் இருக்கும். கடுமையான தாக்குதலில் செடிகள் நன்கு வளர் மாட்டா, தாமதமாகியோ பழங்கள் செல்லவில்லை. பூவாயில் மற்றும் இலைத் தண்டு பகுதிகளில் பழுப்பு சிவப்பு குறுக்கு கோடுகள் தெரியும். விளைச்சல் இழப்பு மற்றும் வளைந்த பழங்கள் ஏற்படும்.",
+problem_ml: "ഇലയുടെ അരയില്‍ നിന്നും അറ്റത്തേക്കുള്ള മഞ്ഞപ്പച്ച ചരട്/മോസൈക്ക് പാടുകളും തുടർച്ചയില്ലാത്ത വരകളുമാണ് മുഖ്യ ലക്ഷണങ്ങൾ. രോഗബാധയുള്ള ഇലകള്‍ വളഞ്ഞതും വലുപ്പം കുറഞ്ഞതുമായിരിക്കും, ഇളയ ഇലകള്‍ കുരുങ്ങുകയും കട്ടിയുള്ളതായിരിക്കും. ഗുരുതരമായ ബാധയില്‍ വാഴ വളരാതെ നിലങ്ങി പിടിക്കാതെ പോവും. pseudostem എന്നീ ഭാഗങ്ങളിൽ ചുവന്നയ്ക്ക് അടയാളങ്ങൾ കാണാം. വിളവ് കുറയും, കായ്പ്പിന് രൂപമാറ്റം വരാം.",
+cause_en: "Mainly caused by Banana bract mosaic virus (BBrMV), Cucumber mosaic virus (CMV), or other potyviruses, spread by aphids like Pentalonia nigronervosa and Aphis gossypii. The virus transmits rapidly by aphid feeding and through infected suckers or plant material. Weeds can harbor the virus during off-seasons.",
+cause_ta: "Banana bract mosaic virus (BBrMV), Cucumber mosaic virus (CMV) அல்லது பிற வைரஸ்கள் மூலம் ஏற்படும். Pentalonia nigronervosa, Aphis gossypii போன்ற அலிகள் மூலம் பரவும். உழவன் விதை மாற்றும் போது அல்லது பாதிக்கப்பட்ட செடியை பயன்படுத்தும் போது பரவலாம். கொடிகள் நோயை பரப்பும் மூலம் செயல்படும்.",
+cause_ml: "Banana bract mosaic virus (BBrMV), Cucumber mosaic virus (CMV) പോലുള്ള വൈറസുകള്‍ക്ക് പ്രധാന കാരണം. Pentalonia nigronervosa, Aphis gossypii പോലുള്ള അലിയ്ക്കള്‍ വഴി സ്പീഡായി പടരും. രോഗബാധിത നട്ടുപയോഗിച്ചാല്‍ രോഗം വേഗം പടരും. പാരംപര്യമായുള്ള തൈമാറ്റം, കടുങ്ങളില്‍ നിന്നുകൊണ്ടുമാണ്.",
+solution_en: "There is no cure after infection. Remove and destroy infected plants immediately. Use only virus-free planting materials (suckers or tissue-cultured plants). Control aphid vectors with insecticidal soaps or recommended insecticides like cypermethrin or methyl demeton. Maintain weed-free fields and avoid growing cucurbits or alternate hosts near banana. For advanced cases, remove and destroy the affected clump including corm.",
+solution_ta: "பாதிக்கப்பட்ட செடிகளை உடனடியாக அகற்றி அழிக்கவும். நோய் இல்லாத நட்டுகளை மட்டும் பயன்படுத்தவும். அலிகள் வருவது தடுக்கும் பூச்சிக் கொல்லிகள் (எ.கா., சைபர்மெத்ரின், மேதில் டீமெட்டான்) தெளிக்கவும். வயலை முள்கடிகளிலிருந்து சுத்தமாக வைத்திருக்கவும்; நிழல் பயிர்களை அருகில் வளர்க்க வேண்டாம்.",
+solution_ml: "രോഗം വന്ന ശേഷം പ്രതിവിധി ഇല്ല. ബാധിച്ച ചെടി ഉടൻ ഉയർത്തി നശിപ്പിക്കുക. രോഗരഹിത നട്ട് മാത്രമേ ഉപയോഗിക്കൂ. അലിയ്ക്കള്‍ നിയന്ത്രിക്കാന്‍ അനുയോജ്യമായ കീടനാശിനികൾ (ഉദാ. സൈപര്‍മെത്രിന്‍, മേത്തിൽ ഡീമീട്ടന്‍) ഉപയോഗിക്കുക. പറമ്പ് ശുചിത്വം പാലിക്കുക; പരിസ്ഥിതി میز пушർ നഷ്ടപ്പെടുത്തുന്ന പനംയിടുക.",
+prevention_en: "Plant only certified, virus-free suckers or tissue-cultured plants. Routinely scout and rogue any symptomatic plants. Control aphid populations and remove weeds and alternate hosts. Avoid moving planting material from infected to clean areas.",
+prevention_ta: "சரிபார்க்கப்பட்ட, நோய் இல்லாத நடுக்களையே பயன்படுத்தவும். வயலில் வருட பயணம் செய்து குற்றச்சாட்டு கொண்ட செடிகளை அகற்றவும். அலிகள் மற்றும் கொடிகளை கட்டுப்படுத்தவும். பாதிக்கப்பட்ட பகுதிகள் இருந்து நடுக்களை மீது செல்ல வேண்டாம்.",
+prevention_ml: "രോഗരഹിത നട്ട് മാത്രം ഉപയോഗിക്കുക. പതിവായി നിരീക്ഷണം നടത്തുക, ലക്ഷണങ്ങൾ കാണുന്ന ചെടികൾ നീക്കം ചെയ്യുക. അലിയ്ക്കൾ നിയന്ത്രിക്കുക, പരിസ്ഥിതി വൃക്ഷങ്ങൾ നീക്കം ചെയ്യുക. രോഗക്ലീനിയുള്ള സ്ഥലത്ത് നിന്ന് നട്ടുവസ്തു മാറ്റരുത്."
+},
+{
+id: "banana_streak_virus",
+crop: "Banana",
+crop_ta: "வாழை",
+crop_ml: "വാഴ",
+disease: "Banana Streak Virus (BSV)",
+disease_ta: "வாழை ஸ்ட்ரீக் வைரஸ் (BSV)",
+disease_ml: "വാഴ സ്ട്രീക്ക് വൈറസ് (BSV)",
+image: "images/Banana Streak Virus (BSV).jpg",
+problem_en: "Symptoms include narrow, discontinuous or continuous yellow or chlorotic streaks running from the midrib to the leaf margin, sometimes joined by spindle- or eye-shaped yellow blotches. As the disease progresses, streaks turn brown or black and necrosis develops, especially on the petiole and midrib. Plants may show periodic symptom expression—some leaves are symptomless. Growth is stunted, bunches become small, fruit may be distorted, premature leaf and pseudostem necrosis occurs, and yield is reduced.",
+problem_ta: "இலை நடுநரம்பிலிருந்து ஓரம் வரை மஞ்சள் அல்லது பச்சை வரிகள் வெட்டி அல்லது தொடர்ச்சியாக ஏற்படும்; சில நேரத்தில் கண்ணடرجம் போன்ற பசுமை புள்ளிகள் கூடும். வளர்ச்சியுடன், இந்தக் கோடுகள் பழுப்பு அல்லது கருப்பாக மாறும், குறிப்பாக இலைத்தண்டு, நடுநரம்பில் உதிர்ச்சி ஏற்படும். சில இலைகளில் வெளிப்படாமல் இருக்கலாம். செடியின் வளர்ச்சிக்குறைப்பு, சிறியக் குலைகள், பழங்கள் வளைந்துவிடுதல், நேரத்துக்கு முன்னரே அழுகல் என விளைவுகள் ஏற்படலாம்.",
+problem_ml: "ഇലയുടെ നടുവുനാരത്തിൽ നിന്നും അരയിൽ വരെ തെളിച്ചമോ മഞ്ഞയോ ബ്ലീച്ചി വരികളും പൊറ്റാരോ കണ്ണ് ആകൃതിയിലുള്ള പാടുകളും തുറിഞ്ഞോ തുടർച്ചയോ ആയി കാണും. രോഗം വരുമ്പോള്‍, ഈ വരികൾ തവിട്ടോ കറുപ്പോ നിറപ്പെടുകയും, പ്രത്യേകിച്ച് ഇലത്തണ്ടിലും നടുവിൽ നഷ്‌ടം കൂടുകയും ചെയ്യും. ചില ചെടികൾക്ക് ഒരേ സമയത്ത് ലക്ഷണമില്ലാതിരിക്കും. വളർച്ച തടയപ്പെടുക, ചെറിയ കുലകൾ, കൊണ്ട്‍വളഞ്ഞ പഴം, നേരത്തേ ഇലയും തണ്ടും അഴുക് വരിക, വിളവ് കുറയലും സാധാരണ.",
+cause_en: "Banana Streak Virus (BSV) is a Badnavirus transmitted primarily by mealybugs (Planococcus citri) and less commonly by vegetative propagation with infected materials. Integrated viral DNA in banana can become infectious under stress conditions.",
+cause_ta: "Banana Streak Virus (BSV) என்பது Badnavirus வகையைச் சேர்ந்தது. முதன்மையாக மீளிபக்குகள் (Planococcus citri) மற்றும் பாதிக்கப்பட்ட நடுக்களை பயன்படுத்தினால் பரவுகிறது. வாழைக்கு உட்பட்ட சில மரபணுவில் வைரஸ் தூண்டப்படும்.",
+cause_ml: "Banana Streak Virus (BSV) എങ്കില്‍ Badnavirus ജീനസ്സിലാണ് പെടുന്നത്. മുഖ്യമായും മീലിബഗ് (Planococcus citri) വഴി പടരും, ചിലപ്പോള്‍ രോഗബാധിത വാഴചെടി നട്ടുപയോഗിച്ചാലും. ചില ബനാന തയ്യാറെടുപ്പുകളില്‍ ജീനിലടങ്ങിയ ഒതുങ്ങിയ വൈറസ്സ് വളർച്ചയായി മാര്വുന്നു.",
+solution_en: "Remove and destroy infected plants immediately. Use virus-free tissue cultured planting material. Control mealybug populations with horticultural oils, neem extract or approved insecticides. Weed management reduces vector habitats. There is no cure after infection.",
+solution_ta: "பாதிக்கப்பட்ட செடிகளை உடனுக்குடன் அகற்றவும் மற்றும் அழிக்கவும். வைரஸ் இல்லாத திசு கலக்கு நடுக்களை மட்டும் பயன்படுத்தவும். மீளிபூச்சி பராமரிப்பு சாயம் (horticultural oil), வேப்பெண்ணெய் அல்லது பரிந்துரைக்கப்பட்ட பூச்சிக்கொல்லிகள் தெளிக்கவும். களை பராமரிப்பும் தேவை.",
+solution_ml: "ബാധിച്ച ചെടികളണ നിയമിതമായി പുറത്താക്കി നശിപ്പിക്കുക. രോഗരഹിത ടിഷു കല്ചർ നട്ടുപയോഗിക്കുക. മീലിബഗ് നിയന്ത്രിക്കാൻ ഹോർട്ടിക്കൽ ഓയിൽ, നീം എക്സ്ട്രാക്ട് അല്ലെങ്കിൽ അംഗീകരിച്ച കീടനാശിനികൾ തളിക്കുക. പത്തിവളർത്തലും അത്യാവശ്യം.",
+prevention_en: "Plant only virus-free tissue culture or certified suckers. Keep the field mealybug, aphid, and weed-free. Routinely rogue symptomatic plants. Do not use planting material from infected areas.",
+prevention_ta: "நோய் இல்லாத நடுக்களை மட்டும் பயன்படுத்தவும். வயலை மீளிபூச்சி, அலி மற்றும் களை இல்லாமல் வைத்திருக்கவும். பாதிப்பான செடிகளை நீக்கவும். பாதிக்கப்பட்ட பகுதிகளிலிருந்து நடுக்களை எடுத்துச் செல்லக்கூடாது.",
+prevention_ml: "രോഗരഹിത ടിഷു കല്ചർ നട്ടു മാത്രം ഉപയോഗിക്കുക. വയൽ മീലിബഗ്ഗ്, അലിയ്ക്കൾ, കിള, ഇല്ലാതാക്കുക. പതിവായി തടയലുകൾ നീക്കം ചെയ്യുക. ബാധിച്ച ഭാഗങ്ങളിൽ നിന്ന് വാഴചെടി മാറ്റരുത്."
+},
+{
+id: "banana_xanthomonas_wilt_leaf",
+crop: "Banana",
+crop_ta: "வாழை",
+crop_ml: "വാഴ",
+disease: "Banana Xanthomonas Wilt (BXW)",
+disease_ta: "வாழை ஜாந்தோமோனாஸ் வில்ட் (BXW)",
+disease_ml: "വാഴ സാന്‍‌ഥൊമോനാസ് നിറവ് (BXW)",
+image: "images/banana_xanthomonas_wilt_leaf.jpg",
+problem_en: "Early symptoms on leaves include progressive yellowing starting at the leaf margins and rapid wilting of the older leaves, which often remain erect or collapsed, resembling leaves exposed to fire. Leaves eventually become brown, dry, and die back from the margins towards the midrib. Affected suckers may also wilt. As the disease progresses, the whole plant can wilt, premature and uneven ripening of fruits occur, and characteristic yellowish bacterial ooze may be visible by cutting the petiole or pseudostem.",
+problem_ta: "இலையின் ஓரத்தில் இருந்து மஞ்சள் நிறம் முதலில் தோன்றி, பழைய இலைகள் விரைவாக வாடுவதாகத் தெரியும். மேலும் இலைகள் செங்கலர்ந்து, உலர்ந்து, வாடி இறந்து விடும்; சில நேரங்களில் மூடிய நிலையில் நிற்கும். பாதிக்கப்பட்ட கழிகள் அல்லது உதிர்ந்த இலைகள் விரைவாக வாடும். நோய் முன்னேறும்போது, முழு செடியும் வாடும், பழங்கள் நேரத்துக்குமுன் மற்றும் சீரற்ற வகையில் பழுக்கும். இலைத்தண்டு அல்லது தண்டை வெட்டினால் மஞ்சள் பாக்டீரியா திரவச்சாறு வெளிவரும்.",
+problem_ml: "ഇലയുടെ അര മുതൽ മഞ്ഞ നിറം തുടങ്ങുകയും പഴയ ഇലകൾ വേഗത്തിൽ ഉണങ്ങുകയും വിറയുകയും ചെയ്യും. ചിലപ്പോൾ ഇലകൾ നീളത്തിൽ തന്നെ വാടിയ നിലയിൽ ഉണ്ടായിരിക്കും. ഇലയുടെ അര മുതൽ മരുന്നിലേക്ക് ഉണങ്ങുന്നു. നാണവും കുലയും കാലാകാലേ നിരന്തരം നശിക്കും. ഇലത്തണ്ടിൽ അല്ലെങ്കിൽ സ്യൂഡോസ്റ്റെമ്മിൽ മുറിച്ചാൽ പച്ചമഞ്ഞ ബാക്ടീരിയ ജില്ലിപ്പ देखकर അറിയാം.",
+cause_en: "Caused by the bacterium Xanthomonas vasicola pv. musacearum (formerly X. campestris pv. musacearum). It spreads through infected plant material, contaminated farm tools, soil, water, and by insects such as bees and flies that visit male flowers.",
+cause_ta: "Xanthomonas vasicola pv. musacearum எனும் பாக்டீரியா மூலம் உண்டாகிறது. பாதிக்கப்பட்ட நடுக்களை பயன்படுத்துதல், மண்ணு மற்றும் நீர், கருவிகள் மற்றும் பூச்சிகள் (தேனீ, பறவைகள்) மூலமும் பரவுகிறது.",
+cause_ml: "Xanthomonas vasicola pv. musacearum ബാക്ടീരിയയാണ് കാരണം. രോഗബാധിതമായ നട്ടുകൾ, മലിനപ്പെട്ട കൃഷി ഉപകരണങ്ങൾ, മണ്ണ്, വെള്ളം, പൂച്ചകൾ വഴി പടരുന്നു.",
+solution_en: "There is no chemical cure. Uproot and destroy affected plants, including the entire 'mat' if more than one sucker is infected. Practice 'single diseased stem removal' wherever feasible. Sterilize cutting tools with detergents, bleach, or flame between plants. Use only healthy, disease-free planting materials. Avoid moving tools or plant material from infected to healthy plants.",
+solution_ta: "பாதிக்கப்பட்ட செடிகள் மற்றும் உருளைகளை முற்றிலுமாக பிடுங்கி அழிக்கவும். பாதிக்கப்பட்ட தண்டுகளை தனியாக அகற்று முறையை பின்பற்றவும். கருவிகள் சுத்தம் செய்து (செங்குத்தாக தீயிலோ, பாரம்பரிய சோப்போ) பயன்படுத்தவும். நோய் இல்லாத நடுக்களையே பயன்படுத்தவும்.",
+solution_ml: "ബാധിച്ച മുഴുവൻ ചെടികളും നശിപ്പിക്കുക. എങ്കിൽ ഒരേ കൊണ്ട് രോഗം പടരുമെങ്കിൽ സംയുക്ത നട്ടുകൾ ഒട്ടും നീക്കം ചെയ്യാം. കൊയ്ത്തു ഉപകരണങ്ങൾ ഡിറ്റർജന്റിൽ അല്ലെങ്കിൽ തീയിൽ മൂർച്ഛന നടത്തി ഉപയോഗിക്കുക. രോഗരഹിത നട്ടുപയോഗിക്കുക. സംശയമുള്ള കേന്ദ്രങ്ങളിൽ പ്ലാന്റിങ് മെറ്റീരിയൽ മാറ്റരുത്.",
+prevention_en: "Routinely scout the field, promptly remove and destroy symptomatic plants and mats. Disinfect farm tools after each use. Use only clean, healthy suckers or tissue-cultured plants. Remove male buds early to prevent insect transmission, and control visiting insect populations and weeds.",
+prevention_ta: "வயலுக்கு வழக்கமாக சென்று, பாதிப்புள்ள செடிகளை உடனடியாக அகற்றி அழிக்கவும். கருவிகள் ஒவ்வொரு பயிற்சிக்குப் பிறகும் சுத்தம் செய்யவும். சுத்தமான, ஆரோக்கியமான நடுக்களை மட்டும் பயன்படுத்தவும். பூவாயில் முன்பாக அகற்றவும், பூச்சிகளை கட்டுப்படுத்தவும்.",
+prevention_ml: "പാരിസ്ഥിതിക പരിശോധന പതിവായി നടത്തിക്കൊണ്ട് ലക്ഷണങ്ങളുള്ള ചെടികൾ നിരന്തരമായി നീക്കം ചെയ്യുക. കൃഷിഉപകരണങ്ങൾ ഉപയോഗത്തിന് ശേഷം അണുവിമുക്തമാക്കുക. രോഗരഹിത ചെറുനട്ട് മാത്രം ഉപയോഗിക്കുക. പുരുഷകിരീടം എത്രയും വേഗം നീക്കുക, വിഷമയിലാക്കുന്ന പൂച്ചകളും കളകൾ ഇല്ലാതാക്കുക."
+},
+{
+id: "banana_panama_disease_leaf",
+crop: "Banana",
+crop_ta: "வாழை",
+crop_ml: "വാഴ",
+disease: "Panama Disease (Fusarium Wilt)",
+disease_ta: "பனாமா நோய் (பூஞ்சை வாடல் நோய்)",
+disease_ml: "പനാമ രോഗം (ഫ്യൂസേറിയം വരണ്ടുപോകല്‍)",
+image: "images/Panama Disease (Fusarium Wilt).jpg",
+problem_en: "The earliest signs are yellowing at the margins of older lower leaves, which progresses upward to younger leaves. Affected leaves wilt, become brittle, may collapse at the petiole, and often hang around the plant like a skirt. Leaf blades dry out and die, leaving only the central bud upright and green. In severe cases, the whole plant wilts, and the pseudostem may split at the base. Internal discoloration (reddish or brown streaks) is seen in the vascular tissue when the pseudostem is cut.",
+problem_ta: "முதலில், பழைய கீழ் இலைகள் ஓரத்தில் மஞ்சள் நிறம் தோன்றி, மேலே இளம் இலைகளுக்குப் பரவுகிறது. பாதிக்கப்பட்ட இலைகள் வாடி, உடைந்துவிடும்; இலைத்தண்டு நசுங்கி, செடியின் சுற்றிலும் மடிந்து தொங்கும். இலைகள் காய்ந்து, இறுதி நிலையில் முதல் மைய இலை மட்டும் பசுமையாக நிமிர்ந்திருக்கும். கடுமையான பாதிப்பில் செடியின் தண்டு இணைவில் பிளவுபடும், உட்பகுதியில் சிவப்பு அல்லது பழுப்பு நிறக் கோடுகள் காணப்படும்.",
+problem_ml: "ആദ്യ ലക്ഷണമെന്നത് പഴയ ഇലകളുടെ അരയില്‍ നിന്ന് മഞ്ഞ നിറം ആരംഭിച്ച്, തുടര്‍ന്ന് യുവ ഇലകളിലേക്കാണ് പടരുന്നത്. ഇലകള്‍ ഉണങ്ങി, മോരിയും തൊട്ടും വീഴും; ഇലത്തണ്ടു മുറിഞ്ഞ് ഇരുന്നു നിലമാറ്റുന്നു. ഇലകള്‍ ഉണങ്ങി ശേഷം, ചെറു ഇല മാത്രം പച്ചനിറത്തില്‍ നിവര്‍ന്നു നില്ക്കും. ഗുരുതര ബാധയില്‍ മുഴുവന്‍ ചെടിയും ഉണങ്ങി pseudostem ആയിരിക്കും പൊളിഞ്ഞിരിക്കുക. pseudostem മുറിച്ചാല്‍ vascular ഭാഗത്തു സ്വർണ്ണം കറുത്ത വരകള്‍ കാണാം.",
+cause_en: "Caused by the soil-borne fungus Fusarium oxysporum f.sp. cubense (Foc), commonly entering plants through the roots and spreading within the vascular system, blocking water and nutrient transport.",
+cause_ta: "Fusarium oxysporum f.sp. cubense (Foc) எனும் பூஞ்சையில் காணப்படும். பூஞ்சை நிலத்தில் இருந்து வேர் வழியாக செடிக்குள் புகுந்து, ஊட்டச் சுழற்சி பாதிக்கப்பட்டு உள்ளது.",
+cause_ml: "Fusarium oxysporum f.sp. cubense (Foc) മണ്ണിലൂടെയാണ് ചെട് പടരുന്നത്. വേറൊയി വാസ്കുലാര്‍ ഭാഗത്തില്‍ കയറി വെള്ളവും പോഷകങ്ങളും തടയുന്നു.",
+solution_en: "There is no chemical cure. Remove and destroy infected plants with roots; avoid movement of infested soil. Use only resistant or tolerant banana varieties, and plant certified disease-free suckers. Use biocontrol agents such as Trichoderma and Pseudomonas in the field. Rotate with non-host crops and avoid waterlogging. Maintain strict field hygiene and never replant bananas in infested sites.",
+solution_ta: "இன்னும் மருந்து இல்லை. பாதிக்கப்பட்ட செடிகள் மற்றும் வேர்கள் முழுமையாக அகற்றி அழிக்கவும்; தொற்றுள்ள மண் நகர்த்த வேண்டாம். எதிர்ப்பு வகைகளை பயன்படுத்தவும், நோய் இல்லாத நடுக்களை தயாரிக்கவும். வயலில் Trichoderma, Pseudomonas போன்ற உயிரின பூஞ்சைநாசினிகள் பயன்படுத்தவும். மற்ற பயிர்களை சுழற்றிப் பயிரிடவும், தேங்கல் நீர் தவிர்ப்பவும்.",
+solution_ml: "ചികിത്സയില്ല. രോഗബാധിതവേര്‍ ഉള്ളചെടികള്‍ അടിച്ചുമാറ്റുകയോ പൊളിച്ച് കളയുകയോ ചെയ്യുക; രോഗബാധയുള്ള നിലം മാറ്റരുത്. പ്രതിരോധശേഷിയുള്ള ഇനങ്ങള്‍ ഉപയോഗിക്കുക. ട്രൈക്കോഡേര്‍മ, പ്യൂസിഡോമോണാസ്സ് പോലുള്ള ബയോ ചീംനി ഉപയോഗിക്കുക. വിള മാര്‍ഗ്ഗം കാത്തുക, വെള്ളക്കെട്ട് ഒഴിവാക്കുക.",
+prevention_en: "Plant only resistant or disease-free suckers. Disinfect tools and use clean footwear. Rotate to non-host crops. Ensure field drainage and avoid banana planting in known infested fields.",
+prevention_ta: "எதிர்ப்பு சக்தி அல்லது நோய் இல்லாத நடுக்களை பயன்படுத்தவும். கருவிகளை சுத்தம் செய்யவும், நல்ல வடிகால் அமைக்கவும். பயிர் சுழற்சி செயல்படுத்தவும், பாதிக்கப்பட்ட நிலங்களில் வாழை சாகுபடி தவிர்க்கவும்.",
+prevention_ml: "രോഗമുക്ത ടിഷു ക്ലീനാണ് തന്നെ ഇരുവിരുതേ വേണ്ടിവരും. ഉപകരണങ്ങൾ ശുചിത്വം പാലിക്കുക, മികച്ച ഡ്രൈനേജ് ഒരുക്കുക. മറ്റു വിളകളിലേക്ക് മാറുകയും, രോഗബാധയുള്ള നിലത്തിൽ വാഴവളർത്തൽ ഒഴിവാക്കുക."
+},
+{
+id: "banana_freckle_disease",
+crop: "Banana",
+crop_ta: "வாழை",
+crop_ml: "വാഴ",
+disease: "Banana Freckle Disease",
+disease_ta: "வாழை புள்ளி நோய்",
+disease_ml: "വാഴ ഫ്രെക്കിള്‍ രോഗം",
+image: "images/banana_freckle_disease.jpg",
+problem_en: "Banana freckle appears as small, dark brown to black spots (1–4 mm) on leaves and fruit, giving a rough, sandpapery feel. Spots can cluster in lines, form streaks along veins or midrib, and may have lighter centers. Severe infections cause yellowing, drying, and withering of leaves. Fruit may develop specks, reducing market quality. The disease reduces photosynthesis, weakens plants, and can cause significant yield loss.",
+problem_ta: "வாழை இலை மற்றும் பழத்தில் சிறிய (1–4 mm) கருப்பு அல்லது மஞ்சள் பழுப்பு நிற புள்ளிகள் காணப்படும்; இவை தொட்டால் பொரித்து இருக்கும். இவை ஒருசேரக் கோடுகளாகவும், நரம்புகளால் துண்டிக்கப்பட்டும் தோன்றும், பெரிய புள்ளிகளில் மையம் வெள்ளையாக இருக்கலாம். கடுமையான பாதிப்பு இலை ஊதல், உலர்தல், வாடல் ஏற்படுத்தும். பழத்தில் புள்ளிகள் பரவி சந்தை மதிப்பு குறையும்; ஒளிசேர்க்கை குறைந்து, நன்மை இழப்பு அதிகம் ஏற்படும்.",
+problem_ml: "വാഴ ഇലയും പഴവും ചെറുതും കറുത്തുനില്‍ക്കുന്ന (1–4 mm) പാടുകളോ തട്ടുകളോ കാണപ്പെടും; ഈ പാടുകള്‍ ഇവയുടെ മേല്‍ത്തഴുതലുണ്ടാക്കും. വേരുകളിലൂടെ പാടുകള്‍ വരികള്‍ പോലെയും streaks ഉണ്ടാകും. ചിലപ്പോള്‍ ഇവയ്ക്ക് നേര്‍ക്കൊമ്പ് ആവുന്നത് കാണാം. ഗുരുതരമായ കേസുകളില്‍ ഇലകള്‍ വാടലും ഉണങ്ങലും ദൃശ്യമാണ്. പഴത്തിന് പാടുകള്‍ വരികയും വിപണനത്തിന് അനുയോജ്യമായതല്ലാവുകയും ചെയ്യും.",
+cause_en: "Caused by the fungus Phyllosticta musarum (other names include Phyllosticta cavendishii, Guignardia musae). The pathogen survives in infected leaves and fruit, and spreads mostly via rain splash, wind-driven rain, and movement of infected plant material. Warm, wet, humid conditions favor disease development.",
+cause_ta: "Phyllosticta musarum (Phyllosticta cavendishii, Guignardia musae) என்ற பூஞ்சை காரணமாகும். பாதிக்கப்பட்ட இலை மற்றும் பழத்தில் உயிர்வாழும்; மழை, காற்று மற்றும் பாதிக்கப்பட்ட செடியின் இயக்கம் காரணமாக பரவுகிறது. சூடான மற்றும் ஈரப்பதம் கொண்ட காலநிலையில்தான் பரவல் அதிகம்.",
+cause_ml: "Phyllosticta musarum (Phyllosticta cavendishii, Guignardia musae) എന്ന ഫംഗസ് ഇതിനു കാരണം. രോഗാവസ്ഥയുള്ള ഇലകളും പഴവുമാണ് സ്പോര്ജ്ജനത്തിന് കാരണമാകുന്നത്. മഴയിലൂടെയും കാറ്റിലൂടെയും രോഗവ്യാപനം സാധ്യമാണ്. ഈര്‍പ്പം അധികമായ കാലാവസ്ഥയില്‍ രോഗം വ്യാപിക്കും.",
+solution_en: "Remove and destroy infected leaves and plant debris. Apply recommended fungicides such as mancozeb, chlorothalonil, azoxystrobin, or propiconazole biweekly. Use copper-based sprays or neem oil (1500 ppm, 5 ml per liter + surfactant) preventively. Bag fruit bunches at flowering to prevent fruit infection. Use disease-free planting material and regularly disinfect tools.",
+solution_ta: "பாதிக்கப்பட்ட இலைகள் மற்றும் தாவர கழிவுகளை அகற்றவும். பரிந்துரைக்கப்பட்ட பூஞ்சைநாசினிகளை (மான்கொஜெப், குளோரோதலோனில், ஆசோகிஸ்ட்ரோபின், ப்ரொபிகோனாசோல்) வாரத்திற்கு இருமுறை தெளிக்கவும். தாமிரம் சார்ந்த பூஞ்சைநாசினிகள் அல்லது நீம் எண்ணெய் (1500 ppm, 5ml/1நீர் + 1g சம்பளம்) பயன்படுத்தவும். பழப்பொதிகளை பேக் செய்து பாதுகாக்கவும். நோய் இல்லாத நடுக்களை பயன்படுத்தவும்.",
+solution_ml: "ബാധിച്ച ഇലകളും ഔഷധം നല്‍കുക പോലെ തന്നെ വേര്‍പെടുത്തുക. ശുപാര്‍ശ ചെയ്ത ഫംഗിസൈഡുകള്‍ (മാന്‍കൊസ്എബ്, ക്ലോറോത്തലോണില്‍, അസോക്സിസ്ട്രോബിന്‍, പ്രൊപിക്കോണാസോള്‍) ഓര്‍ത്തിരിയ്ക്കണമെങ്കില്‍ തളിക്കുക. താമ്രം അടങ്ങിയ സ്പ്രേകള്‍ അല്ലെങ്കില്‍ നീം എണ്ണ ഉപയോഗിക്കുക. പൊന്കലം പായ്ക്കുകള്‍ കെട്ടുന്നത് ഫലം നല്‍കുന്നു. രോഗം രഹിതമായ നട്ടിനങ്ങള്‍ മാത്രമേ ഉപയോഗിക്കാവു.",
+prevention_en: "Plant only disease-free tissue-cultured suckers. Regularly scout and remove symptomatic plants. Space plants for good airflow and avoid overcrowding. Sterilize pruning tools and avoid moving infected material. Keep foliage dry when possible.",
+prevention_ta: "நோயில்லாத திசுக் கலடை நடுக்களை மட்டுமே பயன்படுத்தவும். வயலை தடுக்கு பார்வையிட்டு, பாதிக்கப்பட்ட செடிகளை அகற்றவும். செடிகளை இடைவெளியில் நட்டு, வளர் காற்றோட்டம் உறுதி செய்யவும். கருவிகள் சுத்தம் செய்யவும், பாதித்த தாவரப்பிரிவுகளை நகர்த்த வேண்டாம்.",
+prevention_ml: "രോഗരഹിത ടിഷു കല്ചർ വാഴനട്ട് മാത്രം ഉപയോഗിക്കുക. പതിവായി തെരഞ്ഞെടുത്ത് ക്ഷീണിച്ച ചെടികള്‍ നീക്കംചെയ്യുക. ഇടവേളയുള്ള നടും ധാരാളം വായുസഞ്ചാരം ഉറപ്പാക്കുന്നതാണ് ഉത്തമം. ഉപകരണങ്ങൾ അണുവിമുക്തമാക്കുക. പനീയുള്ള സ്ഥലം ഒഴിവാക്കുക."
+},
+{
+id: "banana_crown_rot",
+crop: "Banana",
+crop_ta: "வாழை",
+crop_ml: "വാഴ",
+disease: "Crown Rot",
+disease_ta: "வாழை கிரீட அழுகல்",
+disease_ml: "വാഴ കിരീട ചീനം",
+image: "images/banana_crown_rot.jpg",
+problem_en: "Crown rot appears after harvest at the cut (crown) end of the banana hand, where a brown to black soft rot develops and can spread from the crown into the necks of the fingers. Severely infected crowns may become covered with whitish mold and emit an unpleasant odor. Lesions can penetrate deep, leading to blackening, softening, and premature detachment of fingers. Rot can extend into the fruit pulp if storage conditions are improper.",
+problem_ta: "வாழைப் பழக் கிடாத்துப்பகுதியில் (கிரீடம்) அறுவடை பின் துவங்கி, பழுப்பு அல்லது கருப்பு மிருதுவான அழுகல் ஏற்படுகிறது. கடுமையாக பாதிப்பில் வெண்மணல் போன்ற பூஞ்சை வளர்ந்து, கொடிய நாற்றத்தை உதிர்க்கும். அழுகல் பழ முளை நோக்கிக் கொண்டும், பழங்களை நேரத்துக்குமுன்பே கழறச்செய்யும்.",
+problem_ml: "വാഴയുടെ കിരീടത്തിൽ നനയോഴുകും മാറ്റം, പൊളുത്തു നിറം മുതൽ കറുപ്പ് വരെ ഉണ്ടാകും. ഗുരുതരമായ ബാധയിൽ കിരീടം വെളുത്ത പൂഞ്ചയാൽ മൂടപ്പെടും, ദുർഗന്ധം ഉണ്ടാകും. പഴത്തിലെ കുരു നശിക്കും, പഴങ്ങൾ കാലത്തിൽ മുമ്പ് പൊളിക്കും.",
+cause_en: "Mainly caused by fungi such as Colletotrichum musae, Fusarium spp., Musicillium theobromae, and others. Infection occurs through wounds created when cutting hands from bunches. The pathogens survive in banana fields on dead tissues and are spread by water, insects, and poor sanitation practices.",
+cause_ta: "Colletotrichum musae, Fusarium spp., Musicillium theobromae போன்ற பூஞ்சைகள் மூலம் ஏற்படுகிறது. காய்ச்சும் போதே உருவாகும் வெட்டுக் காய்கள் மூலம் தொற்று உண்டாகிறது. தாவரக் கழிவுகளில் ஆற்றலும், தண்ணீர், பூச்சிகள், சுத்தமில்லாத நடைமுறைகள் பரவி உதவும்.",
+cause_ml: "Colletotrichum musae, Fusarium spp., Musicillium theobromae തുടങ്ങിയ ഫംഗികളാണ് പ്രധാന കാരണം. വെള്ളം, ഇനങ്ങള്‍, അണുസൂക്ഷം കുറഞ്ഞ ജോലി എന്നിവയിലൂടെ പ്രവേശിക്കുന്നു.",
+solution_en: "Promptly remove and properly dispose of all infected plant parts. Use fungicidal dips (thiabendazole, prochloraz, or propiconazole) postharvest; essential oils (cinnamon, thyme, or sweet almond) applied to the crown reduce severity. Wash and air-dry fruits, and disinfect knives and packing stations. Store bananas at 13–15°C in a clean environment to reduce disease progression.",
+solution_ta: "அழுகிய பகுதிகளை உடனடியாக அகற்றி அழிக்கவும். அறுவடை பின் பூஞ்சைநாசினி மூட்டலில் (தியாப்பென்டசோல், ப்ரொகிளோராஸ், ப்ரொபிகோனாசோல்) பழங்களை மூழ்கவைக்கவும்; கிரீடத்திற்கு தேவையான நச்செண்ணெய் தடவை (சின்னமானி, தைம், ஸ்வீட் அல்மண்ட்). பழங்களை துவைத்து காற்றில் உலர்த்து, கருவிகள் மற்றும் நிலையங்களை கிருமி நீக்கம் செய்யவும்.",
+solution_ml: "ബാധിത വിഭാഗങ്ങള്‍ പെട്ടെന്ന് നീക്കംചെയ്യുകയും അണുവിമുക്തമായി സംസ്‌കരിക്കുകയും ചെയ്യുക. തിയാബെന്‍ഡസോള്‍, പ്രോക്ലോറാസ് പോലെയുള്ള പോലുള്ള ഫംഗിസൈഡുകളില്‍ പഴം മുങ്ങിക്കുക. സിനമണ്‍, തൈംവെളിച്ചെണ്ണ, ആൽമണ്ട് ഓയിൽ കൊണ്ടുള്ള സമ്പ്രദായങ്ങള്‍ പരീക്ഷിക്കാം. പഴങ്ങള്‍ കഴുകി ഉണക്കുകയും ഉപകരണങ്ങള്‍ അണുവിമുക്തമാക്കുകയും വേണം.",
+prevention_en: "Harvest only at proper maturity, handle bananas gently to avoid wounds, and wash with disinfectant after de-handing. Maintain strict field and packinghouse sanitation. Use clean, sharp tools to cut banana hands, keep packinghouses clean, and refrigerate bananas after harvest where possible.",
+prevention_ta: "சரியான பழுத்த நிலையில் அறுத்து, பழங்களை மெதுவாக கையாளவும். கிளைகள் அகற்றிய பின் கிருமிநாசினி கலந்த நீரில் கழுவியபின் மெதுவாக காற்றில் உலர வைத்து, தூய்மை கருவிகள் உபயோகிக்கவும், பக்கிங்ஹவுஸில் சுத்தம் பாதுகாக்கவும்.",
+prevention_ml: "ഉറപ്പായ പഴുത്തപ്പഴം മാത്രം കൊയ്യുക, കേടുവരുത്തുന്ന അടിപ്പിടികൾ ഒഴിവാക്കുക. ദേഹാംസം കൃത്യമായി അണുവിമുക്തമാക്കുക. വെട്ടിക്കുറുക്കേണ്ട ഉപകരണങ്ങൾ ശുചിത്വം പാലിക്കുക, പഴങ്ങള്‍ റഫ്രിജറേറ്ററില്‍ സൂക്ഷിക്കുക."
+},
+{
+id: "banana_anthracnose",
+crop: "Banana",
+crop_ta: "வாழை",
+crop_ml: "വാഴ",
+disease: "Anthracnose",
+disease_ta: "வாழை ஆண்ட்ராக்னோஸ்",
+disease_ml: "വാഴ അന്ത്രാക്ക്നോസ്",
+image: "images/banana_anthracnose.jpg",
+problem_en: "Anthracnose symptoms begin as small, dark sunken spots on the banana fruit skin, often around the tip, blossom end, or wounded areas. Spots expand and coalesce, forming large black lesions sometimes covered with orange or salmon-pink spore masses. Infected fruit softens, shows premature blackening, and may rot completely. Severe infections reduce shelf life, market value, and produce a musty odor.",
+problem_ta: "வாழை பழத்தின் தோலில் சிறிய, உள்பட்ட, கருப்பு புள்ளிகள் முதலில் தோன்றும்; பெருவாரியானவை பழத்தின் முனைப்பகுதியில், வெடிப்பு அல்லது காயப்படிப்பில் அதிகம் காணப்படும். புள்ளிகள் இணைந்து பெரிய கருப்பு நிலைகள் ஆகும், சில சமயம் ஆரஞ்சு அல்லது சாம்பல் நிற பூஞ்சைத் துகள்கள் இருக்கும். இல்லையான பழங்கள் விரைவில் கருப்பு நிறமாக செத்து அழுகும்; கடுமையான பாதிப்பில் pazham பயிர் மதிப்பும் நிலைத்தன்மையும் குறையும், துர்நாற்றம் ஏற்படலாம்.",
+problem_ml: "വാഴ പഴത്തിൽ ചെറിയ, കറുത്ത, ഉഴുക്ക് പാടുകൾ തുടക്കം; സാധാരണയായി അറ്റം അല്ലെങ്കിൽ പരുക്കായ ഭാഗങ്ങളിൽ ഉണ്ടാകും. പാടുകൾ വലുതായി ചേർന്ന് കറുപ്പ് വരികളാക്കും; കയറുള്ള ഭാഗങ്ങളിൽ ഓറഞ്ച് അല്ലെങ്കിൽ സാൽമൺ നിറത്തിലുള്ള സ്പോറിനിരകളും കാണും. ബാധിച്ച പഴം ഉരുണ്ടിരിക്കും, നേരത്തേ കറുത്തുനിൽക്കും, പൂര്‍ണമായും അഴുകാൻ സാധ്യതയുണ്ട്. ഗുരുതരമുള്ള ബാധയിൽ പഴത്തിന്റെ നിക്ഷേപമൂല്യവും ജൈവ നിലയുമാണ് കുറയുന്നത്.",
+cause_en: "Mainly caused by the fungus Colletotrichum musae. The pathogen infects the fruit in the field but symptoms usually appear during ripening, storage, or transport. Wounds or bruises increase risk. Thrives in warm (22–32°C), humid conditions, especially during rainy seasons.",
+cause_ta: "Colletotrichum musae பூஞ்சை காரணமாக வருகிறது; வயலில் பழங்கள் இறைவர் காலத்தில் தாக்கதிவிட்டு, அணுகல், சேதம், அல்லது காய்ப்பாடுகளில் நோய் அதிகம் பரவுகிறது. சூடான, ஈரமான காலநிலை, குறிப்பாக மழைக்காலங்களில் அதிகம்.",
+cause_ml: "Colletotrichum musae എന്ന ഫംഗസാണ് പ്രധാന കാരണം. കായ്പ്പാടുകൾ കാർഷിക വയലിൽ തന്നെ കൈവരുന്നതാണ്, പക്ഷേ ലക്ഷണങ്ങൾ ശേഷം храненияയിലോ ഗതാഗതത്തിലോ കാണാം. പരുക്കുകൾ രോഗം കൂടുതൽ ശക്തമാക്കും. ഈർപ്പം കൂടിയ ചൂടുള്ള അന്തരീക്ഷമാണ് ഇതിന് അനുകൂലമായത്.",
+solution_en: "Remove and destroy infected fruits. Postharvest fungicide dips (e.g., difenoconazole, mancozeb) and hot water treatment (55°C, 2 min) can reduce infection. Use essential oils (e.g., lemon grass, neem, thyme) for organic control. Handle fruits gently to avoid wounds, disinfect tools, and maintain clean storage and packing areas.",
+solution_ta: "பாதிக்கப்பட்ட பழங்களை அகற்றி அழிக்கவும். அறுவடை பின் பூஞ்சைநாசினி (டிபெனோனசோசோல், மான்கொஜெப்) மற்றும் சூடான நீர் மூழ்கல் (55°C, 2 நிமிடம்) பயன்படுத்தலாம். இயற்கை முறையில் எஸ்ஸென்ஷியல் எண்ணெய்கள் (எ.கா., எலுமிச்சைமுள்ளங்கி, நீம், தைம்) பயன்படுத்தலாம். பழங்களை மெதுவாக கையாளவும், கருவிகள் சுத்தம் செய்யவும், நிரப்பும் இடங்களை தூய்மை வைத்திருத்தல் வேண்டும்.",
+solution_ml: "ബാധിച്ച പഴങ്ങൾ നീക്കം ചെയ്യുക. ഹോട്ട് വാട്ടർ ഡിപ് (55°C, 2 min) ഉപയോഗിക്കുക, ഡി‌ഫെനോനാസോസോൾ, മാൻകോസെബ് പോലുള്ള ഫംഗിസൈഡുകൾ തളിക്കുക. ജൈവ നിയന്ത്രണത്തിനായി ഈസെൻഷ്യൽ ഓയിലുകൾ (ലെമൺ ഗ്രാസ്, നീം, തൈം) ഉപയോഗിക്കാം. പഴം പരിക്കുകൾ ഒഴിവാക്കണം, ഉപകരണങ്ങൾ അണുവിമുക്തമാക്കണം, സംഭരണിയും പാക്കിംഗ് സ്ഥലവും ശുചിത്വം പാലിക്കണം.",
+prevention_en: "Harvest fruits at proper maturity and handle gently to avoid wounds. Disinfect knives and packing stations. Use fungicidal dip postharvest or hot water treatment. Maintain clean storage with low humidity. Avoid storing overripe or damaged bananas.",
+prevention_ta: "சரியான காலத்தில் பழங்களை அறுத்து, காயம் ஏற்படுத்தாமல் மெதுவாக கையாளவும். கத்தி, பாக்கிங் நிலையங்களைக் கிருமி நீக்கவும். அறுவடை பின் பூஞ்சைநாசினி மூழ்கலாம் அல்லது சூடான நீர் ட்ரீட்மென்ட் செய்யலாம். பாக்கிங் இடங்களில் குறைந்த ஈரப்பதத்தைக் கொண்டது உறுதி செய்யவும். மிகவும் பழுத்தvai அல்லது சேதம் அடைந்தவையை சேர்க்க வேண்டாம்.",
+prevention_ml: "നിർഭാഗ്യവും പരിക്കുമില്ലാതെ പഴങ്ങൾ കയറ്റണം. കത്തി, പാക്കിംഗ് സ്ഥലങ്ങൾ അണുവിമുക്തമാക്കണം. ഹോട്ട് വാട്ടർ ഡിപ് അല്ലെങ്കിൽ ഫംഗിസൈഡുകൾ പാഴങ്ങൾ immers ചെയ്‌താൽ പോരും. ശുചിത്വം പാലിച്ച് കുറഞ്ഞ ഈർപ്പത്തിൽ സംഭരണം ചെയ്യണം. അതിപഴുത്ത/കഴിഞ്ഞ പഴങ്ങൾ ഒഴിവാക്കണം."
+},
+
+{
+id: "banana_panama_disease_stem",
+crop: "Banana",
+crop_ta: "வாழை",
+crop_ml: "വാഴ",
+disease: "Panama Disease (Fusarium Wilt)",
+disease_ta: "பனாமா நோய் (பூஞ்சை வாடல் நோய்)",
+disease_ml: "പനാമ രോഗം (ഫ്യൂസേറിയം വരണ്ടുപോകല്‍)",
+image: "images/banana_panama_disease_stem.jpg",
+problem_en: "Characteristic internal symptom is vascular discoloration in the pseudostem, seen as yellow to reddish-brown or purple streaks and concentric rings when cut. Vascular tissue browning extends from root and rhizome upwards. Externally, plants wilt, show progressive yellowing and collapse of leaves. Severely infected plants die and inner tissues exhibit rot, while central core remains white. Early detection of vascular browning is critical for disease management.",
+problem_ta: "இலைத் தண்டை உள்ளிருப்பில் (pseudo-stem) வெட்டி பார்த்தால் மஞ்சள் முதல் சிவப்பு-பழுப்பு அல்லது ஊதா நிற கோடுகள் மற்றும் வளையங்கள் உள்ளடங்கிய முகக்குறைப்பு நிரம்ப காணப்படும். இந்த உதிர்ச்சி வேர்கள் மற்றும் கிழங்கில் இருந்து மேலே வரை விரியும். வெளியிட்ட நோயில் செடிகள் வாடுவதும் இலைகளை மஞ்சள் நிறமும் உதிர்வும் நடந்துவிடும். கடுமையான பாதிப்பில், செடி இறந்துபோகும்; உள்ளிருப்பு பழுப்பு/கறுப்பு நிறமாகும், ஆனால் மையம் வெள்ளையாக இருக்கும். உள்ளிருப்பு உதிர்ச்சி நோயை கணிக்க வேண்டும்.",
+problem_ml: "പ്യുസ്ടോസ്റ്റമെ് വണ്ടലിൽ (pseudo-stem) മുറിച്ചുനോക്കുമ്പോൾ വാട്ടത്തിനകത്തു പച്ച മുതൽ ഇളം ചുവപ്പ്, മഞ്ഞ, മെലിഞ്ഞവട്ടങ്ങളായോ വലയങ്ങളായി കാണും. ബ്രൗൺ വരികളോടൊപ്പം vascular മാറ്റങ്ങള്‍ വേരിൽ നിന്നും മുകളിൽ വരെ തുടരുമ്. പുറം ലക്ഷണങ്ങള്‍ പ്രകാരം ചെടി ഉണങ്ങാനും ഇലകൾ മഞ്ഞയായി ഒടുങ്ങാനും തുടങ്ങിയിരിക്കും. ഗുരുതരമായ കേസിൽ ചെടി ചായംവലി മരിക്കും. ഉള്ളിൽ പ്രധാന കോർ വെളുപ്പായിരിക്കും.",
+cause_en: "Caused by the soil-borne fungus Fusarium oxysporum f.sp. cubense (Foc). Fungus invades through roots, colonizes vascular tissue, and blocks water/nutrient movement, resulting in wilt and death.",
+cause_ta: "Fusarium oxysporum f.sp. cubense (Foc) என்ற பூஞ்சை மூலம் உண்டாகிறது. வேர் வழியாக தாக்கி, ஊட்டச் சுழற்சி தடுப்பதால் வாடல், உதிர்வு உண்டாகிறது.",
+cause_ml: "Fusarium oxysporum f.sp. cubense (Foc) എന്നു് മണ്ണിൽ നിന്ന് പടരുന്ന ഒരു ഫംഗസ് ആണ്. വേരിലൂടെ അകത്തു കയറി vascular অংশം അടച്ചു വളർച്ച തടയും.",
+solution_en: "No chemical cure exists. Remove and destroy all infected plants and roots. Only plant certified, resistant varieties. Apply biocontrol agents (e.g., Trichoderma, Pseudomonas) in soil and maintain strict field hygiene. Practice crop rotation and avoid banana planting in infested fields.",
+solution_ta: "மருந்து இல்லை. பாதிக்கப்பட்ட படாரியையும் வேரையும் அகற்றி அழிக்கவும். எதிர்ப்பு வகைகளை பயிரிடவும், உயிரி பூஞ்சைநாசினி பயன்படுத்தவும். வயல் தூய்மை, பயிர் சுழற்றும் பழக்கங்கள் கடைபிடிக்க வேண்டும்.",
+solution_ml: "ചികിത്സയില്ല. എല്ലാ രോഗബാധിത വേരുകളും ചെടികളും എടുത്ത് നശിപ്പിക്കുക. പ്രതിരോധശേഷിയുള്ള ഇനങ്ങൾ മാത്രം നടുക. ട്രൈക്കോഡേര്‍മ, പ്യൂസിഡോമോണാസ് തുടങ്ങിയ ബയോ രജിസ്റ്റർ കുറഞ്ഞ് വയലിലൂടെ വിതരാം. വയൽ ശുചിത്വം, വിളമാറ്റം അനിവാര്യമാണ്.",
+prevention_en: "Plant only resistant or certified disease-free suckers. Sanitize tools/footwear and prevent contaminated soil movement. Avoid planting bananas in previously infested areas and ensure good drainage.",
+prevention_ta: "எதிர்ப்பு சக்தி அல்லது நோய்மற்ற நடுக்களை மட்டுமே பயிரிடவும். கருவிகள், பாதணிகளை சுத்தம் செய்யவும், தொற்றான நிலப் பகுதியை தவிர்க்கவும். நல்ல வடிகால் அமைக்கும் பழக்கு பாதுகாக்கவும்.",
+prevention_ml: "പ്രതിരോധശേഷിയുള്ള തൈകൾ മാത്രം നടുക. ഉപകരണങ്ങള്‍, ഷൂസിനുകള്‍ ശുചിത്വം പാലിക്കുക. പഴയ രോഗം വന്ന നിലത്തുതന്നെ വീണ്ടും വാഴ പ്ലാന്റ് ചെയ്യരുത്. നല്ല ഡ്രെയിനേജ് ഉണ്ടായിരിക്കുക."
+},
+{
+id: "banana_moko_disease_stem",
+crop: "Banana",
+crop_ta: "வாழை",
+crop_ml: "വാഴ",
+disease: "Moko Disease (Bacterial Wilt)",
+disease_ta: "மோக்கோ நோய் (பாக்டீரியா உதிரல்)",
+disease_ml: "മോക്കോ രോഗം (ജൈവ ചീനം)",
+image: "images/banana_moko_disease_stems.jpg",
+problem_en: "Internal plant symptoms include cream to yellow or brown, sometimes almost black, vascular streaks and specks in the cross-section of pseudostem, particularly around the central core. When cut, stems may exude a milky, yellow or reddish-brown bacterial ooze. Externally, plants show wilting and yellowing of leaves, which later collapse and form a skirt of dead leaves. Suckers may wilt, and plants stop growing or die prematurely.",
+problem_ta: "உள்ளிருப்பு அறுக்கையில் (pseudo stem), மஞ்சள், பழுப்பு அல்லது nearly கருப்பு நிற வட்டங்கள், கோடுகள் மற்றும் புள்ளிகள் பூச்சியமாய் காணப்படும். வெட்டும்போது வெண்மை, மஞ்சள் அல்லது சிவப்பு-பழுப்பு நிற பாக்டீரியா திரவம் பெரும்பாலும் வெளியேறும். வெளியே, செடிகள் வாடல், இலைகள் மஞ்சள் நிறம் பெறுதல் மற்றும் இறங்கி தொங்குதல் காணப்படும். கழிகள் வாடும், செடி வளர்ச்சியை நிறுத்தும் அல்லது மிக இளம் நிலையில் இறக்கும்.",
+problem_ml: "കിണർത്തിയ പ്യുസ്ടോസ്റ്റെം മുറിച്ചാൽ, കേന്ദ്ര ഭാഗത്ത് നിന്ന് ആരംഭിച്ച് വിഷമങ്ങള്‍, മഞ്ഞ, കറുപ്പ്, അല്ലെങ്കിൽ ചാര നിറത്തിലുള്ള vascular ഭൂരിഭാഗവും കാണും. മുറിച്ചപ്പോൾ മങ്ങിയ ബാക്ടീരിയ ദ്രാവകം പുറത്തേക്കു വരാം. പുറം ലക്ഷണങ്ങൾ: ഇലകൾ ഉണങ്ങി തൂങ്ങുക, മഞ്ഞയാവുകയും, ചെടികൾ പെട്ടെന്ന് വളരാതിരുന്നു മരുമ്മിന്റെ നിലയിലാകുന്നു.",
+cause_en: "Caused by the bacterium Ralstonia solanacearum (Race 2). It enters through roots, wounds, or flower parts, and travels via water, soil, infected tools, plant material, and insects. The bacterium multiplies in the vascular tissue, blocking water flow.",
+cause_ta: "Ralstonia solanacearum (Race 2) என்ற பாக்டீரியா மூலம் உண்டாகிறது. வேர்கள், இலைக்காய்ச்சியுடன், பூப்பாகங்கள், நீர், மண், கருவிகள், பாதிக்கப்பட்ட நடுக்கள் மற்றும் பூச்சிகள் மூலம் பரவுகிறது. பாக்டீரியா vascular அமைப்பில் பெருகி தண்ணீர் ஓட்டத்தை தடுக்கும்.",
+cause_ml: "Ralstonia solanacearum (Race 2) എന്ന ബാക്ടീരിയയാണ് പ്രധാന കാരണം. വേര്្មൂലം, വേരുകൾ, പൂവിന്റെ ഭാഗങ്ങൾ, വെള്ളം, മണ്ണ്, ഉപകരണങ്ങൾ, പോള്മരുന്നുകളും, കീടങ്ങൾ വഴി പടരുന്നു. vascular പാർട്ടുകളിലാണ് ബാധയും വെള്ളം ചരക്ക് തടയലും.",
+solution_en: "No chemical cure. Immediately rogue and destroy infected mats, including rhizomes. Keep farm and tools sanitized. Use disease-free planting material, control irrigation and drainage to avoid waterlogging, and use biocontrol agents (Bacillus subtilis, Trichoderma). Remove, bury, or burn infected debris. Regular monitoring is essential.",
+solution_ta: "மருந்து இல்லை. பாதிக்கப்பட்ட செடிகள், கிழங்கும் உடனடியாக அகற்றி அழிக்கவும். வயல் மற்றும் கருவிகள் சுத்தமாக வைத்திருக்கவும். நோயில்லாத நடுக்களை மட்டும் பயிரிட்டு, நீர் தேங்கல் தவிர்க்கவும், உயிரி பூஞ்சைநாசினி (Bacillus subtilis, Trichoderma) பயன்படுத்தவும். பராமரிப்பு மற்றும் மேற்பார்வை அவசியம்.",
+solution_ml: "ചികിത്സയില്ല. ബാധിച്ച ഞണ്ട്, വേരുമൊത്ത് നീക്കം ചെയ്ത് കത്തിച്ച് അല്ലെങ്കിൽ കുഴിച്ചുമാടും. വയല്‍ ശുചിത്വം പാലിക്കുക, സാധനങ്ങൾ അണുവിമുക്തമാക്കണം. രോഗരഹിത തൈകൾ മാത്രം ഉപയോഗിക്കുക; വെള്ളക്കെട്ട് ഒഴിവാക്കുക; ബയോകൺട്രോൾ ഏജന്റുകൾ ഉപയോഗിക്കുക.",
+prevention_en: "Plant only certified, healthy suckers. Routinely inspect fields and remove suspect plants/plants with symptoms. Disinfect equipment after each use, and avoid moving planting material from infested to clean fields.",
+prevention_ta: "மருத்துவ சான்றளிப்பு பெற்ற ஆரோக்கிய நடுக்களை மட்டும் பயிரிடவும். வயலை சரியாக பார்வையிட்டு பாதிப்பு கொண்ட செடிகளை அகற்றவும். கருவிகள் கிருமி நாசினி மூலம் சுத்தம் செய்யவும், பாதிக்கப்பட்ட இடங்களில் இருந்து நடுக்களை மாற்ற வேண்டாம்.",
+prevention_ml: "രോഗരഹിത നട്ട് മാത്രം നടുക. വയല്‍ നിരീക്ഷിക്കുകയും ചീനം സംശയപ്പെടുന്ന ചെടികൾ നീക്കം ചെയ്യുകയും ചെയ്യുക. ഉപകരണങ്ങൾ ഉപയോഗിച്ചശേഷം അണുവിമുക്തമാക്കുക; ബാധിച്ച പ്രദേശങ്ങളിൽ നിന്ന് നട്ട്/സസ്യങ്ങള്‍ മാറ്റരുത്."
+},
+{
+id: "banana_stem_weevil_damage",
+crop: "Banana",
+crop_ta: "வாழை",
+crop_ml: "വാഴ",
+disease: "Banana Stem Weevil (Pseudostem Borer) Damage",
+disease_ta: "வாழை தண்டு வண்டி (பாசுடோஸ்டெம் போரர்) சேதம்",
+disease_ml: "വാഴ രസംതണ്ടില്‍ വെവില്‍ (പ്സ്യൂഡോസ്റ്റം ബോറര്‍) നാശം",
+image: "images/banana_stem_weevil_damag.jpg",
+problem_en: "Symptoms include small pinhead-sized holes and tunnels in the pseudostem, sometimes accompanied by jelly-like gum or sap exudation at leaf bases. Internal feeding leads to fibrous extrusions, blackish mass coming out of holes, and premature yellowing, wilting, and collapse of leaves. Advanced infestations hollow out the stem, cause structural weakness, reduce growth and bunch development, and may split or break stems. Plants become stunted and fruits may ripen prematurely, leading to significant yield loss.",
+problem_ta: "பாசுடோஸ்டெம் மீது சிறிய துளைகள் மற்றும் குழிகள் ஏற்படும்; காய்ச்சியில் இருக்கும் வேர்களிலிருந்து ஒட்டுமொத்த சாறுடன் சேர்ந்து ஏற்படும். உள்ளக உணவால் இலைவளம் பழுப்பு அல்லது கருப்பு குழிகள் உருவாகும். காரியம் தொடங்கிய பின்பு, தண்டு வெறிப்பாகி, செடி வளர்ச்சி குறையும், இலைகள் மஞ்சள் மற்றும் வாடும். கடுமையான பாதிப்பு செடியை முற்றிலும் வீழ்ச்சி செய்யும், பழங்கள் நேரத்துக்கு முன்பு பழுக்கலாம்.",
+problem_ml: "തണ്ടിന് പുറത്ത് ചെറിയ കുരു പോലെ റോണ്ടകളും അടുകളായും കാണാം; ചിലപ്പോൾ pseudostem-ന് അടിവശത്ത് ജെല്ലി പോലെ ഉള്ള പുറം ഗം കാണാം. ഉള്ളിലേക്കുള്ള ഭക്ഷണം കയർ എറ്റിപ്പിടിച്ചു, കറുപ്പ് സ്ഥലം പുറത്ത് വരും, ഇലകളുടെ മഞ്ഞയാകലും ഉണങ്ങിയ നിലയും വരും. തുണ്ടയുടെ അകത്ത് വലിയ ചുരണ്ട് ദ്വാരങ്ങൾ വരുന്നതും, ഒടിഞ്ഞു വീഴുന്നതുമാണ്. വാഴ വഴിയുമാം, വളർച്ച കുറയുകയും, കുലം കൈവരാതെ തീരുകയും ചെയ്യും.",
+cause_en: "Caused by the banana stem weevil Odoiporus longicollis. Adult weevils lay eggs in pseudostem or leaf bases; larvae tunnel into stems, feeding on tissues. Spread via infested plant debris, movement of adults, contaminated tools, and soil.",
+cause_ta: "Odoiporus longicollis இருவகை வாழை தண்டு வண்டி மூலம் ஏற்படும். வயல் கழிவுகளில் வாழும்; வயலில் உள்ள வண்டிகள், கருவிகள், மண்ணில் இருந்து பரவும்.",
+cause_ml: "Odoiporus longicollis എന്ന വണ്ട് ആണ് കാരണം. മുതു് സ്വയം pseudostem-ൽ കയറി, വേർകുറച്ചു ആഗിരണം ചെയ്യും. രോഗബാധിത വാഴക്കുരു, സസ്യാവശിഷ്ടങ്ങള്‍, ഉപകരണങ്ങൾ, മണ്ണ് ഇത്തിരിയും പടരും.",
+solution_en: "Practice field sanitation by removing and destroying infested pseudostems after harvest. Use pseudostem traps (split stems placed near plants) to attract and kill adults. Inject neem formulations (azadirachtin 10000 ppm, 4 ml/liter), use biocontrols like Beauveria bassiana, Heterorhabditis indica, or Metarhizium anisopliae. In severe cases, use recommended insecticides (chlorpyriphos, imidacloprid) by injection pre-bunch stage. Avoid chemical use after bunch formation.",
+solution_ta: "பாசுடோஸ்டெம் பகுதியானபின், சேதங்களை அகற்றி அழிக்கவும். தண்டு வலையங்கள் அமைத்து வாங்குந் தொடர். நீம் சத்துடன் பூச்சி மாண்புகளை (azadirachtin 10000 ppm) பயன்படுத்தவும். அமைந்தவே தவிர்த்து பூச்சி எதிர்ப்பு மருந்து (chlorpyriphos, imidacloprid) தேவைப்படும்போது மட்டுமே பயன்படுத்தவும்.",
+solution_ml: "കൃഷി ശുചിത്വം പുലര്‍ത്തി, harvest-ന് ശേഷം അകത്ത് തണ്ടുള്ള വാഴയുണ്ടെങ്കില്‍, pseudostem traps (ചെറുത് മുറിച്ച് വിഴുങ്ങണം). നീം, Beauveria bassiana, Heterorhabditis indica മിശ്രണം ചെയ്യവതും. ആവശ്യമെങ്കിൽ കീടനാശിനികൾ injection രീതിയിൽ ഉപയോഗിക്കുക.",
+prevention_en: "Plant resistant varieties and use clean, healthy tissue-cultured suckers. Always remove and destroy old plant debris. Clean planting holes after harvest, keep fields weed-free, and periodically rotate crops. Disinfect tools before use. Boiling water treatment of suckers can kill eggs/larvae before planting.",
+prevention_ta: "எதிர்ப்பு வகைகளை பயன்படுத்தவும்; நோய் இல்லாத நடுக்களை பயன்படுத்தவும். களி, மண்ணை, கருவிகளை சுத்தம் செய்யவும். பருவம் கடந்து சேதங்களை உடனடியாக அகற்ற வேண்டும்.",
+prevention_ml: "പ്രതിരോധശേഷിയുള്ള തൈകളും ശുചിത്വം പാലിച്ചിട്ടുടുള്ള ഞണ്ട് കാശും മാത്രം കാലം. harvest-ിന് ശേഷം വായ് കഴുകി, വളം വച്ചു, ഉപകരണങ്ങൾ അണുവിമുക്തം. തൈ പാകത്തിന് ഉരുക്കു വെള്ളത്തിൽ മുക്കി ഉപയോഗിക്കുക."
+},
+{
+id: "banana_rhizome_rot_tip_over",
+crop: "Banana",
+crop_ta: "வாழை",
+crop_ml: "വാഴ",
+disease: "Rhizome/Stem Rot (Tip Over Disease)",
+disease_ta: "வேர்த்தண்டு/தண்டு அழுகல் (டிப் ஓவர் நோய்)",
+disease_ml: "വാഴ വേരും താണ്ട് ചീനം (ടിപ് ഓവർ)",
+image: "images/banana_rhizome_rot_tip_over.jpg",
+problem_en: "Initial symptoms are soft, brown or blackish rot at the collar, base, or rhizome region, with foul odour. Collar region and lower pseudostem tissue become water-soaked, soft, and easily break if pulled, leaving roots in the soil. Leaves yellow and suddenly wilt, with rapid collapse of the plant (tip over). Outbreaks most common in hot, damp, or poorly drained soil; infected suckers, weak growth, and reduced yield follow.",
+problem_ta: "முதல் அறிகுறிகள் தண்டு அடிக்கழியில் மென்மையான பழுப்பு/கருப்பு அழுகல், தீவிர வாசனை. நாண் மற்றும் அடிப்பகுதி நீர் வீக்கம், மென்மையானதாக மாறும், வெறுப்படியில் இலைகள் திடீரென மஞ்சள் ஆகி உருண்டு விழும். பாதிக்கப்பட்ட செடிகள் அடிக்கழியில் எளிதில் உடைந்து, வேர்கள் மண்ணில் தான் தங்கும்; சூடான, ஈரப்பதம் கூடிய, வழுக்கையான நிலங்களில் ஏற்படும்.",
+problem_ml: "ആദ്യ ലക്ഷണങ്ങള്‍ നാണിന്റെയും വേരിന്റെയും ഭാഗത്ത് മൃദുവായ, തവിട്ട്/നിറം എന്നിവയുള്ള ചീനം, ദുർഗന്ധം ഉണ്ട്. അടിവശത്തും പ്യൂസ്ഡോസ്റ്റെമുമാണ് വെള്ളം കയറി മൃദുത്വം പ്രാപിക്കുന്നത്, ഔസൃതിക്കുമ്പോൾ വേരുകൾ പണിയിൽ തന്നെ ഇരിക്കും. ഇലകൾ പച്ചയില്‍ നിന്ന് മഞ്ഞയായി വരികയും, വേഗത്തിൽ ഉണങ്ങുകയും ചെടി ഒടിഞ്ഞുപോകുകയുമാണ്.",
+cause_en: "Caused by soft rot bacteria such as Pectobacterium carotovorum (syn. Erwinia carotovora), Dickeya spp. or D. paradisiaca. The disease spreads through wounds, insect feeding, contaminated water, high humidity, and infected planting material. Soil moisture and poor drainage enhance infection.",
+cause_ta: "Pectobacterium carotovorum (Erwinia carotovora), Dickeya வம்சம், D. paradisiaca போன்ற பாக்டீரியா மூலம் ஏற்படுகிறது. காயம், பூச்சிகள், மழைநீர், ஈரப்பதம் மற்றும் பாதிக்கப்பட்ட நடுக்களால் பரவி, நிலத்தில் நீர் வடிகால் குறைபாடும் முக்கிய காரணம்.",
+cause_ml: "Pectobacterium carotovorum (Erwinia carotovora), Dickeya spp., D. paradisiaca തുടങ്ങിയ ബാക്ടീരിയയാണ്. മുറിവ്, കീടബി, ജലദോഷം, ഈർപ്പം കൂടുന്നത്, രോഗബാധയുള്ള തൈ എന്നിവയിലൂടെ പടരുന്നു.",
+solution_en: "There is no cure once rot is severe. Remove and destroy infected plants immediately. Plant only healthy, disease-free suckers (preferably tissue culture). Treat soil with copper oxychloride (3 g/l), antibiotic (streptocycline 500 ppm, K-cycline 500 ppm at 20 day intervals), and apply beneficial microbes such as Trichoderma viride. Practice crop rotation and avoid waterlogging—also grow cover crops (sunhemp) in interspaces.",
+solution_ta: "கடுமையான அழுகல் வந்த பிறகு மருந்து இல்லை. உடனடியாக பாதிக்கப்பட்ட செடிகள் அகற்றி அழிக்கவும். நோய் இல்லாத நடுக்களை (திசு கலாச்செடிகள்) பயிரிடவும். நிலத்தில் copper oxychloride, streptocycline போன்ற காய்நாசினிகள் தெளிதல், Trichoderma viride நல்ல உயிரினை கூற்கள் சேர்க்கவும். நீர் தேங்கல் தவிர்க்கவும்.",
+solution_ml: "കഠിനമായ ചീനം വരുമ്പോൾ ചികിത്സയില്ല. രോഗം വന്ന തൈകളെ ഉടൻ നീക്കം ചെയ്യുക. രോഗമുക്ത തൈകൾ മാത്രം നടുക. Copper oxychloride, streptocycline, K-cycline എന്നിവ ഉപയോഗിക്കുക; പ്രശസ്തമായ ബയോജൈവികൾ കൈവശം വയ്ക്കാവുന്നതാണ്. കളിപ്പാട്ടം മാറ്റണം, വെള്ളക്കെട്ട് ഒഴിവാക്കി, സൺഹെമ്പ് വളർത്തണം.",
+prevention_en: "Plant only disease-free, healthy suckers or tissue culture plants. Maintain good drainage, avoid overwatering, remove any decaying plant residues. Disinfect tools and use soil drenching/antibiotic applications before and after planting. Regularly monitor fields for early symptoms.",
+prevention_ta: "நோயில்லாத, ஆரோக்கியமான நடுக்களை (tissue culture) மட்டுமே பயிரிடவும். சார்பான வடிகால் அமைப்பை வைத்திருக்கவும். நீர் தேங்கும் நிலவு தவிர்க்கவும். கருவிகள் சுத்தம் செய்யவும், படை இடுதல்/காய்நாசினி தேய்க்கவும். வயலை வழக்கமாக பார்வையிட்டு பாதிப்பை தடுப்பது முக்கியம்.",
+prevention_ml: "രോഗരഹിത തൈകൾ മാത്രം നടുക, നല്ല ഡ്രെയിനേജ് ഉറപ്പാക്കുക, അമിതജലം ഒഴിവാക്കുക, ഒടിഞ്ഞു പൊട്ടി/ചീനം തുടങ്ങിയ നിലം ഒഴിവാക്കുക. ഉപകരണങ്ങൾ അണുവിമുക്തമാക്കുക, ബയോജൈവികൾ ഇടം മാറ്റുക. ക്ഷീണലക്ഷണങ്ങൾ എത്രയും വേഗത്തിൽ നിയന്ത്രിക്കണം."
+},
+
+{
+  id: "black_pepper_foot_rot_leaf",
+  crop: "Black Pepper",
+  crop_ta: "மிளகு",
+  crop_ml: "കുരുമുളക്",
+  disease: "Foot Rot / Quick Wilt (Phytophthora)",
+  disease_ta: "வேகமான வாடல் / அடிப்பகுதி அழுகல்",
+  disease_ml: "ഫൂട്ട് റോട്ട് / ക്വിക്ക് വിൽട്ട്",
+  image: "images/black_pepper_foot_rot_leaf.jpg",
+  problem_en: "One or more large, dark brown to black lesions with water-soaked appearance and fibrous projections appear on leaves. These spots rapidly enlarge, causing the leaf tissue to yellow, wilt, and fall off. Severe infections lead to defoliation and plant collapse.",
+  problem_ta: "இலைகளில் ஒன்று அல்லது அதற்கு மேற்பட்ட பெரிதும் கருப்பு அல்லது பதப்படிவமான பழுப்பு கலந்த கற்களைப் பொருந்திய தண்ணீர் ஈரமான புள்ளிகள் தோன்றும். இவை விரைவாக வளர்ந்து, இலைகள் மஞ்சள் நிறமாகி, வாடி, உதிர்கின்றன. கடுமையான நோய்வாய்ப்பு செடிகளின் முழு வாடலுக்கும் காரணமாகிறது.",
+  problem_ml: "ഇലകളിൽ ഗോദ, കറുപ്പ് അല്ലെങ്കിൽ വെള്ളം ചേർന്ന പാടുകൾ ഉണ്ടാകും, കൂടാതെ തുണിക(q) പോലെ വിരിയുന്ന അരികിൽ കാണാം. ഇവ വേഗത്തിൽ വലുതാകുന്നു, ഇലകൾ മങ്ങുകയും ഉണങ്ങുകയുംകൊഴിഞ്ഞുപോകുകയും ചെയ്യും. ഭാരംകൂടിയ ബാധവിൽ മുഴുവൻ ചെടിയും വാടുകയും മരണപ്പെടുകയും ചെയ്യാം.",
+  cause_en: "Caused by the oomycete fungus Phytophthora capsici, which infects roots, stem, and leaves during wet conditions, especially in the rainy season. The pathogen survives in plant debris and spreads via soil, water splash, and infected planting material.",
+  cause_ta: "Phytophthora capsici எனும் பூஞ்சை ஈரமான மற்றும் மழைக்கால காலங்களில் வேர்கள், தண்டு மற்றும் இலைகளை தாக்குகிறது. பூஞ்சை தாவர கழிவுகளில் உயிர் வாழ்ந்து, மண்ணில், நீர்ச்சிதறல் மற்றும் பாதிக்கப்பட்ட நடடிகள் மூலம் பரவுகிறது.",
+  cause_ml: "Phytophthora capsici എന്ന ഉമ്മിസീറ്റ് ജനി ഈർപ്പമുള്ള സമയങ്ങളിൽ വേരുകൾ, തണ്ട്, ഇലകൾ എന്നിവയെ ബാധിക്കുന്നു. ഈ রোগാണു സസ്യാവശിഷ്ടങ്ങളിലും മണ്ണിലും ജീവിച്ച്, വെള്ളത്തിൽ, മഴയിൽ, രോഗം പിടിച്ച നടകളിലൂടെ വ്യാപിക്കുന്നു.",
+  solution_en: "Remove infected leaves and destroy them. Apply recommended fungicides like Bordeaux mixture or copper oxychloride. Ensure good drainage, and avoid waterlogging. Use healthy seedlings and disinfect tools to prevent spread.",
+  solution_ta: "பாதிக்கப்பட்ட இலைகளை அகற்றி உமிழுங்கள். போர்டக்ஸ் கலவை அல்லது தாமிரம் சார்ந்த பூஞ்சைக் கொல்லிகள் புகைப்படமாக பயன்படுத்தல். நல்ல வடிகாலமைப்பு, தண்ணீர் தேங்கி நிற்காமல் பார்த்துக் கொள்ளுதல். ஆரோக்கியமான நடைகளை பயன்படுத்தவும், கருவிகளை நன்கு சுத்தம் செய்யவும்.",
+  solution_ml: "ബാധിതമായ ഇലകൾ നീക്കം ചെയ്ത് നശിപ്പിക്കുക. ബോർഡോ മിക്സർ അല്ലെങ്കിൽ കോപ്പർ ഓക്സീപ്രിക്ക്ലോറൈഡ് പോലുള്ള ഫംഗിസൈഡുകൾ പതിവായി സ്പ്രേ ചെയ്യുക. നന്നായി ഡ്രെയിനേജ് ഉറപ്പാക്കുക, വെള്ളം അടിച്ചിലാകാതിരിക്കുക. ആരോഗ്യകരമായ നട്ടുമരങ്ങൾ ഉപയോഗിക്കുക, ഉപകരണങ്ങൾ സാനിറ്റൈസ് ചെയ്യുക.",
+  prevention_en: "Use disease-free planting material and resistant varieties if available. Ensure proper field drainage and avoid water stagnation. Rotate crops, remove plant debris, and sanitize equipment regularly.",
+  prevention_ta: "நோய் இல்லாத நடைகள் மற்றும் எதிர்ப்பு வகைகளைப் பயன்படுத்தவும். முறையான கள வடிகாலமைப்பும், தண்ணீர் தேங்கி நிற்காமல் பார்த்துக் கொள்ளவும். பயிர்சுழற்சி, தாவர கழிவுகளை அகற்றுதல், கருவிகளை நிதானமாக சுத்தம் செய்தல் அவசியம்.",
+  prevention_ml: "രോഗം ബാധിക്കാത്ത നടകൾ ഉൾപ്പെടെ പ്രതിരോധശേഷിയുള്ള ഇനങ്ങൾ തിരഞ്ഞെടുക്കുക. കൂട്ടമായുള്ള ഡ്രെയിനേജ് പരിപാലിക്കുക, വെള്ളം പൊങ്ങി നിൽക്കാതിരിക്കുക. വിള മാറ്റി നടൽ, ചെടികളുടെ അവശിഷ്ടങ്ങൾ നീക്കം ചെയ്യുക, ഉപകരണങ്ങൾ സാനിറ്റൈസ് ചെയ്യുക."
+},
+{
+id: "black_pepper_pollu_disease",
+crop: "Black Pepper",
+crop_ta: "மிளகு",
+crop_ml: "கുരുമുളക്",
+disease: "Pollu Disease / Anthracnose (Colletotrichum)",
+disease_ta: "பொல்லு நோய் / ஆன்த்ராக்னோஸ்",
+disease_ml: "പൊല്ലു രോഗം / അന്ത്രാക്നോസ്",
+image: "images/lack_pepper_pollu_disease.jpg",
+problem_en: "Circular, sunken spots with dark brown or black margins and pale centers appear on leaves and berries. The infected tissue dries and often becomes brittle, eventually causing fruit mummification and premature leaf drop.",
+problem_ta: "இலைகளிலும் மிளகு பழங்களிலும் சுற்றுவட்ட வடிவமாக கருப்பு அல்லது பழுப்பு ஓரங்களை உடைய ஊதா நிற புள்ளிகள் தோன்றும். பாதிக்கப்பட்ட பகுதி உலர்ந்து முறிவாகி, பழங்களில் முற்றிலும் வாடலோடு தான் விழுந்து விடுகிறது.",
+problem_ml: "ഇലകളിലും കുരുമുളക് കായിലുമാണ് കറുത്ത അതിരുള്ള ഉണക്ക പാടുകൾ രൂപപ്പെടുന്നത്. ബാധിത ഭാഗം ഉണങ്ങിയ് പൊടുങ്ങുകയും, കായകൾ പാഴാകുകയും, ഇലകൾ വേളയായി കൊഴിഞ്ഞുപോകുകയും ചെയ്യും.",
+cause_en: "Caused by the fungus Colletotrichum gloeosporioides, which infects leaves, berries, and stems, especially during rainy, humid conditions. The pathogen survives on plant debris and spreads by rain splash and pruning tools.",
+cause_ta: "Colletotrichum gloeosporioides எனும் பூஞ்சை மழைக்காலம் மற்றும் ஈரமான சூழலில் இலை, பழம், தண்டுகளில் தாக்குதல் ஏற்படுத்துகிறது. தாவர கழிவுகளில் வாழ்ந்து, தண்ணீர் தெறிப்பிலும் உதிரிகளில் பரவுகிறது.",
+cause_ml: "Colletotrichum gloeosporioides എന്ന പുഴു ഈർപ്പും മഴയുള്ള കാലാവസ്ഥയിൽ കൂടുതൽ വ്യാപിക്കുക. ഇതുപോലെ ഡിബ്രിസ്‌, മഴവെള്ളം, പ്രൂണിംഗ് ഉപകരണങ്ങൾ എന്നിവ മുഖേന പകരുന്നു.",
+solution_en: "Remove and destroy infected plant parts. Spray recommended fungicides such as Bordeaux mixture or copper oxychloride after every harvest and during wet conditions. Maintain field hygiene and proper spacing.",
+solution_ta: "பாதிப்பான அங்கங்களை அகற்றவும் அழிக்கவும். அறுவடைக்குப் பிறகு மற்றும் மழைக்காலத்தில் போர்டக்ஸ் கலவை அல்லது தாமிரம் சார்ந்த பூஞ்சைக் கொல்லிகள் தெளிக்கவும். நல்ல களப்புத்து மற்றும் தூரக் கையாளுதலை பின்பற்றவும்.",
+solution_ml: "ബാധിതമായ ഇലകളും കുരുമുളകും നീക്കം ചെയ്യുക. ഓരോ വിളവെടുത്തുള്ളൂവും മഴകാലത്തും ബോർഡോ മിക്സർ അല്ലെങ്കിൽ കോപ്പർ ഓക്സീക്ലോറൈഡ് പോലുള്ള ഫംഗിസൈഡുകൾ സ്പ്രേ ചെയ്യുക. നല്ല ഫീൽഡ് ഹൈജിൻ പാലിക്കുക.",
+prevention_en: "Use disease-free, certified planting material. Provide proper spacing and avoid overcrowding. Prune vines regularly and remove debris. Apply preventative fungicide sprays during favorable conditions.",
+prevention_ta: "நோய் இல்லாத நன்கு சான்று பெற்ற நடைகளை பயன்படுத்தவும். முறையான இடைவெளி மற்றும் பல்லாயிரம் தண்டுகளை தவிர்க்கவும். வாழ்க்கையின் ஒவ்வொரு கட்டத்திலும் உதிரங்களை அகற்றவும். எதிர்பார்க்கும் காலங்களில் பூஞ்சைக் கொல்லிகளை தெளிக்கவும்.",
+prevention_ml: "രോഗരഹിതമായ നടകൾ ഉപയോഗിക്കണം. വിളക്കൊഴിക്കുക, ആവശ്യമുള്ള ഇടവേള പാലിക്കുക. ഇടയ്ക്ക് വള്ളികൾ പ്രൂൺ ചെയ്യുക, അവശിഷ്ടങ്ങൾ നീക്കം ചെയ്യുക. അനുകൂല കാലാവസ്ഥയിൽ പ്രതിരോധ ഫംഗിസൈഡ് സ്‌പ്രേയ് ചെയ്യുക."
+},
+{
+  id: "black_pepper_cucumber_mosaic_virus",
+  crop: "Black Pepper",
+  crop_ta: "கடுகு",
+  crop_ml: "കുരുമുളക്",
+  disease: "Cucumber Mosaic Virus",
+  disease_ta: "குக்கிம்பர் மோசாயிக் வைரஸ்",
+  disease_ml: "കുക്കുംബർ മൊസായിക് വൈറസ്",
+  image: "images/Cucumber Mosaic.jpg",
+  problem_en: "Leaves show mottled, mosaic-like patterns of light and dark green, often with distortion or reduced size. Infected plants are stunted, have poor fruit set, and reduced yield.",
+  problem_ta: "இலைகளில் பச்சை மற்றும் இளஞ்சிவப்பு நிற மேழை/மோசாயிக் முறையில் விகிதாச்சிதைவு இழப்பும் காணப்படும். இருள்ளை குறைவு, விளைச்சல் குறைவாகும்.",
+  problem_ml: "ഇലയിൽ പച്ചയും ഇളം പച്ചയും അടങ്ങിയ മൊസായിക് പാടുകൾ, വളർച്ച കുറവ്, ഫലധാരക്കുറവും വിളവിൽ കുറവും ഉണ്ടാകും.",
+  cause_en: "Caused by Cucumber Mosaic Virus (CMV), transmitted by aphids in a non-persistent manner. Virus survives on infected plants and hosts, spreading rapidly between crops.",
+  cause_ta: "Cucumber Mosaic Virus (CMV) ஆபிட்கள் மூலம் பரவுகிறது. வைரஸ் நோய் வினைமுரண ஒழுங்கில் வீட்டில் பரவுகிறது.",
+  cause_ml: "Cucumber Mosaic Virus (CMV) ആഫിഡ് വഴി പടരുന്നു, രോഗ ബാധിച്ച ചെടികളിൽ സൂക്ഷ്മണ്ടുനിൽക്കുന്നുണ്ട്.",
+  solution_en: "Remove and destroy infected plants. Use resistant varieties if available, control aphid vectors, and maintain field sanitation.",
+  solution_ta: "பாதிக்கப்பட்ட செடிகளை அகற்றி அழிக்கவும். எதிர்ப்பு வகைகளை பயிரிடவும், ஆபிட் பூச்சி கட்டுப்பாடுகள் மேற்கொள்ளவும், நில சுத்தம் பராமரிக்கவும்.",
+  solution_ml: "ബാധിച്ച ചെടികൾ നീക്കംചെയ്യൂ, പ്രതിരോധവുമുള്ള ഇനങ്ങൾ നടുക, ആഫിഡ് നിയന്ത്രിക്കുക, ഫീൽഡ് ശുചിത്വം പാലിക്കുക.",
+  prevention_en: "Use disease-free seedlings, regularly monitor fields for aphids, avoid mixed planting with susceptible hosts, and promote natural predators.",
+  prevention_ta: "நோய் இல்லாத நடைகளை பயிரிடவும், பயிர்களைக் கண்காணித்து ஆபிட் தாக்கம் தவிர்க்கவும், சிக்காப் பயிர் கலப்பினை தவிர்க்கவும், இயற்கை எதிரிகளை ஊக்குவிக்கவும்.",
+  prevention_ml: "രോഗമുക്തമായ നടുകൾ ഉപയോഗിക്കുക, ആഫിഡിനെ നിരന്തരം നിരീക്ഷിക്കുക, ഹോസ്റ്റ് ഒരു കൂട്ടം കൃഷിയില്ലാതിരിക്കുക, സ്വാഭാവിക വിരുദ്ധന്മാർ പ്രോത്സാഹിപ്പിക്കുക."
+},
+
+{
+  id: "black_pepper_rust",
+  crop: "Black Pepper",
+  crop_ta: "கடுகு",
+  crop_ml: "കുരുമുളക്",
+  disease: "Rust (Uredo piperis)",
+  disease_ta: "பசுங்காய் (Uredo piperis)",
+  disease_ml: "റസ്റ്റ് (Uredo piperis)",
+  image: "images/Rust (Uredo piperis).jpg",
+  problem_en: "Yellowing of leaves starting from the tip and margins, gradually spreading inwards. Small, round, rusty orange pustules appear on the underside of leaves which can lead to premature leaf drop and reduced yield.",
+  problem_ta: "இலையின் முனையும் ஓரங்களிலும் மஞ்சள் நிறம் தோன்றி, மெதுவாக பரவுகிறது. இலைகளின் கீழ்புறத்தில் சிறிய, சுற்றுவட்ட, செம்மஞ்சள் நிற புட்டிகள் தோன்றும். இவை இலைகள் விரைவில் உதிரவும், விளைச்சல் குறையும்.",
+  problem_ml: "ഇലയുടെ വഴികാട്ടങ്ങളും അറ്റങ്ങളിൽ നിന്നു മഞ്ഞയാകുന്നു, തുടർച്ചയായി മുഴുവൻ ഇലയിൽ പടരുന്നു. താഴ്‌വരയിൽ ചെറു വട്ടത്തിൽ ഓറഞ്ച് നിറമുള്ള മസിലുകൾ ഉണ്ടായിരിക്കും, കൂടാതെ ഇലകൾ നേരത്തേ കൊഴിഞ്ഞുകഴിഞ്ഞു, വിളവിൽ കുറവുണ്ടാകാം.",
+  cause_en: "Caused by the fungus Uredo piperis, favored by high humidity and cool temperatures. The pathogen spreads by wind, rain splash, and infected plant debris.",
+  cause_ta: "Uredo piperis என்ற பூஞ்சை அதிக ஈரமும், குளிர்ந்த சூழலில் அதிகம் பரவுகிறது. காற்றால், மழை மூலமாக மற்றும் பாதிக்கப்பட்ட தாவர கழிவுகளில் இயங்கி பரவுகிறது.",
+  cause_ml: "Uredo piperis എന്ന പുഴു ഈർപ്പം കൂടുതിരിക്കുന്ന, തണുപ്പ് കാലാവസ്ഥയിലാണ് വളരുന്നത്. കാറ്റ്, മഴ, സസ്യാവശിഷ്ടം വഴി പടരുന്നു.",
+  solution_en: "Remove affected leaves and apply fungicides such as Mancozeb or copper oxychloride. Ensure proper field sanitation and avoid overhead irrigation.",
+  solution_ta: "பாதிக்கப்பட்ட இலைகளை அகற்றி ஒப்படைக்கவும். மாங்கோசெப் அல்லது தாமிரம் சார்ந்த பூஞ்சைக் கொல்லிகள் பயன்படுத்தவும். நிலம் சுத்தம், மேல்நிலை நீர்பழுதை தவிர்க்கவும்.",
+  solution_ml: "ബാധിച്ച ഇലകൾ നീക്കംചെയ്യുക. മാങ്കോസെബ്, കോപ്പർ ഓക്സീക്ലോറൈഡ് പോലുള്ള ഫംഗിസൈഡുകൾ ഉപയോഗിക്കുക, ഫീൽഡ് ശുചിത്വവും ഓവർ ഹെഡ് വെള്ളം ഒഴിവാക്കുകയും ചെയ്യുക.",
+  prevention_en: "Plant resistant varieties, use disease-free planting material, monitor regularly, and maintain good field hygiene.",
+  prevention_ta: "நோய் எதிர்ப்பு வகைகளை பயிரிடவும், நோய் இல்லாத நட்களை பயன்படுத்தவும், இடையீடு பராமரிப்பு செய்யவும், நிலம் சுத்தம் வைத்துக் கொள்ளவும்.",
+  prevention_ml: "പ്രതിരോധശേഷിയുള്ള ഇനങ്ങൾ, രോഗമുക്തമായ നടുകൾ, നിരന്തരം നിരീക്ഷണവും, ഫീൽഡ് ശുചിത്വം പാലിക്കണം."
+},
+
+{
+  id: "black_pepper_sooty_mold",
+  crop: "Black Pepper",
+  crop_ta: "மிளகு",
+  crop_ml: "കുരുമുളക്",
+  disease: "Sooty Mold",
+  disease_ta: "கரிய பூஞ்சை",
+  disease_ml: "കറുത്ത പൂഞ്ചിരോഗം",
+  image: "images/sooty mold.jpg",
+  problem_en: "Black, powdery fungal growth covers leaf surfaces, interfering with photosynthesis. Leaves may turn yellow and plant growth slows. Often occurs following honeydew deposits by insects such as aphids or scales.",
+  problem_ta: "இலைகளில் கருப்பு தூள் போன்ற பூஞ்சை வரைபடம் காணப்படும். இது ஒளிச்சேர்க்கைத் தடுமாற்றம் ஏற்படுத்தும், இலைகள் மங்கும், வளர்ச்சி குறையும். பொதுவாக வண்டுகள் நீரில் வெளியிடும் தேன் மூலம் ஏற்படும்.",
+  problem_ml: "ഇലയുടെ മുകളിൽ കറുത്ത, പൊടി പോലുള്ള പൂഞ്ചി പടരുന്നു, ഇത് ഫോട്ടോസിന്തസിസ് തടസ്സപ്പെടുത്തുന്നു. ഇലകൾ മങ്ങുകയും ചെടികൾ വളർച്ച കുറവാകുകയും ചെയ്യും. സാധാരണമാകുമ്പോൾ ആഫിഡ്, സ്കെയിൽ എന്നിവയുടെ ഹണിഡ്യൂവുകൾ ഉണ്ടായിരിക്കാം.",
+  cause_en: "Caused by various fungi growing on the sugary exudates (honeydew) left by sap-sucking insects like aphids, scales, or mealybugs. The fungi do not infect the plant directly but block sunlight.",
+  cause_ta: "சுவைசிறுநீர் வெளியிடும் வண்டுகள் (ஆபிட்ஸ், ஸ்கேல்ஸ், மீலி பگزுகள்) விட்ட தேன் மீது பல்வேறு பூஞ்சைகள் வளர்கின்றன. இது நேரடியாக செடியில் தாக்கம் இல்லை, ஆனால் ஒளிக்கதிர்களை தடுக்கும்.",
+  cause_ml: "ആഫിഡ്, സ്കെയിൽ, മീലി ബഗ്സ് പോലുള്ള കീടങ്ങൾ ചോറചൊരിഞ്ഞ് എടുത്ത ഹണിഡ്യൂവിൽ വളരുന്ന വിവിധ പൂഞ്ചികൾ മൂലമാണ്. കുറുവൻ പ്രകാശം തടയുന്നു; നേരിട്ട് സസ്യത്തിലില്ല.",
+  solution_en: "Control honeydew-producing insects using recommended insecticides or biological methods. Wash off sooty mold from leaves if possible to improve photosynthesis. Maintain good field hygiene.",
+  solution_ta: "தேன் வெளியிடும் வண்டுகளை பூச்சிக்கொல்லிகள் அல்லது உயிரியல் முறைகளால் கட்டுப்படுத்தவும். கரிய பூஞ்சை அகற்றித் துடைக்கவும். நில சுத்தம் பராமரிக்கவும்.",
+  solution_ml: "ഹണിഡ്യൂ സ്രാവിക്കുന്ന കീടങ്ങൾ പുറംതള്ളാൻ കീടനാശിനികൾ/ജൈവ നിയന്ത്രണം ഉപയോഗിക്കുക. പൂഞ്ചി ഇലയിൽ നിന്ന് കഴുകി മാറ്റുക, ഫോട്ടോസിന്തസിസ് മെച്ചപ്പെടുത്താൻ. ഫീൽഡ് ശുചിത്വം പാലിക്കുക.",
+  prevention_en: "Monitor and control insect pests promptly. Maintain plant vigor and avoid overcrowding. Promote natural predators and field sanitation.",
+  prevention_ta: "வண்டுகளை கண்காணித்து நல்ல நிலையில் கட்டுப்படுத்தவும். செடிச் செழுமை பராமரிக்கவும், கூட்டமாக நடவை தவிர்க்கவும், இயற்கையான எதிர்ப்புகளை ஊக்குவிக்கவும்.",
+  prevention_ml: "കീടങ്ങൾക്കു നിയന്ത്രണം ഉറപ്പാക്കുക. ചെടിയുടെ ആരോഗ്യവും ഇടംപരിമിതിയും നിലനിർത്തുക, സ്വാഭാവിക വിരുദ്ധന്മാരെയും മികച്ച ശുചിത്വവും പ്രോത്സാഹിപ്പിക്കുക."
+},
+
+{
+  id: "black_pepper_cercospora_leaf_spot",
+  crop: "Black Pepper",
+  crop_ta: "மிளகு",
+  crop_ml: "കുരുമുളക്",
+  disease: "Cercospora Leaf Spot (Cercospora piperi)",
+  disease_ta: "செர்கோஸ்ப்போரா இலை புள்ளி",
+  disease_ml: "സെർക്കോസ്പോറ ഇല പാടുകൾ",
+  image: "images/Cercospora Leaf Spot (Cercospora piperi).jpg",
+  problem_en: "Small, circular to irregular spots with gray centers and dark brown margins appear on the leaves. Severely affected leaves may turn yellow, dry up, and fall off prematurely.",
+  problem_ta: "இலைகளில் சின்னம், சாய்ந்த பழுப்பு கரை மற்றும் மையப்புள்ளிகள் தோன்றும். கடுமையாக பாதிக்கப்பட்ட இலைகள் மஞ்சள் நிறமாகி, உலர்ந்து உதிரும்.",
+  problem_ml: "ഇലകളിൽ ചെറിയ വന്പാടുകൾ ഉണ്ടാവുകയും കേന്ദ്രം വെളുപ്പിയും അതിരുകൾ കറുപ്പാവുകയും ചെയ്യും. ശക്തമായി ബാധിച്ച ഇലകൾ മഞ്ഞയാകുകയും ഉണക്കുകയുംകൊഴിഞ്ഞുപോകുകയും ചെയ്യും.",
+  cause_en: "Caused by the fungus Cercospora piperi, which thrives in humid and wet conditions. The pathogen infects leaves through water splash or wind, and survives on infected plant debris.",
+  cause_ta: "Cercospora piperi எனும் பூஞ்சை ஈரமான சூழலில் வளர்ந்து, தண்ணீர் தெறிப்பிலும் காற்றிலும் பரவுகிறது. தாவர கழிவுகளில் வாழ்கிறது.",
+  cause_ml: "Cercospora piperi എന്ന പുഴു ഈർപ്പമുള്ള സാഹചര്യത്തിൽ പടരുന്നു, മഴവെള്ളം, കാറ്റ് എന്നിവയിൽ മുഖേന ഇലകൾക്ക് ബാധിക്കുന്നു, നിർജ്ജീവ സസ്യാവശിഷ്ടങ്ങളിൽ കഴിയുന്നു.",
+  solution_en: "Remove and destroy infected leaves. Spray suitable fungicides such as Mancozeb or Copper oxychloride. Maintain field sanitation and ensure good air circulation.",
+  solution_ta: "பாதிக்கப்பட்ட இலைகளை அகற்றியும் அழிக்கவும். பொருத்தமான பூஞ்சைக் கொல்லிகள் (மாங்கோசெப், தாமிரம் சார்ந்தவை) தெளிக்கவும். நல்ல வெளி வறுமை மற்றும் பசுமை பராமரிக்கவும்.",
+  solution_ml: "ബാധിച്ച ഇലകൾ നീക്കം ചെയ്തു നശിപ്പിക്കുക. മാന്കൊസെബ്, കോപ്പർ ഓക്സിക്ലോറൈഡ് പോലുള്ള ഫംഗിസൈഡുകൾ തന്റെ സ്പ്രേ ചെയ്യുക. ഫീൽഡ് ശുചിത്വം ഉറപ്പാക്കുകയും വായു പ്രവാഹം അനുകൂലമാക്കുകയും ചെയ്യുക.",
+  prevention_en: "Use disease-free planting material. Avoid dense planting, remove plant debris regularly, and do crop rotation to reduce inoculum in the field.",
+  prevention_ta: "நோய் இல்லாத நடைகளை பயின்று, மிக நெருக்கமான நடவை தவிர்த்து, தாவர கழிவுகளை அகற்றுங்கள், இடைநிலை பயிர் சுழற்சி பின்பற்றவும்.",
+  prevention_ml: "രോഗമുക്തമായ നടകൾ ഉപയോഗിക്കുക. മുഴുനു നടൽ ഒഴിവാക്കുക, ചെടികളുടെ അവശിഷ്ടങ്ങൾ നീക്കം ചെയ്യുക, വിള മാറ്റ് നടൽ നിലനിർത്തുക."
+},
+{
+  id: "black_pepper_algal_leaf_spot",
+  crop: "Black Pepper",
+  crop_ta: "மிளகு",
+  crop_ml: "കുരുമുളക്",
+  disease: "Algal Leaf Spot (Cephaleuros virescens)",
+  disease_ta: "ஊது க்கை இலை புள்ளி",
+  disease_ml: "ആൽഗൽ ഇല പാടുകൾ",
+  image: "images/Algal Leaf Spot.jpg",
+  problem_en: "Small, circular, gray or greenish spots appear on leaves. These spots may have a velvety surface and can coalesce, leading to yellowing and premature leaf drop.",
+  problem_ta: "இலைகளில் சிறிய, சுற்று வடிவ, சாய்ந்த கிரை அல்லது பச்சை நிற புள்ளிகள் தோன்றும். வண்டு போன்ற மேற்பரப்புடன், இவை சேர்த்து வளரலாம், மஞ்சள் மற்றும் உதிர்வு ஏற்படும்.",
+  problem_ml: "ഇലകളിൽ ചെറിയ വട്ടം, ചാര ഇടയിലുള്ള അല്ലെങ്കിൽ പച്ചനിറമുള്ള പാടുകൾ ഉണ്ടായിരിക്കും. ഇവ ചെറുതായി വീർപ്പ് നൽകുകയും ചേർന്ന് മഞ്ഞവട്, ഇലകൾ വേളയാക്കുകയും ചെയ്യാം.",
+  cause_en: "Caused by the alga Cephaleuros virescens, which infects leaves during humid and rainy conditions. The pathogen survives on infected plant debris and spreads by wind and water splash.",
+  cause_ta: "Cephaleuros virescens என்பதனால் ஈரமும் மழையும் சூழலில் இலைகள் தாக்கப்படுகின்றன. பூஞ்சை தாவர கழிவுகளில் வாழ்ந்து, காற்றிலும், நீர்ச்சிதறலில் பரவுகிறது.",
+  cause_ml: "Cephaleuros virescens ആൻ ആൽഗ പാട് ഈർപ്പമുള്ള സ്ഥിതിയിൽ ഇലകൾക്ക് ബാധിക്കുന്നു, സസ്യാവശിഷ്ടങ്ങളിൽ ജീവിച്ച് മാറ്റുകയും, കാറ്റിലും മഴവെള്ളത്തിൽ പടരുകയും ചെയ്യുന്നു.",
+  solution_en: "Remove and destroy affected leaves. Apply Bordeaux mixture as a foliar spray during rainy season. Ensure good air circulation and avoid overcrowding.",
+  solution_ta: "பாதிக்கப்பட்ட இலைகளை அகற்றி அழிக்கவும். மழைக்காலத்தில் போர்டக்ஸ் கலவை தெளிக்கவும். நன்றாக வெளி வறுமை மற்றும் பசுமை பராமரிக்கவும்.",
+  solution_ml: "ബാധിച്ച ഇലകൾ നീക്കം ചെയ്ത് നശിപ്പിക്കുക. മഴക്കാലത്ത് ബോർഡോ മിക്സർ സ്പ്രേ ചെയ്യുക, വായു സൗകര്യം ഉറപ്പാക്കുക.",
+  prevention_en: "Use disease-free planting material and resistant varieties if available. Maintain good field sanitation and avoid waterlogging.",
+  prevention_ta: "நோய் இல்லாத நடைகளை மற்றும் எதிர்ப்பு வகைகளை பயன்படுத்தவும். நல்ல களப் சுத்தம் மற்றும் தண்ணீர் தேங்கி நிற்காமல் பார்த்துக்கொள்ளவும்.",
+  prevention_ml: "രോഗം ബാധിക്കാത്ത നടകൾ, പ്രതിരോധശേഷിയുള്ള ഇനങ്ങൾ ഉപയോഗിക്കുക. ഫീൽഡ് ശുചിത്വം പാലിക്കുക, വെള്ളം തടയുക."
+},
+{
+  id: "black_pepper_powdery_mildew",
+  crop: "Black Pepper",
+  crop_ta: "மிளகு",
+  crop_ml: "കുരുമുളക്",
+  disease: "Powdery Mildew (Oidium spp.)",
+  disease_ta: "பொடி புத்தி (Oidium spp.)",
+  disease_ml: "പൗഡറി മിൽഡ്യൂ (Oidium spp.)",
+  image: "images/Powdery Mildew (Oidium spp.).jpg",
+  problem_en: "White, powdery fungal growth appears on upper and lower leaf surfaces, often starting in patches. Infected areas may expand, causing leaf distortion, yellowing, and premature leaf drop.",
+  problem_ta: "இலைகளின் மேலிலும் கீழும் வெண்மை பொடி போன்ற பூஞ்சைப் பொருள் தோன்றும். பாதிக்கப்பட்ட பகுதிகள் பரவி, இலைகள் சிதைவடையும், மஞ்சள் ஆகும், விரைவில் உதிரும்.",
+  problem_ml: "ഇലയുടെ മുകളിലും താഴെയുള്ള ഭാഗത്തും വെള്ള, പൊടി പോലുള്ള പൂഞ്ചിയുടെ പാടുകൾ കാണാം. ജന്യങ്ങളിലായി ഇത് വളരുകയും ഇലകൾ മങ്ങുകയും കൊഴിഞ്ഞുപോകുകയും ചെയ്യാം.",
+  cause_en: "Caused by various Oidium fungi that thrive in warm, dry conditions with high humidity. Spores are dispersed by wind and survive on infected plants and debris.",
+  cause_ta: "Oidium வகை பூஞ்சை வெப்பமான, உலர்ந்த மற்றும் ஈரமான சூழலில் வளர்கிறது. பூஞ்சை உயிர்த்தெழும், தொடர் காற்றின் மூலம் பரவுகிறது.",
+  cause_ml: "Oidium സ്പീഷീസുകൾ ഉപ്പ് കൂടിയ ചൂട്, ഈർപ്പം ഉള്ള സാഹചര്യങ്ങളിൽ വളരുന്നു. സാന്ദ്രമായ പൂഞ്ചിരജികൾ കാറ്റിൽ പടരുന്നു.",
+  solution_en: "Apply recommended fungicides such as Sulfur dust or systemic fungicides like Hexaconazole. Remove and destroy infected leaves. Maintain good air circulation and avoid overcrowding plants.",
+  solution_ta: "பாதிக்கப்பட்ட இலைகளை அகற்றி அழிக்கவும். பரிந்துரைக்கப்பட்ட பூஞ்சைக் கொல்லிகள் (சல்பர் டஸ்ட், ஹெக்சாகனசோழ்) பயன்படுத்தவும். அரங்கு பரவல் தடுப்பதற்கு நல்ல வெளிவாசல் அமையுங்கள்.",
+  solution_ml: "ബാധിച്ച ഇലകൾ നീക്കം ചെയ്ത് നശിപ്പിക്കുക. സൾഫർ ഡസ്റ്റോ ഹെക്സക്കാനസോൾ പോലുള്ള ഫംഗിസൈഡുകൾ സ്പ്രേ ചെയ്യുക. വായു വേള ഉണ്ടാക്കുക, ചെടികൾ അമിതമായി നിറയാതിരിക്കുക.",
+  prevention_en: "Select disease-free planting material. Ensure proper spacing, prune to improve air flow, and avoid overhead irrigation. Monitor fields for early symptoms and treat promptly.",
+  prevention_ta: "நோய் இல்லாத நடைகள், முறையான இடைவெளி மற்றும் pruning செய்யவும். மேல்நிலை நீர்மூட்ட avoided செய்யவும். நோய்க்குறியீடு தோன்றும் போது உடனுக்குடன் நடவடிக்கை எடுக்கவும்.",
+  prevention_ml: "രോഗം ബാധിക്കാത്ത നടകൾ തിരഞ്ഞെടുക്കുക, വിളച്ചി വെയിൽ വർദ്ധിപ്പിക്കുക, ഓവർ ഹെഡ് വെള്ളം ഒഴിക്കൽ ഒഴിവാക്കുക. ആദ്യം ലക്ഷണങ്ങൾ കണ്ടാൽ മുന്നോട്ട് പോകുക."
+}
+,
+{
+  id: "rice_blast_disease",
+  crop: "Rice",
+  crop_ta: "அரிசி",
+  crop_ml: "അരി",
+  disease: "Blast Disease (Magnaporthe oryzae)",
+  disease_ta: "பிளாஸ்ட் நோய் (Magnaporthe oryzae)",
+  disease_ml: "ബ്ലാസ്റ്റ് രോഗം (Magnaporthe oryzae)",
+  image: "images/Blast (Magnaporthe oryzae ).jpg",
+  problem_en: "Elliptical or spindle-shaped lesions with gray or whitish centers and brown edges appear on leaves. Severe infection causes leaf blighting, wilting, and yield reduction.",
+  problem_ta: "இலைகளில் நீளமான அல்லது நுல் வடிவ, ஊதா அல்லது வெண்மை மையம் மற்றும் பழுப்பு ஓரம் கொண்ட கற்கள் தோன்றும். கடுமையான தாக்கத்தில் இலைகள் வாடி, விழும், விளைச்சலில் இழப்பு ஏற்படும்.",
+  problem_ml: "ഇലയിലാകിടെ നീളമുള്ള അല്ലെങ്കിൽ സൂചി രൂപമുള്ള പാടുകൾ കാണാം; ഇവയുടെ മദ്ധ്യഭാഗം വെളുപ്പോ ചാരനിറമോയും അതിരുകൾ കറുപ്പോ മഞ്ഞനിറമോ ആയിരിക്കും. ഗുരുതര ബാധയിൽ ഇലകൾ ഉണങ്ങി കൊഴിഞ്ഞുപോകുമെന്നും വിളവു കുറയുമെന്നും ശ്രദ്ധിക്കുക.",
+  cause_en: "Caused by the fungus Magnaporthe oryzae, which spreads through wind and rain splash. The pathogen infects plants during high humidity, moderate temperature, and in dense crops.",
+  cause_ta: "Magnaporthe oryzae என்ற பூஞ்சை, காற்று மற்றும் மழையினால் பரவுகிறது. அதிக ஈரப்பதம் மற்றும் வதைக்கும் வெப்பநிலையில் மற்றும் அடர்ந்த பயிர்களில் தாக்கம் அதிகம்.",
+  cause_ml: "Magnaporthe oryzae എന്ന പുഴു കാറ്റിലും മഴക്കൊണ്ടും പടരുന്നു. ഉയർന്ന ഈർപ്പം, ഇടത്തരം ചൂട്, ചേർന്ന വിത്ത് വളർച്ചയിൽ കൂടുതൽ ബാധാകുന്നു.",
+  solution_en: "Use recommended fungicides such as tricyclazole or isoprothiolane at early symptom appearance. Remove infected leaves and maintain field hygiene.",
+  solution_ta: "முதற்கட்ட அறிகுறிகள் தோன்றும்போது பரிந்துரைக்கப்படும் பூஞ்சைக்கொல்லிகள் (டிரைசைக்லாசோல் அல்லது இசோபுரிதயொலேன்) தெளிக்கவும், பாதிக்கப்பட்ட இலைகளை அகற்றி, புலம் சுத்தம் பராமரிக்கவும்.",
+  solution_ml: "ആദ്യം ലക്ഷണങ്ങൾ കണ്ടാൽ ട്രൈസൈക്ലാസോൾ, ഇസോപ്രോതിയോളേൻ പോലുള്ള ഫംഗിസൈഡുകൾ ഉപയോഗിക്കുക. ബാധിച്ച ഇലകൾ നീക്കംചെയ്യുക, പറമ്പ് ശുചിത്വം പാലിക്കുക.",
+  prevention_en: "Plant resistant rice varieties. Maintain recommended spacing to improve air flow. Avoid excessive nitrogen fertilizer and rotate crops to reduce inoculum.",
+  prevention_ta: "பழுப்பு நோய் எதிர்ப்பு வகையை நடவும். பரிந்துரைக்கப்பட்ட இடைவெளியை பின்பற்றவும். அதிக நைட்ரஜன் உரத்தை தவிர்க்கவும், பயிர் சுழற்சி பின்பற்றவும்.",
+  prevention_ml: "രോഗപ്രതിരോധശേഷിയുള്ള ഇനങ്ങൾ നടുക. ലഭ്യമായ ഇടവേളയിൽ കൃഷി ചെയ്യുക. അതികമായ നൈട്രജൻ ഉപയോഗം ഒഴിവാക്കുക; വിള മാറ്റു നടൽ പിന്തുടരുക."
+}
+,
+{
+  id: "rice_bacterial_leaf_blight",
+  crop: "Rice",
+  crop_ta: "அரிசி",
+  crop_ml: "അരി",
+  disease: "Bacterial Leaf Blight (Xanthomonas oryzae pv. oryzae)",
+  disease_ta: "பாக்டீரியா இலை அழுகல் (Xanthomonas oryzae pv. oryzae)",
+  disease_ml: "ബാക്ടീരിയ ഉൾവളഞ്ഞ ഇലപൊത്തി (Xanthomonas oryzae pv. oryzae)",
+  image: "images/Bacterial Leaf Blight.jpg",
+  problem_en: "Yellowing and drying of leaf margins progressing towards the center, often with wavy edges, water-soaked streaks, and wilting. In severe cases, leaves appear straw-colored and die prematurely.",
+  problem_ta: "இலை ஓரங்களில் மஞ்சள் நிறம் மற்றும் உலர்ந்து, மையம் நோக்கி விரிவடையும். அலைபோல் முண்டுகிற விளிம்புகள், தண்ணீர் ஈர புள்ளிகள், முற்றிலும் வாடல் காணப்படும். தீவிர நிலையில், இலைகள் கூரை நிறமாகி விரைவில் வாடும்.",
+  problem_ml: "ഇലയുടെ അറ്റങ്ങളിൽ നിന്ന് തുടങ്ങുന്ന മഞ്ഞ നിറം, അറ്റങ്ങളിൽ നിന്ന് നടുവിലേക്ക് വ്യാപിക്കുകയും പിന്നീട് ഉണങ്ങിയ് മരുകയും ചെയ്യുന്നു. ശക്തമായ ബാധയിൽ ഇലക്ക് വാലുവീണ് ചുവപ്പ് നിറം കടക്കും.",
+  cause_en: "Caused by the bacterium Xanthomonas oryzae pv. oryzae, favored by high humidity, rain, and wind. The bacteria enter through wounds or natural openings and rapidly spread in wet conditions.",
+  cause_ta: "Xanthomonas oryzae pv. oryzae எனும் பாக்டீரியா, அதிக ஈரப்பதம், மழை மற்றும் காற்று சீசன் ஏற்றதாகும். காயங்கள் அல்லது இயற்கை வழிகளில் செடிகளுக்குள் நுழைந்து ஈரமான நிலையில் விரைவாக பரவுகிறது.",
+  cause_ml: "Xanthomonas oryzae pv. oryzae എന്ന ബാക്ടീരിയ, ഉയര്‍ന്ന ഈര്‍പ്പവും മഴയും കാറ്റും ഉള്ള സമയങ്ങളിൽ വളരാൻ അനുകൂലമാണ്. പരുക്കുകളിലൂടെയും സ്വാഭാവിക തുളകളിലൂടെയും കൃഷിയിൽ കയറുന്നു.",
+  solution_en: "Use copper-based bactericides as per recommendations. Remove and destroy infected leaves. Provide proper field drainage and avoid field operations when plants are wet.",
+  solution_ta: "புரிருந்து கூறப்பட்ட தாமிரம் சார்ந்த பாக்டீரியா நாசினிகளைப் பயன்படுத்தவும். பாதிக்கப்பட்ட இலைகளை அகற்றி அழிக்கவும். நல்ல வடிகால் அமைப்பையும், ஈரமான நிலையில் வேலை செய்ய வேண்டாம்.",
+  solution_ml: "താമ്രം അടങ്ങിയ ബാക്ടീരിസൈഡുകൾ പാകംചെയ്യുക. ബാധിച്ച ഇലകൾ നീക്കം ചെയ്യുക, നല്ല ഡ്രെയിനേജ് ഉറപ്പാക്കുക, ഈർപ്പമുള്ള കാലത്തു ചര്ച്ച നടത്താതിരിക്കുക.",
+  prevention_en: "Plant resistant varieties. Use disease-free seeds, maintain field sanitation, and practice crop rotation. Avoid excessive nitrogen fertilizer.",
+  prevention_ta: "நோய் எதிர்ப்பு ரகங்களை பயிரிடவும். சுத்தமான விதைகளைப் பயன்படுத்தவும், நிலம் சுத்தமாக வைத்துக் கொள்ளவும், பயிர் சுழற்சி பின்பற்றவும். அதிக நைட்ரஜன் உரம் தவிர்க்கவும்.",
+  prevention_ml: "രോഗമുക്തമായ ഇനങ്ങൾ നടുക, രോഗരഹിതമായ വിത്ത് ഉപയോഗിക്കുക, ഫീൽഡ് ശുചിത്വം പാലിക്കുക, വിളമാറ്റം നടത്തുക, നിറഞ്ഞ നൈട്രജൻ ഉപയോഗം ഒഴിവാക്കുക."
+},
+{
+  id: "rice_brown_spot",
+  crop: "Rice",
+  crop_ta: "அரிசி",
+  crop_ml: "അരി",
+  disease: "Brown Spot (Bipolaris oryzae)",
+  disease_ta: "பிரவுன் ஸ்பாட் (Bipolaris oryzae)",
+  disease_ml: "ബ്രൗൺ സ്പോട്ട് (Bipolaris oryzae)",
+  image: "images/Brown Spot (Bipolaris oryzae – Fungal).jpg",
+  problem_en: "Small, circular to oval brown lesions with yellow halos appear on leaves and other plant parts. Severe infection leads to leaf blighting and reduced grain yield.",
+  problem_ta: "இலைகளிலும் செடிகளிலும் சிறியப் பரப்பில் அதிகமான பழுப்பு நிற புள்ளிகள் மற்றும் மஞ்சள் வளையங்களுடன் தோன்றும். கடுமையான தாக்கத்தில் இலைகள் வாடி, விளைச்சல் குறையும்.",
+  problem_ml: "ഇലകളിൽ ചെറു വട്ടത്തിൽ നിന്നും ഡിമ്ബാകൃതിയിൽ വരെയുള്ള ഉണക്ക ബ്രൗൺ പാടുകൾ കാണാം, മഞ്ഞ നിറം ചുറ്റും കാണാം. ശക്തമായ ബാധയിൽ ഇലകൾ ഉണങ്ങി, വിളവിൽ കുറവുണ്ടാകും.",
+  cause_en: "Caused by the fungus Bipolaris oryzae, which thrives in wet and warm conditions. The pathogen survives on crop debris, seeds, and soil, spreading by wind, rain splash, or infected seeds.",
+  cause_ta: "Bipolaris oryzae என்ற பூஞ்சை ஈரமான மற்றும் வெப்பமான சூழலில் வளர்கிறது. மண், பயிர் கழிவுகள் மற்றும் விதைகள் மூலம் பரவும்.",
+  cause_ml: "Bipolaris oryzae വരുമ്പുഴു ഈർപ്പം കൂടിയ ചൂട് സാഹചര്യത്തിൽ വളരുന്നു. വിത്തിലും മണ്ണിലും സസ്യാവശിഷ്ടം ഉൾപ്പെടുന്നു, കാറ്റിലും മഴയിൽ പടരുന്നു.",
+  solution_en: "Apply fungicides such as Mancozeb or Propiconazole as per recommendations. Remove infected leaves and maintain proper field drainage and crop rotation.",
+  solution_ta: "பரிந்துரைக்கப்பட்ட பூஞ்சைக்கொல்லிகள் (மாங்கோசெப், புரொபிகோனா-சோல்) தெளிக்கவும். பாதிக்கப்பட்ட இலைகளை அகற்றவும், உயர் வடிகால் அமைपनையும் பயிர் சுழற்றையும் பின்பற்றவும்.",
+  solution_ml: "മാൻകോസെബ് അല്ലെങ്കിൽ പ്രൊപിക്കോണാസോൾ പോലുള്ള ഫംഗിസൈഡുകൾ ഉപയോഗിക്കുക. ബാധിച്ച ഇലകൾ നീക്കംചെയ്യുക, നല്ല ഡ്രെയിനേജ് നിലനിർത്തുക, വിളമാറ്റം നടുത്തുക.",
+  prevention_en: "Use certified disease-free seeds. Practice crop rotation, maintain field hygiene, and avoid excessive nitrogen application.",
+  prevention_ta: "நோயில்லாத சான்றுத் தரமான விதைகளை பயவிடவும். பயிர் சுழற்சி பின்பற்றவும், நிலம் சுத்தமாக வைத்துக் கொள்ளவும், அதிக நைட்ரஜன் தவிர்க்கவும்.",
+  prevention_ml: "രോഗരഹിതമായ വിത്ത് ഉപയോഗിക്കുക, വിളമാറ്റം പ്രയോഗിക്കുക, പറമ്പ് ശുചിത്വം പാലിക്കുക, അതികമായ നൈട്രജൻ ഒഴിവാക്കുക."
+}
+,
+{
+  id: "rice_leaf_scald",
+  crop: "Rice",
+  crop_ta: "அரிசி",
+  crop_ml: "അരി",
+  disease: "Leaf Scald (Microdochium oryzae)",
+  disease_ta: "இலை வாடல் (Microdochium oryzae)",
+  disease_ml: "ഇല കാഞ്ചൽ (Microdochium oryzae)",
+  image: "images/Leaf Scald.jpg",
+  problem_en: "Irregular, elongated lesions with gray or straw-colored centers and dark brown margins appear on older leaves. Affected areas dry up, causing leaf blighting and loss of photosynthetic area.",
+  problem_ta: "முரண்பாடான நீளமான, ஊதா அல்லது கூரை நிற மையம் மற்றும் கருப்பு ஓரம் கொண்ட கற்கள் முதிர்ந்த இலைகளில் தோன்றும். பாதிக்கப்பட்ட பகுதிகள் உலர்ந்து, வாடல் மற்றும் ஒளிச்சேர்க்கை பகுதி இழப்பு ஏற்படும்.",
+  problem_ml: "ഇലയിൽ അനിയമമായ നീളം, ചാരനിറം അല്ലെങ്കിൽ വാലുവീണ് കേന്ദ്രം, കറുപ്പായ അതിരുകൾ ഉള്ള പാടുകൾ കാണാം. ബാധിച്ച ഭാഗങ്ങൾ ഉണങ്ങി ഇല കാഞ്ചൽ സംഭവിക്കും.",
+  cause_en: "Caused by the fungus Microdochium oryzae, which spreads by splashing water, rain, and wind. The pathogen thrives in humid, wet conditions and survives on crop debris.",
+  cause_ta: "Microdochium oryzae என்ற பூஞ்சை, தண்ணீர் தெறிப்பும், மழையும், காற்றின் மூலம் பரவுகிறது. ஈரமான சூழலில் அதிகமாக நோய்த்தாக்கம் ஏற்படும்.",
+  cause_ml: "Microdochium oryzae പോലുള്ള പുഴു മഴ, കാറ്റ്, വെള്ളം ലൈംഗികമായി പടരുന്നു. ഈർപ്പവും നനയും ഉള്ളപ്പോൾ വളരാൻ കൂടുതൽ അനുകൂലമാണ്.",
+  solution_en: "Remove and destroy infected leaves. Apply recommended fungicides such as Mancozeb or Tricyclazole. Improve field drainage and practice crop rotation.",
+  solution_ta: "பாதிக்கப்பட்ட இலைகளை அகற்றி அழிக்கவும். பரிந்துரைக்கப்பட்ட பூஞ்சைக் கொல்லிகள் (மாங்கோசெப், ட்ரைசைக்லாசோல்) தெளிக்கவும். நல்ல வடிகால் அமைப்பும், பயிர் சுழற்சியும் பின்பற்றவும்.",
+  solution_ml: "ബാധിച്ച ഇലകൾ നീക്കംചെയ്യുക, മാങ്കോ‌സെബ് അല്ലെങ്കിൽ ട്രൈസൈക്ലാസോൾ പോലുള്ള ഫംഗിസൈഡുകൾ ഉപയോഗിക്കുക. ഡ്രൈനേജ് മെച്ചപ്പെടുത്തുക, വിള മാറ്റം നടുക.",
+  prevention_en: "Select resistant varieties, use certified disease-free seeds, provide adequate spacing and good field hygiene, and rotate crops to reduce disease inoculum.",
+  prevention_ta: "நோய் எதிர்ப்பு ரகங்களை பயிரிடவும், நோய் இல்லாத விதைகளை உபயோகிக்கவும், போதிய இடைவெளி, புலம் சுத்தம் மற்றும் பயிர் சுழற்சி பின்பற்றவும்.",
+  prevention_ml: "പ്രതിരോധശേഷിയുള്ള ഇനങ്ങൾ തിരയുക, രോഗരഹിതമായ വിത്ത് ഉപയോഗിക്കുക, മതിയായ ഇടവേളയും ഫീൽഡ് ശുചിത്വം പാലിക്കുക, വിളമാറ്റം ഉപയോഗിക്കുക."
+},
+{
+  id: "rice_sheath_blight",
+  crop: "Rice",
+  crop_ta: "அரிசி",
+  crop_ml: "അരി",
+  disease: "Sheath Blight (Rhizoctonia solani)",
+  disease_ta: "ஷீத் பிளைட் (Rhizoctonia solani)",
+  disease_ml: "ഷീത്ത് ബ്ലൈറ്റ് (Rhizoctonia solani)",
+   image: "images/Sheath Blight.jpg",
+  problem_en: "Irregular, oval or elongated greenish-grey lesions appear on leaf sheaths near water line, which later enlarge and become brown. In severe cases, leaf sheaths rot, causing lodging and yield loss.",
+  problem_ta: "தண்ணீர் அளவுக்கு அருகில் இலை உறைகளில் முற்றும் அல்லது நீளமான பச்சை-சாம்பல் புள்ளிகள் தோன்றும், பின்னர் ஓரங்கள் பழுப்பு மற்றும் பெரிதாகும். கடுமையான தாக்கத்தில் இலை உறைகள் அழுகி, செடி விழும், விளைச்சல் குறையும்.",
+  problem_ml: "വെള്ളരേഖയ്‌ക്കടുത്ത് ഇലഷീത്തിൽ അനിയമമായ, ഒവൽ അല്ലെങ്കിൽ നീളം പച്ചയോ ചാരനിറമായോ പാടുകൾ കാണാം. ഇവ വലിയ് ബ്രൗൺ ആകുകയും ശക്തമായ ബാധയിൽ ഷീത്ത് அழുകുകയും വിളയ്ക്കുറവയാകുന്നു.",
+  cause_en: "Caused by the fungus Rhizoctonia solani, which spreads by water splash, contaminated soil, and infected plant material. The pathogen thrives in high humidity and flooded fields.",
+  cause_ta: "Rhizoctonia solani என்ற பூஞ்சை தண்ணீர் தெறிப்பு, மாசுப்பட்ட மண், பாதிக்கப்பட்ட தாவரங்கள் மூலம் பரவும். உயர் ஈரப்பதம் மற்றும் தண்ணீர் நிரம்பிய களங்களில் விரிவாக பரவுகிறது.",
+  cause_ml: "Rhizoctonia solani എന്ന പുഴു വെള്ളത്തിന്റെ സ്പ്ലാഷ്, മലിനമായ മണ്ണ്, രോഗം ബാധിച്ച ചെടികൾ വഴി വ്യാപിക്കുന്നു. ഉയർന്ന ഈർപ്പം, ജലമാവുന്ന കൃഷിയിൽ കൂടുതൽ ബാധകമാണ്.",
+  solution_en: "Apply fungicides such as validamycin or hexaconazole as per recommendations. Improve field drainage, remove infected plant parts, and avoid excessive nitrogen application.",
+  solution_ta: "பரிந்துரைக்கப்பட்ட பூஞ்சை நாசினிகள் (வலிடமிசின், ஹெக்சாகனசோழ்) பயன்படுத்தவும். செடி பகுதிகள் அகற்றவும், நல்ல வடிகால் அமைப்பும் அதிக நைட்ரஜன் தவிர்க்கவும்.",
+  solution_ml: "വാലിഡാമൈസിൻ അല്ലെങ്കിൽ ഹെക്സാക്കനാസോൾ പോലുള്ള ഫംഗിസൈഡുകൾ ഉപയോഗിക്കുക. ഡ്രൈനേജ് മെച്ചപ്പെടുത്തുക, രോഗം ബാധിച്ച ഭാഗങ്ങൾ നീക്കം ചെയ്യുക, അതികമായ നൈട്രജൻ ഒഴിവാക്കുക.",
+  prevention_en: "Use disease-free seeds and healthy plant material. Maintain proper spacing, avoid overcrowding, and provide good field drainage to reduce humidity.",
+  prevention_ta: "நோய் இல்லாத விதை மற்றும் ஆரோக்கியமான நடைகள் பயன்படுத்தவும். முறையான இடைவெளி, திணிவான நடவை தவிர்த்து, நல்ல வடிகால் அமைப்பும் ஈரப்பதம் தவிர்க்கவும்.",
+  prevention_ml: "രോഗമുക്തമായ വിത്ത്, ആരോഗ്യമുള്ള നടുക, മതിയായ ഇടവേള പാലിക്കുക, അതിരേറെ കൂടിക്കാഴ്ച ഒഴിവാക്കുക, മികച്ച ഡ്രെയിനേജ് ഉറപ്പാക്കുക."
+},
+{
+  id: "rice_narrow_brown_leaf_spot",
+  crop: "Rice",
+  crop_ta: "அரிசி",
+  crop_ml: "അരി",
+  disease: "Narrow Brown Leaf Spot (Cercospora oryzae)",
+  disease_ta: "நேரடி பழுப்பு இலைப் புள்ளி (Cercospora oryzae)",
+  disease_ml: "നാരോ ബ്രൗൺ ഇല പാടുകൾ (Cercospora oryzae)",
+  image: "images/Narrow Brown Leaf Spot.jpg",
+  problem_en: "Narrow, elongated brown spots or lesions develop along the leaf veins and blades, sometimes merging together. Severe infection can cause premature leaf death and reduced yield.",
+  problem_ta: "இலை நரம்புகளும், அருகிலும் நீளமான, பழுப்பு நிற புள்ளிகள் தோன்றும், சில நேரம் ஒன்றிணையும். கடுமையாக பாதிக்கப்பட்ட இலைகள் விரைவில் வாடி, விளைச்சல் குறையும்.",
+  problem_ml: "ഇലയുടെ ശരീരത്തിലോ നരമ്പുകളിലോ നീളം പ്രാധാന്യം ഉള്ള ബ്രൗൺ പാടുകൾ കാണാം. ഇതിവളർന്നാൽ ഇലകൾ വാടുകയും വിളവിൽ കുറവും ഉണ്ടാക്കുകയും ചെയ്യും.",
+  cause_en: "Caused by the fungus Cercospora oryzae, which survives on crop residue, infected seed, and spreads by wind or rain splash. Warm, humid conditions favor disease development.",
+  cause_ta: "Cercospora oryzae என்ற பூஞ்சை, பயிர் கழிவுகள், பாதிக்கப்பட்ட விதைகள் மூலமாக உயிர்வாழ்கிறது, காற்றிலும், மழைநீரிலும் பரவுகிறது. வெப்பம் மற்றும் ஈரத்தால் நோய் அதிகமாகப் பரவுகிறது.",
+  cause_ml: "Cercospora oryzae എന്ന പുഴു പാടുകൾ വിത്തിലും വളർച്ചയിലും കാറ്റ്, മഴ എഴുതിനിയന്ത്രണ കാലാവസ്ഥയിൽ പടരുന്നു.",
+  solution_en: "Apply fungicides such as Mancozeb or Propiconazole based on recommendations. Remove and destroy infected plant debris, practice crop rotation, and maintain field sanitation.",
+  solution_ta: "பரிந்துரைக்கப்பட்ட பூஞ்சைக் கொல்லிகள் (மாங்கோசெப், புரொபிகோனாசோல்) தெளிக்கவும். பாதிக்கப்பட்ட கழிவுகளை அகற்றி அழிக்கவும், பயிர் சுழற்சி, நில சுத்தம் பின்பற்றவும்.",
+  solution_ml: "മാൻകോസെബ്, പ്രൊപിക്കോണാസോൾ പോലുള്ള ഫംഗിസൈഡുകൾ ഉപയോഗിക്കുക. അസനി പെരുക്കുകയാണ്, വിവക്ഷം നിലനിർത്തുക, വൈകാരിക കൃഷി സ്തുതിക്കുകയുണ്ട്.",
+  prevention_en: "Use certified disease-free seeds. Practice crop rotation, maintain proper field drainage, and avoid excessive nitrogen fertilizer.",
+  prevention_ta: "நோய் இல்லாத சான்று விதைகளை பயிரிடவும். பயிர் சுழற்சி, நல்ல வடிகால் அமைப்பு, அதிக நைட்ரஜன் தவிர்க்கவும்.",
+  prevention_ml: "രോഗരഹിതമായ വിത്ത് തിരഞ്ഞെടുക്കുക, വിളമാറ്റം പാലിക്കുക, നന്നായി ഡ്രെയിനേജ് ഉറപ്പാക്കുക, അതികമായ നൈട്രജൻ ഒഴിവാക്കുക."
+},
+{
+  id: "rice_tungro_virus_disease",
+  crop: "Rice",
+  crop_ta: "அரிசி",
+  crop_ml: "അരി",
+  disease: "Tungro Virus Disease (Rice Tungro Bacilliform/Spherical Virus)",
+  disease_ta: "டுங்ரோ வைரஸ் நோய் (Rice Tungro Bacilliform/Spherical Virus)",
+  disease_ml: "ടുങ്രോ വൈറസ് രോഗം (Rice Tungro Bacilliform/Spherical Virus)",
+   image: "images/Tungro Virus Disease.jpg",
+  problem_en: "Leaves show discoloration starting as pale green to yellow-orange with elongate brown streaks. Plants are stunted, produce fewer tillers, and grain yield is severely reduced.",
+  problem_ta: "இலைகள் பச்சை அல்லது மஞ்சள்-நாரஞ்சு நிறமாக மாற்றம் ஏற்படுகிறது, நீளமான பழுப்பு கோடுகள் தோன்றும். செடிகள் குறைந்த வளர்ச்சி, ரேண்டு அளவு குறைவு, அரிசி உற்பத்தியில் தக்க இழப்பு காணப்படும்.",
+  problem_ml: "ഇലയിൽ നേരണ, മുങ്ങിയോ, പച്ചനിറം മഞ്ഞയിൽ നിന്ന് ഓറഞ്ച് വരെയുള്ള വണ്ണങ്ങൾ കാണാം, നീണ്ട ബ്രൗൺ വരകളും ഉണ്ടാകും. ചെടികളുടെ വളർച്ച കുറയും, വഴിയേ കുറവു, വിളവിൽ വലിയ കുറവ് സംഭവിക്കും.",
+  cause_en: "Caused by Rice Tungro Bacilliform Virus and Rice Tungro Spherical Virus, transmitted by leafhoppers (mainly Nephotettix virescens). Virus survives in infected plants and spreads by insect vector.",
+  cause_ta: "Rice Tungro Bacilliform மற்றும் Spherical Virus பச்சை வண்டிகள் மூலம் பரவுகிறது (Nephotettix virescens). வைரஸ் நோய் கொண்ட செடிகளில் வாழ்கிறது.",
+  cause_ml: "Rice Tungro Bacilliform Virus, Spherical Virus ഗ്രീൻ പാലരോ, വിഭാഗം എറ്റിട് ട്രാൻസ്ഫറി ചെയ്യുന്നു (Nephotettix virescens). രോഗമുള്ള ചെടികളിൽ ജീവിച്ച്, കീടം വഴി പടരുന്നു.",
+  solution_en: "Remove and destroy infected plants. Use resistant varieties, control leafhopper vectors with insecticides, and practice field sanitation.",
+  solution_ta: "நோய் தாக்கிய செடிகளை அகற்றவும். எதிர்ப்பு வகைகளை பயிரிடவும், பச்சை வண்டிகளை பூச்சிக்கொல்லியால் கட்டுப்படுத்தவும், நிலம் சுத்தம் பராமரிக்கவும்.",
+  solution_ml: "രോഗം ബാധിച്ച ചെടികൾ നീക്കംചെയ്യുക, പ്രതിരോധശേഷിയുള്ള ഇനങ്ങൾ നടുക, ഗ്രീൻ പാലര കാണുന്നത് കീടനാശിനികൾ വഴി നിയന്ത്രിക്കുക, ഫീൽഡ് ശുചിത്വം പാലിക്കുക.",
+  prevention_en: "Plant resistant and certified seeds. Monitor regularly for leafhoppers, maintain field hygiene, and remove volunteer plants.",
+  prevention_ta: "எதிர்ப்பு ரக மற்றும் சான்று விதை பயிரிடவும். பச்சை வண்டிக்கண்காணிப்பு, நில சுத்தம், பய விரும்பும் செடிகளை அகற்றவும்.",
+  prevention_ml: "പ്രതിരോധശേഷിയുള്ള, ഔദ്യോഗികമായ വിത്ത് ഉപയോഗിക്കുക. കീടങ്ങൾ നിരീക്ഷിക്കുക, ഫീൽഡ് ശുചിത്വം പാലിക്കുക, ആവശ്യമില്ലാത്ത ചെടികൾ നീക്കംചെയ്യുക."
+},
+{
+  id: "rice_bacterial_leaf_streak",
+  crop: "Rice",
+  crop_ta: "அரிசி",
+  crop_ml: "അരി",
+  disease: "Bacterial Leaf Streak (Xanthomonas oryzae pv. oryzicola)",
+  disease_ta: "பாக்டீரியா இலையை உதிரம் (Xanthomonas oryzae pv. oryzicola)",
+  disease_ml: "ബാക്ടീരിയ ഇലയെ ഉരുകൽ (Xanthomonas oryzae pv. oryzicola)",
+  image: "images/Bacterial Leaf Streak.jpg",
+  problem_en: "Fine, yellow to brown, linear streaks appear between leaf veins and gradually enlarge. Lesions may coalesce, giving leaves a scorched appearance. Severe infections can cause leaf wilting and yield reduction.",
+  problem_ta: "இலை நரம்புகளுக்கிடையில் மெலிந்த மஞ்சள் முதல் பழுப்பு கோடுகள் தோன்றும்; பின்னர் பெரிய கறைகளாக பரவலாம். இலைகள் வாடல், கூரைப் போன்ற தோற்றம், விளைச்சல் குறைவு ஏற்படும்.",
+  problem_ml: "ഇലയിലിടയോ നരമ്പുകൾക്കിടയിലോ മങ്ങിയ മഞ്ഞയോ പച്ചയോ നേരിയ വരകൾ കാണാം; ഇതിലൂടെയും ഇലകൾ ഉണങ്ങിയകാണും, കടുത്ത കൊണ്ട് വിളവു കുറയും.",
+  cause_en: "Caused by the bacterium Xanthomonas oryzae pv. oryzicola, which survives in plant debris and is spread through irrigation water, rain splash, and wind. Warm, humid weather favors disease development.",
+  cause_ta: "Xanthomonas oryzae pv. oryzicola என்னும் பாக்டீரியா தாவர கழிவுகளில் உயிர்வாழ்கிறது, நீர், மழை மற்றும் காற்று மூலம் பரவும். வெப்பம் மற்றும் ஈரப்பதம் அதிகம் நோய் பரவ உதவுகிறது.",
+  cause_ml: "Xanthomonas oryzae pv. oryzicola എന്ന ബാക്ടീരിയ ചെടികളുടെ അവശിഷ്ടത്തിൽ ജീവിക്കുന്നു, വെള്ളം, മഴ, കാറ്റിൽ പടരുന്നു. ചൂട് ഈർപ്പവും രോഗത്തിന് അനുകൂലമാണ്.",
+  solution_en: "Use copper-based bactericides as per recommendations. Remove and destroy infected leaves. Provide good drainage and avoid excessive nitrogen application.",
+  solution_ta: "பரிந்துரைக்கப்பட்ட தாமிரம் சார்ந்த பாக்டீரிசைடுகளைப் பயன்படுத்தவும். பாதிக்கப்பட்ட இலைகளை அகற்றி அழிக்கவும். நல்ல வடிகாலை என் அமைவில், அதிக நைட்ரஜன் பயன்பாட்டை தவிர்க்கவும்.",
+  solution_ml: "താമ്രം അടങ്ങിയ ബാക്ടീരിസൈഡ് ഉപയോഗിക്കുക. ബാധിച്ച ഇലകൾ നീക്കം ചെയ്യുക, ഡ്രെയിനേജ് മെച്ചപ്പെടുത്തുക, അതികമാത് നൈട്രജൻ ഒഴിവാക്കുക.",
+  prevention_en: "Plant disease-free seeds and resistant varieties. Maintain proper field hygiene, avoid overcrowding, and ensure regular field monitoring.",
+  prevention_ta: "நோய் இல்லாத விதைகள், எதிர்ப்பு வகைகள் பயன்படுத்தவும். நிலம் சுத்தமாக வைத்துக் கொள்ளவும், கூட்டமாக நடவை தவிர்க்கவும், அடிக்கடி கண்காணிக்கவும்.",
+  prevention_ml: "രോഗരഹിതമായ വിത്ത്, പ്രതിരോധ ഇനങ്ങൾ ഉപയോഗിക്കുക. ഫീൽഡ് ശുചിത്വം പാലിക്കുക, വലിയ നട് ഒഴിവാക്കുക, നിരന്തരം നിരീക്ഷിക്കുക."
+},
+{
+  id: "rice_false_smut",
+  crop: "Rice",
+  crop_ta: "அரிசி",
+  crop_ml: "അരി",
+  disease: "False Smut (Ustilaginoidea virens)",
+  disease_ta: "பொய்ச் சணி (Ustilaginoidea virens)",
+  disease_ml: "നകലി പുസ്തം (Ustilaginoidea virens)",
+image: "images/False Smut.jpg",
+  problem_en: "Greenish to yellowish spore balls develop on grains, gradually turning orange and powdery as they mature. Infected grains are replaced by spore masses, reducing yield and quality.",
+  problem_ta: "அரிசி மாவுகளில் பச்சை அல்லது மஞ்சள் நிறத்திலிருந்து ஆரஞ்சு நிற மாவுப் பந்துகள் உருவாகும். அவை முற்றிலும் வளரும்போது தூள் போல மாறும். பாதிக்கப்பட்ட அரிசி உற்பத்தி மற்றும் தரத்தில் குறைவு ஏற்படுகிறது.",
+  problem_ml: "കതിരുകളിൽ പച്ചയിൽ നിന്നു തുടങ്ങുന്ന, മഞ്ഞ അല്ലെങ്കിൽ ഓറഞ്ച് നിറമുള്ള പൊടി പന്തുകൾ കാണാം. ഇവ പാകുമ്പോൾ പൗഡറായിത്തീരും, കതിരുകളും വിളവും ഗുണനിലവാരവും കുറക്കും.",
+  cause_en: "Caused by the fungus Ustilaginoidea virens, which infects developing rice grains under humid, rainy conditions. The spores spread by wind, rain splash, and contaminated seeds.",
+  cause_ta: "Ustilaginoidea virens பூஞ்சை ஈரமான, மழைக்கால சூழலில் வளர பார்க்கின்றது. காற்று, மழைநீர் சிதறல் மற்றும் மாசுபட்ட விதைகளால் பரவுகிறது.",
+  cause_ml: "Ustilaginoidea virens എന്ന പുഴു ഈർപ്പവും മഴയും ഉള്ള സമയത്ത് അരികമായ കതിര്‍ ഏറ്റുവാങ്ങുന്നു. കാറ്റ്, മഴ, വിത്ത് എന്നിവയാൽ പടരുന്നു.",
+  solution_en: "Remove and destroy infected panicles. Apply recommended fungicides such as propiconazole or hexaconazole at early flowering. Use clean seeds and follow good field hygiene.",
+  solution_ta: "பாதிக்கப்பட்ட கொத்தை அகற்றி அழிக்கவும். பூக்கும் நிலையில் பரிந்துரைக்கப்பட்ட பூஞ்சைக்கொல்லிகள் (பிரொபிகோனாசோல் அல்லது ஹெக்சாகனசோல்) தெளிக்கவும். சுத்தமான விதைகளை பயன்படுத்தவும், நில சுத்தம் பராமரிக்கவும்.",
+  solution_ml: "ബാധിച്ച കതിരുകൾ നീക്കംചെയ്യുക, പുഷ്പനം ആരംഭിക്കുമ്പോൾ ഫംഗിസൈഡുകൾ (പ്രൊപിക്കോണാസോൾ, ഹെക്സാക്കനാസോൾ) ഉപയോഗിക്കുക. ശുദ്ധമായ വിത്ത്, കൃഷിശാല ശുചിത്വം പാലിക്കുക.",
+  prevention_en: "Use disease-free seeds, avoid excessive nitrogen application, practice timely fungicide sprays during panicle emergence, and maintain field sanitation.",
+  prevention_ta: "நோய் இல்லாத விதைகளை பயன்படுத்தவும், அதிக நைட்ரஜன் தவிர்க்கவும், கொத்து விரியும் போது நேரம் தவறாமல் பூஞ்சைக் கொல்லிகள் தெளிக்கவும், நிலம் சுத்தமாக பராமரிக்கவும்.",
+  prevention_ml: "രോഗരഹിതമായ വിത്ത്, അതികമായ നൈട്രജൻ ഒഴിവാക്കുക, കൊത്തു പുറത്തുവരുമ്പോൾ സമയബന്ധിത ഫംഗിസൈഡ് സ്പ്രേ ചെയ്യുക, ഫീൽഡ് ശുചിത്വം പാലിക്കുക."
+},
+{
+  id: "rice_grassy_stunt_disease",
+  crop: "Rice",
+  crop_ta: "அரிசி",
+  crop_ml: "അരി",
+  disease: "Grassy Stunt Disease (Rice Grassy Stunt Virus)",
+  disease_ta: "புல் குறை நோய் (Grassy Stunt Virus)",
+  disease_ml: "ഗ്രാസി സ്റ്റണ്ട് രോഗം (Grassy Stunt Virus)",
+ image: "images/Grassy Stunt Disease.jpg",
+  problem_en: "Plants become stunted with excessive tillering and grassy, narrow, pale leaves. Panicles may fail to emerge or are malformed, resulting in complete or partial sterility and significant yield loss.",
+  problem_ta: "செடிகள் குறைவாக வளர்ந்து, அதிகமான கிளைகளும், இலைகள் புல் போல் மயிராடும், மெலிந்தும், மெலிதாகவும் இருப்பதும் காணப்படும். கொத்து முற்றிலும் வராமல் இருக்கலாம் அல்லது மோசமாக இருக்கும், ஊறுபோகும், விளைச்சல் குறையும்.",
+  problem_ml: "ചെടികൾ വളർച്ച കുറഞ്ഞു, അതിരേറെ തണ്ണീർവള്ളി, മേലായ ഇലകൾ കാണാം. കതിര് പുറത്തുവരാനോ പൂർണമായോ ഭാഗികമായോ പരാജയപ്പെടും, വിളവറിയാം കാര്യമായ കുറവ് സംഭവിക്കും.",
+  cause_en: "Caused by the Rice Grassy Stunt Virus (RGSV), transmitted by brown planthopper (Nilaparvata lugens). The virus survives on infected plants and is spread by insect vectors.",
+  cause_ta: "Rice Grassy Stunt Virus (RGSV) என்பதால் ப்ரௌன் பிளான்ட்ஹாப்பர் (Nilaparvata lugens) மூலம் பரவுகிறது. வைரஸ் தீமையடைந்த செடியில் வளரும், பூச்சிகள் மூலம் பரவும்.",
+  cause_ml: "Rice Grassy Stunt Virus (RGSV) ആണ് കാരണവയ, ബ്രൗൺ പ്ലാൻറ്റ്ഹെപ്പർ (Nilaparvata lugens) മുഖേന പടരുന്നു. രോഗം പിടിച്ച ചെടിയിൽ നിന്ന് കീടങ്ങൾ വഴി പടരുന്നു.",
+  solution_en: "Remove and destroy infected plants. Use resistant varieties, control brown planthopper populations with insecticides, and maintain good field sanitation.",
+  solution_ta: "பாதிக்கப்பட்ட செடிகளை அகற்றி அழிக்கவும். நோய் எதிர்ப்பு வகைகளை பயிரிடவும், பிளான்ட்ஹாப்பர் பூச்சிகளை கீடுநாசினி மூலம் கட்டுப்படுத்தவும், நன்கு நில சுத்தம் பராமரிக்கவும்.",
+  solution_ml: "ഭദിച്ച ചെടികൾ നീക്കം ചെയ്യുക, പ്രതിരോധശേഷിയുള്ള ഇനങ്ങൾ നടുക, പടരുന്ന പ്ലാൻറ്റ്ഹെപ്പർ കീടങ്ങൾ കീടനാശിനികൾ ഉപയോഗിച്ച് നിയന്ത്രിക്കുക, ഫീൽഡ് ശുചിത്വം പാലിക്കുക.",
+  prevention_en: "Plant resistant and certified seeds. Monitor and control vector populations, avoid planting overlapping crops, and maintain proper field hygiene.",
+  prevention_ta: "எதிர்ப்பு மற்றும் சான்று விதைகளை பயிரிடவும். பூச்சி எண்ணிக்கை கண்காணித்து கட்டுப்படுத்தவும், சேர்ந்து விதைக்க தவிர்க்கவும், நிலம் சுத்தமாக வைத்துக் கொள்ளவும்.",
+  prevention_ml: "പ്രതിരോധശേഷിയുള്ള, ഔദ്യോഗിക വിത്ത് നടുക, കീട സംരക്ഷണം പാലിക്കുക, വിളപ്പൊതി ഒഴിവാക്കുക, ഫീൽഡ് ശുചിത്വം രംഭിക്കുക."
+}
+    ];
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        let currentLang = 'en';
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const featuredCropsContainer = document.getElementById('featuredCrops');
+        const imageResults = document.getElementById('imageResults');
+        const detailSection = document.getElementById('detailSection');
+        let currentActiveImg = null;
+        const themeToggle = document.getElementById('theme-toggle');
+        const themeIcon = themeToggle.querySelector('i');
+        const languageSelectorBtn = document.querySelector('.language-selector');
+        const dropdownContent = document.querySelector('.dropdown-content');
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const mobileNavDropdown = document.getElementById('mobile-nav-dropdown');
+
+        const applyTheme = (theme) => {
+            if (theme === 'dark') {
+                document.body.classList.add('dark-theme');
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            } else {
+                document.body.classList.remove('dark-theme');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            }
+            localStorage.setItem('theme', theme);
+        };
+
+        const setLanguage = (lang) => {
+            currentLang = lang;
+            localStorage.setItem('language', lang);
+            document.querySelectorAll('[data-lang-key]').forEach(element => {
+                const key = element.getAttribute('data-lang-key');
+                if (languageData[lang]?.[key]) {
+                    const text = languageData[lang][key];
+                    if (element.tagName === 'INPUT') {
+                        element.placeholder = text;
+                    } else {
+                        const iconHTML = element.querySelector('i')?.outerHTML || '';
+                        element.innerHTML = iconHTML ? `${iconHTML} ${text}` : text;
+                    }
+                }
+            });
+            languageSelectorBtn.innerHTML = `${document.querySelector(`.dropdown-content a[data-lang="${lang}"]`).textContent} <i class="fa-solid fa-angle-down"></i>`;
+            displayImages(searchInput.value);
+            if (detailSection.classList.contains('visible') && currentActiveImg) {
+                const index = parseInt(currentActiveImg.dataset.index, 10);
+                if (!isNaN(index)) {
+                    displayDetails(index, currentActiveImg, false);
+                }
+            }
+        };
+
+        function closeDetails() { detailSection.classList.remove('visible'); if (currentActiveImg) { currentActiveImg.classList.remove('active'); currentActiveImg = null; } setTimeout(() => { if (!detailSection.classList.contains('visible')) { detailSection.innerHTML = ''; } }, 500); }
+        function displayImages(filter) { imageResults.innerHTML = ''; closeDetails(); if (!filter || !filter.trim()) return; const lowercasedFilter = filter.toLowerCase(); const filtered = data.filter(item => item.crop.toLowerCase().includes(lowercasedFilter) || (item[`crop_${currentLang}`] && item[`crop_${currentLang}`].toLowerCase().includes(lowercasedFilter))); if (filtered.length === 0) { imageResults.innerHTML = `<p style="color: var(--text-color); text-align:center; width:100%;">${languageData[currentLang].no_results}</p>`; return; } filtered.forEach(item => { const originalIndex = data.findIndex(d => d.id === item.id); const card = document.createElement('div'); card.classList.add('thumb-card'); card.dataset.index = originalIndex; card.addEventListener('click', () => displayDetails(originalIndex, card, true)); const diseaseName = item[`disease_${currentLang}`] || item.disease; const cropName = item[`crop_${currentLang}`] || item.crop; card.innerHTML = ` <img src="${item.image}" alt="${diseaseName}" class="thumb-img" /> <div class="thumb-title">${diseaseName}</div> <div class="thumb-crop">${cropName}</div>`; imageResults.appendChild(card); }); }
+        function displayDetails(index, cardElement, showLoader) { const item = data[index]; if (!item) return; detailSection.classList.add('visible'); detailSection.scrollIntoView({ behavior: 'smooth', block: 'start' }); const renderContent = () => { const problem = item[`problem_${currentLang}`] || item.problem_en || 'N/A'; const cause = item[`cause_${currentLang}`] || item.cause_en || 'N/A'; const solution = item[`solution_${currentLang}`] || item.solution_en || 'N/A'; const prevention = item[`prevention_${currentLang}`] || item.prevention_en || 'N/A'; const diseaseName = item[`disease_${currentLang}`] || item.disease; const cropName = item[`crop_${currentLang}`] || item.crop; detailSection.innerHTML = ` <button id="closeBtn" title="${languageData[currentLang].tooltip_close}">×</button> <img src="${item.image}" alt="${diseaseName}" /> <h2>${cropName} - ${diseaseName}</h2> <p><strong>${languageData[currentLang].label_problem}:</strong> ${problem}</p> <p><strong>${languageData[currentLang].label_cause}:</strong> ${cause}</p> <p><strong>${languageData[currentLang].label_solution}:</strong> ${solution}</p> <p><strong>${languageData[currentLang].label_prevention}:</strong> ${prevention}</p>`; detailSection.querySelector('#closeBtn').addEventListener('click', closeDetails); }; if (showLoader) { detailSection.innerHTML = ` <button id="closeBtn" title="${languageData[currentLang].tooltip_close}">×</button> <div class="loader-container"><div class="loader"></div><p class="loading-text">${languageData[currentLang].loading_details}</p></div>`; detailSection.querySelector('#closeBtn').addEventListener('click', closeDetails); setTimeout(renderContent, 600); } else { renderContent(); } if (currentActiveImg) currentActiveImg.classList.remove('active'); cardElement.classList.add('active'); currentActiveImg = cardElement; }
+        function handleSearch() { displayImages(searchInput.value); }
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.body.classList.contains('dark-theme') ? 'dark' : 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            applyTheme(newTheme);
+        });
+
+        languageSelectorBtn.addEventListener('click', (event) => {
+            event.stopPropagation();
+            dropdownContent.classList.toggle('show');
+        });
+        document.querySelectorAll('.dropdown-content a').forEach(link => {
+            link.addEventListener('click', (event) => {
+                event.preventDefault();
+                setLanguage(link.getAttribute('data-lang'));
+                dropdownContent.classList.remove('show');
+            });
+        });
+
+        searchBtn.addEventListener('click', handleSearch);
+        searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') handleSearch(); });
+        featuredCropsContainer.addEventListener('click', e => {
+            const card = e.target.closest('.featured-card');
+            if (card) {
+                searchInput.value = card.dataset.crop;
+                handleSearch();
+                searchInput.focus();
+            }
+        });
+
+        hamburgerBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            mobileNavDropdown.classList.toggle('show');
+        });
+
+        window.addEventListener('click', () => {
+            if (dropdownContent.classList.contains('show')) {
+                dropdownContent.classList.remove('show');
+            }
+            if (mobileNavDropdown.classList.contains('show')) {
+                mobileNavDropdown.classList.remove('show');
+            }
+        });
+
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        const savedLang = localStorage.getItem('language') || 'en';
+        applyTheme(savedTheme);
+        setLanguage(savedLang);
+    });
+</script>
+</body>
+</html>
