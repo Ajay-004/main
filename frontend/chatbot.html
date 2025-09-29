@@ -735,7 +735,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('chatId', currentChatId);
       }
       
-      const response = await fetchWithAuth('https://backend-wbat.onrender.com/api/chat', {
+      const response = await fetchWithAuth('https://main-back-g4pq.onrender.com/api/chat', {
         method: 'POST',
         body: formData
       });
@@ -765,4 +765,5 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 </body>
+
 </html>
