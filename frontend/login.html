@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Login - FarmWise</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
         :root {
@@ -16,7 +16,6 @@
             --danger-red: #d9534f;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        
         body {
             min-height: 100vh;
             background-image: linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url('https://images.unsplash.com/photo-1597992923368-ca2452b27074?q=80&w=2070');
@@ -25,7 +24,6 @@
             background-repeat: no-repeat;
             background-attachment: fixed;
         }
-        
         #loader-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-color: rgba(255, 255, 255, 0.8); display: none;
@@ -36,21 +34,18 @@
             border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
         .main-container {
             display: grid;
             grid-template-columns: 1fr 1.2fr;
             min-height: 100vh;
             width: 100%;
         }
-
         .login-section {
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
         }
-
         .form-container {
             background-color: var(--form-bg-color);
             padding: 40px;
@@ -59,7 +54,6 @@
             width: 100%;
             max-width: 450px;
         }
-        
         .language-selector-container {
             position: absolute; top: 25px; right: 25px; display: flex; align-items: center;
             background-color: #fff; padding: 8px 15px; border-radius: 50px;
@@ -72,7 +66,6 @@
             font-weight: 500; color: #333; cursor: pointer; appearance: none;
         }
         #language-selector:focus { outline: none; }
-
         .branding-section {
             display: flex;
             flex-direction: column;
@@ -82,7 +75,6 @@
             padding: 20px;
             overflow: hidden;
         }
-        
         .branding-title h1 {
             font-size: 4rem;
             font-weight: 700;
@@ -97,7 +89,6 @@
             margin-bottom: 50px;
             text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
         }
-        
         .features-slider {
             position: relative;
             height: 150px;
@@ -111,7 +102,6 @@
             transform: translateX(100%) rotateY(-30deg); 
             transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
         }
-        
         .feature-item.active { opacity: 1; transform: translateX(0) rotateY(0); }
         .feature-item.exit { opacity: 0; transform: translateX(-100%) rotateY(30deg); }
         .feature-item i { font-size: 3rem; margin-bottom: 20px; color: var(--primary-color); }
@@ -121,7 +111,6 @@
             color: #333;
             text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
         }
-
         h2 { text-align: center; color: var(--text-color); margin-bottom: 10px; }
         .input-group { margin-bottom: 20px; }
         label { display: block; margin-bottom: 8px; color: var(--label-color); font-weight: 500; }
@@ -131,15 +120,13 @@
         .submit-button:hover { background-color: #245738; }
         .form-footer { text-align: center; margin-top: 25px; color: var(--label-color); }
         .form-footer a { color: var(--primary-color); text-decoration: none; font-weight: 600; }
-        
         #error-message {
             color: var(--danger-red);
             text-align: center;
             margin-bottom: 15px;
             font-weight: 500;
-            min-height: 1.2em; /* Prevents layout shift when message appears */
+            min-height: 1.2em;
         }
-
         @media (max-width: 850px) {
             .main-container { grid-template-columns: 1fr; min-height: 0; }
             .branding-section { order: -1; padding: 60px 20px 40px 20px; }
@@ -169,8 +156,14 @@
                     
                     <div id="error-message"></div>
 
-                    <div class="input-group"><label for="username" id="label-username">Username</label><input type="text" id="username" required></div>
-                    <div class="input-group"><label for="password" id="label-password">Password</label><input type="password" id="password" required></div>
+                    <div class="input-group">
+                        <label for="username" id="label-username">Username</label>
+                        <input type="text" id="username" required />
+                    </div>
+                    <div class="input-group">
+                        <label for="password" id="label-password">Password</label>
+                        <input type="password" id="password" required />
+                    </div>
                     <button type="submit" class="submit-button" id="submit-btn">Login</button>
                     <div class="form-footer">
                         <span id="footer-text">Don't have an account?</span> <a href="sign.html" id="footer-link">Sign Up</a>
@@ -195,16 +188,13 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- CONFIGURATION ---
             const API_BASE_URL = 'https://main-back-g4pq.onrender.com';
 
-            // --- DOM ELEMENTS ---
             const loginForm = document.getElementById('login-form');
             const loaderOverlay = document.getElementById('loader-overlay');
             const languageSelector = document.getElementById('language-selector');
             const errorMessageDiv = document.getElementById('error-message');
 
-            // --- TRANSLATION DATA & LOGIC ---
             const translations = {
                 en: { 
                     "form-title": "Welcome Back!", "label-username": "Username", "label-password": "Password", "submit-btn": "Login", "footer-text": "Don't have an account?", "footer-link": "Sign Up",
@@ -228,11 +218,7 @@
                 for (const key in langData) {
                     const element = document.getElementById(key);
                     if (element) { 
-                        if (element.tagName === 'INPUT' || element.tagName === 'BUTTON') {
-                            element.textContent = langData[key];
-                        } else {
-                            element.textContent = langData[key];
-                        }
+                        element.textContent = langData[key];
                     }
                 }
             };
@@ -246,14 +232,19 @@
             languageSelector.value = savedLang;
             changeLanguage(savedLang);
 
-            // --- LOGIN FORM SUBMISSION ---
             loginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 loaderOverlay.style.display = 'flex';
-                errorMessageDiv.textContent = ''; // Clear previous errors
+                errorMessageDiv.textContent = '';
                 
-                const username = document.getElementById('username').value;
+                const username = document.getElementById('username').value.trim();
                 const password = document.getElementById('password').value;
+
+                if (!username || !password) {
+                    loaderOverlay.style.display = 'none';
+                    errorMessageDiv.textContent = 'Please enter username and password.';
+                    return;
+                }
                 
                 try {
                     const response = await fetch(`${API_BASE_URL}/api/login`, {
@@ -263,21 +254,19 @@
                     });
                     
                     const data = await response.json();
-                    
                     if (!response.ok) {
-                        throw new Error(data.message || "An unknown error occurred.");
+                        throw new Error(data.message || "Login failed. Please try again.");
                     }
                     
                     localStorage.setItem('token', data.token);
                     window.location.href = 'index.html';
-
                 } catch (error) {
                     loaderOverlay.style.display = 'none';
-                    errorMessageDiv.textContent = error.message; // Display error on the page
+                    errorMessageDiv.textContent = error.message;
                 }
             });
 
-            // --- FEATURE SLIDER ANIMATION ---
+            // Feature slider animation
             const features = document.querySelectorAll('.feature-item');
             let currentFeatureIndex = 0;
             setInterval(() => {
