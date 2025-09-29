@@ -356,7 +356,7 @@
 
             try {
                 // MODIFIED: Concatenate the new Render API URL with the specific route
-                const response = await fetch(`${RENDER_API_BASE_URL}/api/signup`, {
+                const response = await fetch(`${RENDER_API_BASE_URL}/routes/api`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, email, phone, password, state })
@@ -374,3 +374,4 @@
     </script>
 </body>
 </html>
+
