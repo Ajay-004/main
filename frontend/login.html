@@ -1,290 +1,315 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Login - FarmWise</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FarmWise - AI-Powered Farming Advisory</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
         :root {
-            --primary-color: #2c6b45;
-            --form-bg-color: #ffffff;
-            --text-color: #333;
-            --label-color: #555;
-            --border-color: #ddd;
-            --danger-red: #d9534f;
+            --bg-dark: #0D1117; --bg-medium: #161b22; --border-dark: #30363d; --text-primary-dark: #c9d1d9;
+            --text-secondary-dark: #8b949e; --text-white: #ffffff; --accent-green: #2ECC71; --danger-red: #e74c3c;
+            --bg-light: #f6f8fa; --bg-white: #ffffff; --border-light: #d0d7de; --text-primary-light: #24292f;
+            --text-secondary-light: #586069;
         }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        body {
-            min-height: 100vh;
-            background-image: linear-gradient(rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.6)), url('https://images.unsplash.com/photo-1597992923368-ca2452b27074?q=80&w=2070');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
+        html, body { margin: 0; height: 100%; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color: var(--text-primary-dark); font-size: 16px; line-height: 1.5; transition: background-color 0.3s ease, color 0.3s ease; overflow-x: hidden; }
+        a { text-decoration: none; color: inherit; }
+        @keyframes fadeInUp3D {
+            from { opacity: 0; transform: translateY(50px) rotateX(-90deg);}
+            to { opacity: 1; transform: translateY(0) rotateX(0);}
         }
-        #loader-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-color: rgba(255, 255, 255, 0.8); display: none;
-            justify-content: center; align-items: center; z-index: 1000;
+        @keyframes floatAnimation {
+            0% { transform: translateY(0px);}
+            50% { transform: translateY(-10px);}
+            100% { transform: translateY(0px);}
         }
-        .loader {
-            border: 5px solid #f3f3f3; border-top: 5px solid var(--primary-color);
-            border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite;
+        .navbar { background-color: var(--bg-medium); padding: 15px 0; border-bottom: 1px solid var(--border-dark); position: sticky; top: 0; z-index: 100; transition: background-color 0.3s ease, border-color 0.3s ease; position: relative; }
+        .navbar-container { display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+        .logo { font-size: 24px; font-weight: 800; color: var(--accent-green); }
+        .nav-menu { display: flex; align-items: center; gap: 30px; }
+        .nav-menu a { color: var(--text-primary-dark); display: flex; align-items: center; gap: 8px; transition: color 0.3s ease; }
+        .nav-menu a:hover { color: var(--text-white); }
+        .nav-actions { display: flex; align-items: center; gap: 15px; }
+        .language-dropdown { position: relative; }
+        .language-selector { background: none; border: none; color: var(--text-primary-dark); font-size: 15px; cursor: pointer; padding: 5px 10px; border-radius: 6px; display: flex; align-items: center; gap: 5px; }
+        .dropdown-content { display: none; position: absolute; background-color: var(--bg-medium); min-width: 150px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); z-index: 100; list-style: none; padding: 8px 0; border-radius: 6px; border: 1px solid var(--border-dark); right: 0; top: 100%; margin-top: 5px; }
+        .dropdown-content.show { display: block; }
+        .dropdown-content li a { color: var(--text-primary-dark); padding: 10px 15px; display: block; font-size: 14px; }
+        .dropdown-content li a:hover, .language-selector:hover { background-color: var(--border-dark); }
+        .theme-button, #profile-btn { background: none; border: none; color: var(--text-primary-dark); font-size: 18px; cursor: pointer; border-radius: 6px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; transition: background-color 0.3s ease; }
+        .theme-button:hover, #profile-btn:hover { background-color: var(--border-dark); }
+        .hero { background-image: url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=2070'); background-size: cover; background-position: center; height: calc(100vh - 67px); display: flex; align-items: center; justify-content: center; text-align: center; position: relative; }
+        .hero-overlay { background-color: rgba(13, 17, 23, 0.7); position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transition: background-color 0.3s ease; }
+        .hero-content { max-width: 800px; position: relative; z-index: 2; padding: 0 20px; perspective: 1000px; }
+        .hero-title { font-size: 56px; font-weight: 800; color: var(--text-white); margin: 10px 0 20px 0; line-height: 1.15; animation: fadeInUp3D 1s ease-out 0.3s backwards, floatAnimation 4s ease-in-out 1.3s infinite; }
+        .hero-description { font-size: 18px; max-width: 700px; margin: 0 auto 30px auto; line-height: 1.6; animation: fadeInUp3D 1s ease-out 0.6s backwards, floatAnimation 3.5s ease-in-out 1.6s infinite; }
+        .profile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 1050; opacity: 0; transition: opacity 0.3s ease; }
+        .side-profile-panel { position: fixed; top: 0; right: 0; width: 350px; max-width: 90%; height: 100%; background-color: var(--bg-medium); z-index: 1100; transform: translateX(100%); transition: transform 0.3s ease-in-out; display: flex; flex-direction: column; padding: 25px; box-sizing: border-box; border-left: 1px solid var(--border-dark); }
+        .profile-overlay.show { display: block; opacity: 1; }
+        .side-profile-panel.show { transform: translateX(0); }
+        .profile-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-dark); padding-bottom: 15px; margin-bottom: 25px; }
+        .profile-header h3 { margin: 0; font-size: 22px; color: var(--text-white); }
+        .profile-details ul { list-style: none; padding: 0; margin: 0 0 25px 0; }
+        .profile-details li { margin-bottom: 20px; }
+        .profile-details .label { font-size: 13px; color: var(--text-secondary-dark); display: block; margin-bottom: 5px; }
+        .profile-details .value { font-size: 16px; color: var(--text-primary-dark); }
+        .logout-button { width: 100%; padding: 15px; background-color: var(--danger-red); color: var(--text-white); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: background-color 0.3s ease; font-size: 16px; margin-top: auto; }
+        .close-button { background: none; border: none; color: var(--text-secondary-dark); font-size: 28px; cursor: pointer; }
+        .hamburger-menu { display: none; background: none; border: none; color: var(--text-primary-dark); font-size: 22px; cursor: pointer; }
+        .mobile-nav-dropdown { display: none; position: absolute; top: 100%; left: 0; width: 100%; background-color: var(--bg-medium); border-top: 1px solid var(--border-dark); padding: 10px 0; box-shadow: 0 8px 16px rgba(0,0,0,0.2);}
+        .mobile-nav-dropdown.show { display: block; }
+        .mobile-nav-dropdown .nav-menu { display: flex; flex-direction: column; align-items: flex-start; gap: 0; padding: 0 20px;}
+        .mobile-nav-dropdown .nav-menu a { padding: 15px 0; width: 100%; font-size: 16px; font-weight: 500; border-bottom: 1px solid var(--border-dark); }
+        .mobile-nav-dropdown .nav-menu a:last-child { border-bottom: none;}
+        body.light-mode { background-color: var(--bg-light); color: var(--text-primary-light); }
+        body.light-mode .navbar, body.light-mode .side-profile-panel { background-color: var(--bg-white); border-color: var(--border-light); }
+        body.light-mode .nav-menu a, body.light-mode .language-selector, body.light-mode .theme-button, body.light-mode #profile-btn, body.light-mode .hamburger-menu { color: var(--text-secondary-light); }
+        body.light-mode .dropdown-content { background-color: var(--bg-white); border-color: var(--border-light);}
+        body.light-mode .dropdown-content li a { color: var(--text-primary-light);}
+        body.light-mode .dropdown-content li a:hover, body.light-mode .language-selector:hover { background-color: var(--bg-light);}
+        body.light-mode .theme-button:hover, body.light-mode #profile-btn:hover { background-color: var(--bg-light);}
+        body.light-mode .hero-overlay { background-color: rgba(255, 255, 255, 0.4);}
+        body.light-mode .hero-title, body.light-mode .hero-description { color: var(--text-primary-light);}
+        body.light-mode .profile-header h3, body.light-mode .profile-details .value { color: var(--text-primary-light);}
+        body.light-mode .profile-details .label { color: var(--text-secondary-light);}
+        body.light-mode .mobile-nav-dropdown { background-color: var(--bg-white); border-color: var(--border-light);}
+        body.light-mode .mobile-nav-dropdown .nav-menu a { border-color: var(--border-light);}
+        @media (max-width: 992px) {
+            .navbar-container .nav-menu { display: none;}
+            .hamburger-menu { display: block;}
+            .hero-title { font-size: 42px;}
         }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .main-container {
-            display: grid;
-            grid-template-columns: 1fr 1.2fr;
-            min-height: 100vh;
-            width: 100%;
-        }
-        .login-section {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-        .form-container {
-            background-color: var(--form-bg-color);
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 450px;
-        }
-        .language-selector-container {
-            position: absolute; top: 25px; right: 25px; display: flex; align-items: center;
-            background-color: #fff; padding: 8px 15px; border-radius: 50px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); border: 1px solid var(--border-color);
-            z-index: 10;
-        }
-        .language-selector-container i { margin-right: 8px; color: var(--primary-color); }
-        #language-selector {
-            background: transparent; border: none; font-size: 0.9rem;
-            font-weight: 500; color: #333; cursor: pointer; appearance: none;
-        }
-        #language-selector:focus { outline: none; }
-        .branding-section {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 20px;
-            overflow: hidden;
-        }
-        .branding-title h1 {
-            font-size: 4rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4);
-        }
-        .branding-title p {
-            font-size: 1.2rem;
-            font-style: italic;
-            color: #245738;
-            margin-top: 5px;
-            margin-bottom: 50px;
-            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
-        }
-        .features-slider {
-            position: relative;
-            height: 150px;
-            width: 100%;
-            max-width: 450px;
-        }
-        .feature-item {
-            position: absolute; top: 0; left: 0; width: 100%;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            opacity: 0;
-            transform: translateX(100%) rotateY(-30deg); 
-            transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-        .feature-item.active { opacity: 1; transform: translateX(0) rotateY(0); }
-        .feature-item.exit { opacity: 0; transform: translateX(-100%) rotateY(30deg); }
-        .feature-item i { font-size: 3rem; margin-bottom: 20px; color: var(--primary-color); }
-        .feature-item h3 {
-            font-size: 1.6rem;
-            font-weight: 500;
-            color: #333;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
-        }
-        h2 { text-align: center; color: var(--text-color); margin-bottom: 10px; }
-        .input-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; color: var(--label-color); font-weight: 500; }
-        input { width: 100%; padding: 12px 15px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1rem; }
-        input:focus { outline: none; border-color: var(--primary-color); }
-        .submit-button { width: 100%; padding: 14px; background-color: var(--primary-color); color: white; border: none; border-radius: 6px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: background-color 0.3s; }
-        .submit-button:hover { background-color: #245738; }
-        .form-footer { text-align: center; margin-top: 25px; color: var(--label-color); }
-        .form-footer a { color: var(--primary-color); text-decoration: none; font-weight: 600; }
-        #error-message {
-            color: var(--danger-red);
-            text-align: center;
-            margin-bottom: 15px;
-            font-weight: 500;
-            min-height: 1.2em;
-        }
-        @media (max-width: 850px) {
-            .main-container { grid-template-columns: 1fr; min-height: 0; }
-            .branding-section { order: -1; padding: 60px 20px 40px 20px; }
-            .branding-title h1 { font-size: 3rem; }
-            .feature-item h3 { font-size: 1.3rem; }
-            .login-section { padding-bottom: 40px; }
+        @media (max-width: 576px) {
+            .hero-title { font-size: 36px;}
+            .hero-description { font-size: 16px;}
         }
     </style>
 </head>
 <body>
-    <div id="loader-overlay"><div class="loader"></div></div>
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+    </script>
 
-    <div class="language-selector-container">
-        <i class="fa-solid fa-globe"></i>
-        <select id="language-selector">
-            <option value="en">English</option>
-            <option value="ta">தமிழ் (Tamil)</option>
-            <option value="ml">മലയാളം (Malayalam)</option>
-        </select>
-    </div>
-
-    <div class="main-container">
-        <div class="login-section">
-            <div class="form-container">
-                <form id="login-form">
-                    <h2 id="form-title">Welcome Back!</h2>
-                    
-                    <div id="error-message"></div>
-
-                    <div class="input-group">
-                        <label for="username" id="label-username">Username</label>
-                        <input type="text" id="username" required />
-                    </div>
-                    <div class="input-group">
-                        <label for="password" id="label-password">Password</label>
-                        <input type="password" id="password" required />
-                    </div>
-                    <button type="submit" class="submit-button" id="submit-btn">Login</button>
-                    <div class="form-footer">
-                        <span id="footer-text">Don't have an account?</span> <a href="sign.html" id="footer-link">Sign Up</a>
-                    </div>
-                </form>
+    <header class="navbar">
+        <div class="navbar-container">
+            <a href="#" class="logo" data-lang-key="logo_text">FarmWise</a>
+            <nav class="nav-menu">
+                <a href="chatbot.html" data-lang-key="nav_chatbot"><i class="fa-solid fa-robot"></i> Krishi Sahayi Bot</a>
+                <a href="plant.html" data-lang-key="nav_crop_disease"><i class="fa-solid fa-leaf"></i> Crop Disease Diagnosis</a>
+                <a href="weather.html" data-lang-key="nav_weather"><i class="fa-solid fa-cloud-sun"></i> Weather Prediction</a>
+                <a href="community.html" data-lang-key="nav_community"><i class="fa-solid fa-users"></i> Farmer Community</a>
+            </nav>
+            <div class="nav-actions">
+                <div class="language-dropdown">
+                    <button class="language-selector">English <i class="fa-solid fa-angle-down"></i></button>
+                    <ul class="dropdown-content">
+                        <li><a href="#" data-lang="en">English</a></li>
+                        <li><a href="#" data-lang="ta">தமிழ் (Tamil)</a></li>
+                        <li><a href="#" data-lang="ml">മലയാളം (Malayalam)</a></li>
+                    </ul>
+                </div>
+                <button id="theme-toggle" class="theme-button" title="Toggle Theme"><i class="fa-solid fa-sun"></i></button>
+                <button id="profile-btn" title="View Profile"><i class="fa-solid fa-user-circle"></i></button>
+                <button class="hamburger-menu" id="hamburger-btn"><i class="fa-solid fa-bars"></i></button>
             </div>
         </div>
-
-        <div class="branding-section">
-            <div class="branding-title">
-                <h1 id="brand-title">FarmWise</h1>
-                <p id="brand-subtitle">"Your Farm's Intelligence"</p>
-            </div>
-            <div class="features-slider">
-                <div class="feature-item active"><i class="fa-solid fa-robot"></i><h3 id="feature-1">Krishi Sahayi Bot</h3></div>
-                <div class="feature-item"><i class="fa-solid fa-leaf"></i><h3 id="feature-2">Crop Disease Diagnosis</h3></div>
-                <div class="feature-item"><i class="fa-solid fa-cloud-sun-rain"></i><h3 id="feature-3">Weather Prediction</h3></div>
-                <div class="feature-item"><i class="fa-solid fa-users"></i><h3 id="feature-4">Farmer Community</h3></div>
-            </div>
+        <div class="mobile-nav-dropdown" id="mobile-nav-dropdown">
+            <nav class="nav-menu">
+                <a href="chatbot.html" data-lang-key="nav_chatbot"><i class="fa-solid fa-robot"></i> Krishi Sahayi Bot</a>
+                <a href="plant.html" data-lang-key="nav_crop_disease"><i class="fa-solid fa-leaf"></i> Crop Disease Diagnosis</a>
+                <a href="weather.html" data-lang-key="nav_weather"><i class="fa-solid fa-cloud-sun"></i> Weather Prediction</a>
+                <a href="community.html" data-lang-key="nav_community"><i class="fa-solid fa-users"></i> Farmer Community</a>
+            </nav>
         </div>
+    </header>
+
+    <main>
+        <section id="home" class="hero">
+            <div class="hero-overlay">
+                <div class="hero-content container">
+                    <h1 class="hero-title" data-lang-key="hero_title">AI-Powered Guidance for Every Farmer</h1>
+                    <p class="hero-description" data-lang-key="hero_description">
+                        Get real-time weather updates, chat with our AI assistant, and manage your profile.
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="profile-overlay" class="profile-overlay"></div>
+    <div id="side-profile-panel" class="side-profile-panel">
+        <div class="profile-header">
+            <h3 data-lang-key="profile_title">My Profile</h3>
+            <button id="close-panel-btn" class="close-button">&times;</button>
+        </div>
+        <div class="profile-details">
+            <ul>
+                <li><span class="label" data-lang-key="profile_label_username">Username</span><span id="profile-username" class="value"></span></li>
+                <li><span class="label" data-lang-key="profile_label_email">Email Address</span><span id="profile-email" class="value"></span></li>
+                <li><span class="label" data-lang-key="profile_label_phone">Phone Number</span><span id="profile-phone" class="value"></span></li>
+                <li><span class="label" data-lang-key="profile_label_state">State</span><span id="profile-state" class="value"></span></li>
+            </ul>
+        </div>
+        <button id="logout-btn" class="logout-button"><i class="fa-solid fa-right-from-bracket"></i> <span data-lang-key="logout_button">Logout</span></button>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const API_BASE_URL = 'https://main-back-g4pq.onrender.com';
+    document.addEventListener('DOMContentLoaded', () => {
+        const body = document.body;
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const profileBtn = document.getElementById('profile-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const languageDropdown = document.querySelector('.language-dropdown');
+        const languageSelectorBtn = document.querySelector('.language-selector');
+        const dropdownContent = document.querySelector('.dropdown-content');
+        const hamburgerBtn = document.getElementById('hamburger-btn');
+        const mobileNavDropdown = document.getElementById('mobile-nav-dropdown');
+        const profileOverlay = document.getElementById('profile-overlay');
+        const sideProfilePanel = document.getElementById('side-profile-panel');
+        const closePanelBtn = document.getElementById('close-panel-btn');
 
-            const loginForm = document.getElementById('login-form');
-            const loaderOverlay = document.getElementById('loader-overlay');
-            const languageSelector = document.getElementById('language-selector');
-            const errorMessageDiv = document.getElementById('error-message');
-
-            const translations = {
-                en: { 
-                    "form-title": "Welcome Back!", "label-username": "Username", "label-password": "Password", "submit-btn": "Login", "footer-text": "Don't have an account?", "footer-link": "Sign Up",
-                    "brand-title": "FarmWise", "brand-subtitle": "\"Your Farm's Intelligence\"",
-                    "feature-1": "Krishi Sahayi Bot", "feature-2": "Crop Disease Diagnosis", "feature-3": "Weather Prediction", "feature-4": "Farmer Community"
-                },
-                ta: { 
-                    "form-title": "மீண்டும் வருக!", "label-username": "பயனர்பெயர்", "label-password": "கடவுச்சொல்", "submit-btn": "உள்நுழைய", "footer-text": "கணக்கு இல்லையா?", "footer-link": "பதிவுபெறுக",
-                    "brand-title": "ஃபார்ம் வைஸ்", "brand-subtitle": "\"உங்கள் பண்ணையின் நுண்ணறிவு\"",
-                    "feature-1": "கிருஷி சாயி பாட்", "feature-2": "பயிர் நோய் கண்டறிதல்", "feature-3": "வானிலை முன்னறிவிப்பு", "feature-4": "உழவர் சமூகம்"
-                },
-                ml: { 
-                    "form-title": "വീണ്ടും സ്വാഗതം!", "label-username": "ഉപയോക്തൃനാമം", "label-password": "പാസ്വേഡ്", "submit-btn": "സൈൻ ഇൻ ചെയ്യുക", "footer-text": "ഒരു അക്കൗണ്ട് ഇല്ലേ?", "footer-link": "സൈൻ അപ്പ് ചെയ്യുക",
-                    "brand-title": "ഫാം വൈസ്", "brand-subtitle": "\"നിങ്ങളുടെ ഫാമിന്റെ ഇന്റലിജൻസ്\"",
-                    "feature-1": "കൃഷി സഹായി ബോട്ട്", "feature-2": "വിള രോഗനിർണയം", "feature-3": "കാലാവസ്ഥാ പ്രവചനം", "feature-4": "കർഷക സമൂഹം"
-                }
-            };
-
-            const changeLanguage = (lang) => {
-                const langData = translations[lang];
-                for (const key in langData) {
-                    const element = document.getElementById(key);
-                    if (element) { 
-                        element.textContent = langData[key];
-                    }
-                }
-            };
-            
-            languageSelector.addEventListener('change', (event) => {
-                changeLanguage(event.target.value);
-                localStorage.setItem('preferredLanguage', event.target.value);
-            });
-            
-            const savedLang = localStorage.getItem('preferredLanguage') || 'en';
-            languageSelector.value = savedLang;
-            changeLanguage(savedLang);
-
-            loginForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                loaderOverlay.style.display = 'flex';
-                errorMessageDiv.textContent = '';
-                
-                const username = document.getElementById('username').value.trim();
-                const password = document.getElementById('password').value;
-
-                if (!username || !password) {
-                    loaderOverlay.style.display = 'none';
-                    errorMessageDiv.textContent = 'Please enter username and password.';
+        // AUTH & PROFILE FETCH
+        const token = localStorage.getItem('token');
+        fetchProfileData(token);
+        async function fetchProfileData(token) {
+            try {
+                const response = await fetch('https://main-back-g4pq.onrender.com/api/profile', {
+                    headers: { 'x-auth-token': token }
+                });
+                if (response.status === 401 || response.status === 403) {
+                    alert('Session expired or unauthorized. Please sign in again.');
+                    localStorage.removeItem('token');
+                    window.location.href = 'login.html';
                     return;
                 }
-                
-                try {
-                    const response = await fetch(`${API_BASE_URL}/api/login`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ username, password })
-                    });
-                    
-                    const data = await response.json();
-                    if (!response.ok) {
-                        throw new Error(data.message || "Login failed. Please try again.");
-                    }
-                    
-                    localStorage.setItem('token', data.token);
-                    window.location.href = 'index.html';
-                } catch (error) {
-                    loaderOverlay.style.display = 'none';
-                    errorMessageDiv.textContent = error.message;
+                if (!response.ok) {
+                    const errMsg = await response.text();
+                    alert('Failed to load profile: ' + errMsg);
+                    return;
+                }
+                const userData = await response.json();
+                document.getElementById('profile-username').textContent = userData.username;
+                document.getElementById('profile-email').textContent = userData.email;
+                document.getElementById('profile-phone').textContent = userData.phone;
+                document.getElementById('profile-state').textContent = userData.state;
+            } catch (error) {
+                alert('Error loading profile: ' + error.message);
+            }
+        }
+
+        // LANGUAGE FUNCTIONALITY
+        const languageData = {
+            en: {
+                logo_text: "FarmWise", nav_chatbot: "Krishi Sahayi Bot", nav_crop_disease: "Crop Disease Diagnosis", nav_weather: "Weather Prediction", nav_community: "Farmer Community",
+                hero_title: "AI-Powered Guidance for Every Farmer", hero_description: "Get real-time weather updates, chat with our AI assistant, and manage your profile.",
+                profile_title: "My Profile", profile_label_username: "Username",
+                profile_label_email: "Email Address", profile_label_phone: "Phone Number", profile_label_state: "State",
+                logout_button: "Logout"
+            },
+            ta: {
+                logo_text: "பார்ம்வைஸ்", nav_chatbot:" கிருஷி சஹாயி பாட்", nav_crop_disease: "பயிர் நோய் கண்டறிதல்", nav_weather: "வானிலை முன்னறிவிப்பு", nav_community: "விவசாயிகள் சமூகம்",
+                hero_title: "ஒவ்வொரு விவசாயிக்கும் AI-இயங்கும் வழிகாட்டுதல்", hero_description: "நிகழ்நேர வானிலை அறிவிப்புகளைப் பெறுங்கள், எங்கள் AI உதவியாளருடன் அரட்டையடிக்கவும், உங்கள் சுயவிவரத்தை நிர்வகிக்கவும்.",
+                profile_title: "என் சுயவிவரம்", profile_label_username: "பயனர்பெயர்",
+                profile_label_email: "மின்னஞ்சல் முகவரி", profile_label_phone: "தொலைபேசி எண்", profile_label_state: "மாநிலம்",
+                logout_button: "வெளியேறு"
+            },
+            ml: {
+                logo_text: "ഫാംവൈസ്", nav_chatbot: "കൃഷി സഹായി ബോട്ട്", nav_crop_disease: "വിള രോഗനിർണയം", nav_weather: "കാലാവസ്ഥാ പ്രവചനം", nav_community: "കർഷക സമൂഹം",
+                hero_title: "ഓരോ കർഷകനും AI പിന്തുണയുള്ള മാർഗ്ഗനിർദ്ദേശം", hero_description: "തത്സമയ കാലാവസ്ഥാ അപ്‌ഡേറ്റുകൾ നേടുക, ഞങ്ങളുടെ AI അസിസ്റ്റന്റുമായി ചാറ്റ് ചെയ്യുക, നിങ്ങളുടെ പ്രൊഫൈൽ നിയന്ത്രിക്കുക.",
+                profile_title: "എന്റെ പ്രൊഫൈൽ", profile_label_username: "ഉപയോക്തൃനാമം",
+                profile_label_email: "ഇമെയിൽ വിലാസം", profile_label_phone: "ഫോൺ നമ്പർ", profile_label_state: "സംസ്ഥാനം",
+                logout_button: "ലോഗൗട്ട്"
+            }
+        };
+
+        const setLanguage = (lang) => {
+            document.querySelectorAll('[data-lang-key]').forEach(element => {
+                const key = element.getAttribute('data-lang-key');
+                if (languageData[lang]?.[key]) {
+                    const iconHTML = element.querySelector('i')?.outerHTML || '';
+                    element.innerHTML = iconHTML + ' ' + languageData[lang][key];
                 }
             });
+            const selectedLangText = document.querySelector(`.dropdown-content a[data-lang="${lang}"]`).textContent;
+            languageSelectorBtn.innerHTML = `${selectedLangText} <i class="fa-solid fa-angle-down"></i>`;
+            localStorage.setItem('language', lang);
+        };
 
-            // Feature slider animation
-            const features = document.querySelectorAll('.feature-item');
-            let currentFeatureIndex = 0;
-            setInterval(() => {
-                const currentFeature = features[currentFeatureIndex];
-                const nextFeatureIndex = (currentFeatureIndex + 1) % features.length;
-                const nextFeature = features[nextFeatureIndex];
-                
-                currentFeature.classList.remove('active');
-                currentFeature.classList.add('exit');
-                nextFeature.classList.add('active');
-                
-                setTimeout(() => {
-                    currentFeature.classList.remove('exit');
-                }, 800);
-                
-                currentFeatureIndex = nextFeatureIndex;
-            }, 3000);
+        dropdownContent.addEventListener('click', (event) => {
+            if (event.target.tagName === 'A') {
+                event.preventDefault();
+                const lang = event.target.getAttribute('data-lang');
+                setLanguage(lang);
+                dropdownContent.classList.remove('show');
+            }
         });
+
+        languageSelectorBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownContent.classList.toggle('show'); });
+
+        const savedLang = localStorage.getItem('language') || 'en';
+        setLanguage(savedLang);
+
+        // THEME
+        const themeIcon = themeToggleBtn.querySelector('i');
+        const applyTheme = (theme) => {
+            if (theme === 'light') {
+                body.classList.add('light-mode');
+                themeIcon.classList.replace('fa-sun', 'fa-moon');
+            } else {
+                body.classList.remove('light-mode');
+                themeIcon.classList.replace('fa-moon', 'fa-sun');
+            }
+        };
+
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        applyTheme(savedTheme);
+
+        themeToggleBtn.addEventListener('click', () => {
+            const newTheme = body.classList.contains('light-mode') ? 'light' : 'dark';
+            localStorage.setItem('theme', newTheme);
+            applyTheme(newTheme);
+        });
+
+        // PROFILE PANEL & LOGOUT
+        const toggleProfilePanel = () => {
+            profileOverlay.classList.toggle('show');
+            sideProfilePanel.classList.toggle('show');
+        };
+
+        profileBtn.addEventListener('click', toggleProfilePanel);
+        closePanelBtn.addEventListener('click', toggleProfilePanel);
+        profileOverlay.addEventListener('click', toggleProfilePanel);
+
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('language');
+            localStorage.removeItem('theme');
+            window.location.href = 'login.html';
+        });
+
+        // MOBILE NAV
+        hamburgerBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            mobileNavDropdown.classList.toggle('show');
+        });
+
+        window.addEventListener('click', (e) => {
+            if (!languageDropdown.contains(e.target)) {
+                dropdownContent.classList.remove('show');
+            }
+            if (mobileNavDropdown.classList.contains('show') && !hamburgerBtn.contains(e.target) && !mobileNavDropdown.contains(e.target)) {
+                mobileNavDropdown.classList.remove('show');
+            }
+        });
+    });
     </script>
 </body>
 </html>
