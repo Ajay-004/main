@@ -119,8 +119,11 @@
         </footer>
     </div>
 
-    <script src="config.js"></script> <script>
+    <script>
     document.addEventListener('DOMContentLoaded', () => {
+        // --- API URL CONFIGURATION ---
+        const API_BASE_URL = 'https://main-back-g4pq.onrender.com';
+
         // --- DOM ELEMENT SELECTORS ---
         const body = document.body;
         const messageContainer = document.getElementById('message-container');
@@ -150,12 +153,6 @@
                 throw new Error('No token found');
             }
             const headers = { ...(options.headers || {}), 'x-auth-token': token };
-            if (options.body instanceof FormData) {
-                // Let the browser set the Content-Type for FormData
-            } else if (options.body) {
-                headers['Content-Type'] = 'application/json';
-                options.body = JSON.stringify(options.body);
-            }
             
             const response = await fetch(url, { ...options, headers });
             
@@ -196,7 +193,7 @@
 
         const removeImage = () => {
             selectedFile = null;
-            imageInput.value = ''; // Reset file input
+            imageInput.value = '';
             imagePreviewContainer.style.display = 'none';
         };
 
@@ -220,7 +217,7 @@
             }
 
             try {
-                const response = await fetchWithAuth(`${API_BASE_URL}/api/chat`, {
+                const response = await fetchWithAuth(`${API_BASE_URL}/routes/api`, {
                     method: 'POST',
                     body: formData
                 });
@@ -236,7 +233,6 @@
                 
                 if (data.newChatId) {
                     currentChatId = data.newChatId;
-                    // In a full implementation, you would refresh the recent chats list here.
                 }
 
             } catch (error) {
@@ -272,8 +268,8 @@
         
         const applyTheme = (theme) => {
             const themeIcon = themeToggleBtn.querySelector('i');
-            if (theme === 'light') {
-                body.classList.add('dark-mode'); // Assuming default is dark, so 'light' removes dark-mode
+            if (theme === 'dark') {
+                body.classList.add('dark-mode');
                 if (themeIcon) themeIcon.classList.replace('fa-sun', 'fa-moon');
             } else {
                 body.classList.remove('dark-mode');
