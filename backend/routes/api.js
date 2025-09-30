@@ -6,22 +6,26 @@ const multer = require('multer');
 const OpenAI = require('openai');
 require('dotenv').config();
 
-// --- MODELS ---
+// --- DATABASE MODELS ---
+// Ensure the path to your models is correct
 const User = require('../models/User');
 const Chat = require('../models/chat');
 
 // --- INITIALIZATION ---
 const router = express.Router();
-const upload = multer({ storage: multer.memoryStorage() }); // Use memoryStorage to handle file buffer
+const upload = multer({ storage: multer.memoryStorage() }); // Use memoryStorage to handle files as buffers
 
-// Initialize the client for the OpenAI-compatible OpenRouter service
+// Initialize the client for the OpenRouter service
 const openrouter = new OpenAI({
     baseURL: "https://openrouter.ai/api/v1",
     apiKey: process.env.OPENROUTER_API_KEY,
+    defaultHeaders: {
+        "HTTP-Referer": "https://your-frontend-domain.com", // Optional: Replace with your site URL
+        "X-Title": "FarmWise AI Assistant", // Optional: Replace with your app name
+      },
 });
 
 // --- AUTHENTICATION MIDDLEWARE ---
-// This function protects routes by verifying the user's JWT
 const authMiddleware = (req, res, next) => {
     const token = req.header('x-auth-token');
     if (!token) {
@@ -36,17 +40,14 @@ const authMiddleware = (req, res, next) => {
     }
 };
 
-// =============== API ROOT (FOR TESTING) ===============
-router.get('/', (req, res) => {
-    res.json({ message: 'FarmWise API is running correctly.' });
-});
-
 // =============== USER AUTHENTICATION ROUTES ===============
+
+// POST /api/signup - Register a new user
 router.post('/signup', async (req, res) => {
     const { username, email, phone, password, state } = req.body;
     try {
         if (!username || !email || !phone || !password || !state) {
-            return res.status(400).json({ message: 'Please enter all fields.' });
+            return res.status(400).json({ message: 'Please enter all required fields.' });
         }
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -58,10 +59,11 @@ router.post('/signup', async (req, res) => {
         res.status(201).json({ message: 'Account created successfully!' });
     } catch (err) {
         console.error("Signup Error:", err.message);
-        res.status(500).json({ message: 'Server Error' });
+        res.status(500).json({ message: 'Server error during signup.' });
     }
 });
 
+// POST /api/login - Authenticate a user and return a token
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
     try {
@@ -70,46 +72,54 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ message: 'Invalid credentials.' });
         }
         const payload = { user: { id: user.id } };
-        jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' }, (err, token) => {
+        jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '2h' }, (err, token) => {
             if (err) throw err;
             res.json({ token });
         });
     } catch (err) {
         console.error("Login Error:", err.message);
-        res.status(500).json({ message: 'Server Error' });
+        res.status(500).json({ message: 'Server error during login.' });
     }
 });
 
+// GET /api/profile - Get profile information for the authenticated user
 router.get('/profile', authMiddleware, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).select('-password');
+        const user = await User.findById(req.user.id).select('-password'); // Exclude password from result
+        if (!user) {
+            return res.status(404).json({ message: "User not found." });
+        }
         res.json(user);
     } catch (err) {
         console.error("Profile Error:", err.message);
-        res.status(500).json({ message: 'Server Error' });
+        res.status(500).json({ message: 'Server error fetching profile.' });
     }
 });
 
-// =============== CHATBOT ROUTE (WITH IMAGE DIAGNOSIS) ===============
+// =============== CHATBOT ROUTE (WITH IMAGE SUPPORT) ===============
+
 router.post('/chat', authMiddleware, upload.single('image'), async (req, res) => {
     const { message, chatId, language } = req.body;
     const imageFile = req.file;
 
     if (!message && !imageFile) {
-        return res.status(400).json({ message: 'Message or image is required.' });
+        return res.status(400).json({ message: 'A message or an image is required.' });
     }
 
     try {
         let currentChat;
+        let isNewChat = false;
+
         if (chatId) {
             currentChat = await Chat.findOne({ _id: chatId, userId: req.user.id });
         }
-        if (!currentChat) {
-            const title = message ? message.substring(0, 30) : "Image Analysis";
-            currentChat = new Chat({ userId: req.user.id, title, history: [] });
-        }
         
-        // Format the user's input for a multimodal AI model
+        if (!currentChat) {
+            const title = message ? message.substring(0, 35) : "New Image Analysis";
+            currentChat = new Chat({ userId: req.user.id, title, history: [] });
+            isNewChat = true;
+        }
+
         const userMessageContent = [];
         if (message) {
             userMessageContent.push({ type: "text", text: message });
@@ -123,8 +133,7 @@ router.post('/chat', authMiddleware, upload.single('image'), async (req, res) =>
         }
         currentChat.history.push({ role: 'user', content: userMessageContent });
 
-        // Prepare the system prompt and full conversation history for the AI
-        let systemInstructionText = `You are FarmWise Bot, an expert agricultural assistant. If the user uploads an image of a plant, your primary goal is to identify any visible diseases, pests, or nutrient deficiencies. Provide a concise diagnosis and suggest practical treatment options. If the user asks a general question, answer it helpfully.`;
+        let systemInstructionText = `You are FarmWise Bot, an expert agricultural assistant. If a user uploads a plant image, identify diseases, pests, or deficiencies and suggest treatments. For general questions, provide helpful, concise farming advice.`;
         const languageMap = { 'ta': 'Tamil', 'ml': 'Malayalam' };
         if (language && languageMap[language]) {
             systemInstructionText += ` IMPORTANT: You must provide your entire response ONLY in the ${languageMap[language]} language.`;
@@ -132,45 +141,44 @@ router.post('/chat', authMiddleware, upload.single('image'), async (req, res) =>
 
         const messagesForAPI = [
             { role: 'system', content: systemInstructionText },
-            ...currentChat.history // History is already in the correct format for the API
+            ...currentChat.history.map(h => ({ role: h.role, content: h.content }))
         ];
-
-        // Call the multimodal AI model
+        
         const completion = await openrouter.chat.completions.create({
-            model: "google/gemma-3-27b-it", // This model can process images and text
+            model: "google/gemini-pro-vision", // A model that can process both text and images
             messages: messagesForAPI,
         });
 
         const botReplyText = completion.choices[0].message?.content;
 
         if (!botReplyText) {
-            throw new Error("AI model returned an empty response.");
+            throw new Error("AI model returned an empty or invalid response.");
         }
-        
-        // Save the AI's response to the chat history
-        const botMessage = { role: 'assistant', content: botReplyText };
-        currentChat.history.push(botMessage);
-        await currentChat.save();
 
+        currentChat.history.push({ role: 'assistant', content: botReplyText });
+        await currentChat.save();
+        
         res.json({ 
             reply: botReplyText, 
-            newChatId: currentChat.isNew ? currentChat._id : undefined 
+            newChatId: isNewChat ? currentChat._id : undefined 
         });
 
     } catch (error) {
         console.error("Chat API Error:", error.message);
-        res.status(500).json({ message: 'Failed to get response from AI model.' });
+        res.status(500).json({ message: 'Failed to get a response from the AI model.' });
     }
 });
 
-// =============== CHAT HISTORY ROUTES ===============
+
+// =============== CHAT HISTORY MANAGEMENT ROUTES ===============
+
 router.get('/chats', authMiddleware, async (req, res) => {
     try {
-        const chats = await Chat.find({ userId: req.user.id }).sort({ createdAt: -1 });
+        const chats = await Chat.find({ userId: req.user.id }).select('title createdAt').sort({ createdAt: -1 });
         res.json(chats);
     } catch (err) {
         console.error("Get Chats Error:", err.message);
-        res.status(500).json({ message: 'Server Error' });
+        res.status(500).json({ message: 'Server error fetching chats.' });
     }
 });
 
@@ -183,51 +191,51 @@ router.get('/chat/:chatId', authMiddleware, async (req, res) => {
         res.json(chat.history);
     } catch (err) {
         console.error("Get Chat History Error:", err.message);
-        res.status(500).json({ message: 'Server Error' });
+        res.status(500).json({ message: 'Server error fetching chat history.' });
     }
 });
 
 router.delete('/chat/:chatId', authMiddleware, async (req, res) => {
     try {
         const { chatId } = req.params;
-        const chat = await Chat.findOneAndDelete({ _id: chatId, userId: req.user.id });
-        if (!chat) {
-            return res.status(404).json({ message: 'Chat not found or you do not have permission to delete it.' });
+        const result = await Chat.findOneAndDelete({ _id: chatId, userId: req.user.id });
+        if (!result) {
+            return res.status(404).json({ message: 'Chat not found or you do not have permission.' });
         }
         res.json({ message: 'Chat deleted successfully.' });
     } catch (err) {
         console.error("Delete Chat Error:", err.message);
-        res.status(500).json({ message: 'Server Error' });
+        res.status(500).json({ message: 'Server error deleting chat.' });
     }
 });
 
-// =============== WEATHER ROUTE ===============
+// =============== EXTERNAL API ROUTES ===============
+
 router.get('/weather/forecast', authMiddleware, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
-        const location = user.state || 'Coimbatore'; // Default to a location if user has no state set
+        const location = user?.state || 'Coimbatore'; // Default location if user has no state
         const apiKey = process.env.WEATHER_API_KEY;
 
         if (!apiKey) {
-            throw new Error("Weather API key is not configured on the server.");
+            return res.status(500).json({ message: "Weather service is not configured." });
         }
 
-        // 1. Get latitude and longitude for the location
         const geoUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${location},IN&limit=1&appid=${apiKey}`;
         const geoResponse = await axios.get(geoUrl);
+
         if (!geoResponse.data || geoResponse.data.length === 0) {
-            return res.status(404).json({ message: "Location not found." });
+            return res.status(404).json({ message: "Location could not be found." });
         }
         const { lat, lon } = geoResponse.data[0];
 
-        // 2. Get the weather forecast using the coordinates
         const forecastUrl = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=minutely,alerts&appid=${apiKey}&units=metric`;
         const forecastResponse = await axios.get(forecastUrl);
-        
+
         res.json(forecastResponse.data);
     } catch (err) {
-        console.error("Weather Forecast Error:", err.message);
-        res.status(500).json({ message: "Could not fetch weather forecast." });
+        console.error("Weather Forecast Error:", err.response ? err.response.data : err.message);
+        res.status(500).json({ message: "Could not fetch the weather forecast." });
     }
 });
 
