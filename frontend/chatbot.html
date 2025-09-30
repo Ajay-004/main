@@ -25,25 +25,27 @@
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Roboto', sans-serif; display: flex; height: 100vh; background-color: var(--main-bg); color: var(--text-primary); overflow: hidden; transition: background-color 0.3s, color 0.3s; }
         a { text-decoration: none; color: inherit; }
-        .sidebar { width: 260px; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; flex-shrink: 0; transition: margin-left 0.3s; position: fixed; height: 100vh; z-index: 200; margin-left: -260px; }
-        body.sidebar-open .sidebar { margin-left: 0; }
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; flex-shrink: 0; transition: margin-left 0.3s; position: fixed; height: 100vh; z-index: 200; margin-left: 0; }
         .sidebar-header { padding: 15px; border-bottom: 1px solid var(--border-color); }
-        .new-chat-btn { width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--header-footer-bg); color: var(--text-primary); display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.95rem; border: 1px solid var(--border-color); }
+        .new-chat-btn { width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--header-footer-bg); color: var(--text-primary); display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.95rem; border: 1px solid var(--border-color); transition: background-color 0.2s; }
+        .new-chat-btn:hover { background-color: var(--sidebar-hover-bg); }
         .sidebar-content { flex-grow: 1; overflow-y: auto; padding: 15px; }
         .recent-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 10px; }
         #recent-chats-list { list-style: none; }
-        #recent-chats-list li { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; border-radius: 8px; cursor: pointer; margin-bottom: 5px; }
+        #recent-chats-list li { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; border-radius: 8px; cursor: pointer; margin-bottom: 5px; transition: background-color 0.2s; }
         #recent-chats-list li:hover { background-color: var(--sidebar-hover-bg); }
         #recent-chats-list li.active { background-color: var(--accent-green); color: white; }
-        .chat-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; }
-        .delete-chat-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; opacity: 0; transition: opacity 0.2s; }
+        .chat-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; pointer-events: none; }
+        .delete-chat-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; opacity: 0; transition: opacity 0.2s; padding: 5px; }
         #recent-chats-list li:hover .delete-chat-btn { opacity: 1; }
+        #recent-chats-list li.active .delete-chat-btn { color: white; }
         .sidebar-footer { padding: 10px 15px; border-top: 1px solid var(--border-color); margin-top: auto; }
         .sidebar-nav-link { display: flex; align-items: center; gap: 15px; padding: 12px 15px; border-radius: 8px; color: var(--text-primary); font-weight: 500; transition: background-color 0.2s; }
         .sidebar-nav-link:hover { background-color: var(--sidebar-hover-bg); }
         .sidebar-nav-link i { width: 20px; text-align: center; }
-        .chat-container { flex-grow: 1; display: flex; flex-direction: column; height: 100vh; margin-left: 0; transition: margin-left 0.3s; }
-        body.sidebar-open .chat-container { margin-left: 260px; }
+        .chat-container { flex-grow: 1; display: flex; flex-direction: column; height: 100vh; margin-left: 260px; transition: margin-left 0.3s; }
+        body.sidebar-closed .sidebar { margin-left: -260px; }
+        body.sidebar-closed .chat-container { margin-left: 0; }
         .chat-header { background-color: var(--header-footer-bg); padding: 15px 30px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 20px; flex-shrink: 0; }
         .chat-header h2 { font-family: 'Inter', sans-serif; font-size: 20px; font-weight: 600; }
         .icon-btn { background: none; border: none; color: var(--text-secondary); font-size: 20px; cursor: pointer; }
@@ -51,13 +53,13 @@
         .chat-message-container { max-width: 1100px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
         .message { display: flex; align-items: flex-start; gap: 15px; max-width: 85%; }
         .message .avatar { width: 40px; height: 40px; border-radius: 50%; background-color: var(--sidebar-hover-bg); display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--text-secondary); flex-shrink: 0; }
-        .message-bubble { padding: 12px 18px; border-radius: 18px; box-shadow: 0 2px 4px var(--shadow-color); }
+        .message-bubble { padding: 12px 18px; border-radius: 18px; box-shadow: 0 2px 4px var(--shadow-color); word-wrap: break-word; }
         .bot-message { align-self: flex-start; }
         .bot-message .message-bubble { background-color: var(--bot-bubble-bg); border: 1px solid var(--border-color); }
         .user-message { align-self: flex-end; flex-direction: row-reverse; }
         .user-message .message-bubble { background-color: var(--user-bubble-bg); }
-        .message-content p { color: var(--text-primary); line-height: 1.6; white-space: pre-wrap; }
-        .message-content img { max-width: 100%; border-radius: 8px; margin-top: 10px; }
+        .message-content p { color: var(--text-primary); line-height: 1.6; white-space: pre-wrap; margin: 0; }
+        .message-content img { max-width: 100%; max-height: 300px; border-radius: 8px; margin-top: 10px; cursor: pointer; }
         .footer { background-color: var(--header-footer-bg); padding: 15px 30px; box-shadow: 0 -2px 4px var(--shadow-color); border-top: 1px solid var(--border-color); z-index: 10; }
         .chat-input-container { max-width: 1100px; margin: 0 auto; }
         #image-preview-container { margin-bottom: 10px; position: relative; display: none; width: fit-content; }
@@ -68,9 +70,21 @@
         .input-wrapper input { width: 100%; border: none; outline: none; font-size: 1rem; color: var(--text-primary); background: none; padding: 14px 0; }
         .send-btn { background-color: var(--send-btn-bg); border: none; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
         .send-btn:disabled { background-color: #9E9E9E; cursor: not-allowed; }
+        @media (max-width: 768px) {
+            .sidebar { margin-left: -260px; }
+            .chat-container { margin-left: 0; }
+            body.sidebar-open .sidebar { margin-left: 0; }
+            body.sidebar-open .chat-container { margin-left: 0; }
+        }
     </style>
 </head>
 <body>
+    <script>
+        // AUTH GUARD: Redirect to login if token is not found.
+        if (!localStorage.getItem('token')) {
+            window.location.href = 'login.html';
+        }
+    </script>
 
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
@@ -109,7 +123,7 @@
                     <button type="button" class="icon-btn" id="image-btn" title="Upload Image"><i class="fa-solid fa-image"></i></button>
                     <input type="file" id="image-input" accept="image/*" style="display: none;" />
                     <div class="input-wrapper">
-                        <input type="text" id="user-input" placeholder="Ask about crops, or upload an image of a plant..." autocomplete="off" />
+                        <input type="text" id="user-input" placeholder="Ask about crops, or upload an image..." autocomplete="off" />
                     </div>
                     <button type="submit" class="send-btn" id="send-btn" title="Send Message">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
@@ -121,8 +135,10 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-        // --- API URL CONFIGURATION ---
+        // --- CONFIG & STATE ---
         const API_BASE_URL = 'https://main-back-g4pq.onrender.com';
+        let currentChatId = null;
+        let selectedFile = null;
 
         // --- DOM ELEMENT SELECTORS ---
         const body = document.body;
@@ -141,10 +157,7 @@
         const menuToggleBtn = document.getElementById('menu-toggle-btn');
         const themeToggleBtn = document.getElementById('theme-toggle');
 
-        let currentChatId = null;
-        let selectedFile = null;
-
-        // --- API HELPER FUNCTION ---
+        // --- API HELPERS ---
         const fetchWithAuth = async (url, options = {}) => {
             const token = localStorage.getItem('token');
             if (!token) {
@@ -153,6 +166,11 @@
                 throw new Error('No token found');
             }
             const headers = { ...(options.headers || {}), 'x-auth-token': token };
+            
+            // Do not set Content-Type for FormData, the browser does it automatically with the correct boundary
+            if (options.body instanceof FormData) {
+                delete headers['Content-Type'];
+            }
             
             const response = await fetch(url, { ...options, headers });
             
@@ -166,29 +184,51 @@
         };
 
         // --- UI & CHAT FUNCTIONS ---
-        const addMessage = (sender, text) => {
+        const addMessage = (sender, contentParts, isThinking = false) => {
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('message', `${sender}-message`);
             
             const avatarIcon = sender === 'user' ? 'fa-user' : 'fa-robot';
-            messageDiv.innerHTML = `
-                <div class="avatar"><i class="fa-solid ${avatarIcon}"></i></div>
-                <div class="message-bubble">
-                    <div class="message-content"><p>${text}</p></div>
-                </div>
-            `;
+            const messageContentDiv = document.createElement('div');
+            messageContentDiv.className = 'message-content';
+
+            if (contentParts && contentParts.length > 0) {
+                 contentParts.forEach(part => {
+                    if (part.type === 'text') {
+                        const p = document.createElement('p');
+                        p.textContent = part.text;
+                        messageContentDiv.appendChild(p);
+                    } else if (part.type === 'image_url' && part.image_url) {
+                         const img = document.createElement('img');
+                         img.src = part.image_url.url;
+                         messageContentDiv.appendChild(img);
+                    }
+                });
+            } else if (isThinking) {
+                const p = document.createElement('p');
+                p.textContent = '...';
+                messageContentDiv.appendChild(p);
+            }
+            
+            messageDiv.innerHTML = `<div class="avatar"><i class="fa-solid ${avatarIcon}"></i></div>`;
+            const messageBubble = document.createElement('div');
+            messageBubble.className = 'message-bubble';
+            messageBubble.appendChild(messageContentDiv);
+            messageDiv.appendChild(messageBubble);
+
             messageContainer.appendChild(messageDiv);
             chatMain.scrollTop = chatMain.scrollHeight;
             return messageDiv;
         };
-        
+
         const startNewChat = () => {
             currentChatId = null;
             messageContainer.innerHTML = '';
             userInput.value = '';
             removeImage();
-            addMessage('bot', 'Hello! How can I help you with your farming questions today? You can also upload an image of a plant for diagnosis.');
+            addMessage('bot', [{ type: 'text', text: 'Hello! Ask me anything about agriculture, or upload a plant image for diagnosis.' }]);
             document.querySelectorAll('#recent-chats-list li').forEach(li => li.classList.remove('active'));
+            if (window.innerWidth <= 768) body.classList.add('sidebar-closed');
         };
 
         const removeImage = () => {
@@ -196,45 +236,105 @@
             imageInput.value = '';
             imagePreviewContainer.style.display = 'none';
         };
+        
+        const fetchRecentChats = async () => {
+            try {
+                const response = await fetchWithAuth(`${API_BASE_URL}/api/chats`);
+                if (!response.ok) throw new Error('Failed to fetch chats.');
+                const chats = await response.json();
+                recentChatsList.innerHTML = '';
+                chats.forEach(chat => {
+                    const li = document.createElement('li');
+                    li.dataset.chatId = chat._id;
+                    if (chat._id === currentChatId) li.classList.add('active');
+                    li.innerHTML = `
+                        <span class="chat-title">${chat.title}</span>
+                        <button class="delete-chat-btn" data-chat-id="${chat._id}"><i class="fa-solid fa-trash-can"></i></button>
+                    `;
+                    recentChatsList.appendChild(li);
+                });
+            } catch (error) {
+                console.error('Failed to load recent chats:', error);
+            }
+        };
+        
+        const loadChatHistory = async (chatId) => {
+            if (currentChatId === chatId) return;
+            currentChatId = chatId;
+            messageContainer.innerHTML = '';
+            addMessage('bot', [{ type: 'text', text: 'Loading chat history...' }]);
+            document.querySelectorAll('#recent-chats-list li').forEach(li => {
+                li.classList.toggle('active', li.dataset.chatId === chatId);
+            });
+            if (window.innerWidth <= 768) body.classList.add('sidebar-closed');
 
-        // --- FORM & INPUT EVENT LISTENERS ---
+            try {
+                const response = await fetchWithAuth(`${API_BASE_URL}/api/chat/${chatId}`);
+                if (!response.ok) throw new Error('Failed to load history.');
+                const history = await response.json();
+                messageContainer.innerHTML = ''; // Clear "loading" message
+                history.forEach(msg => {
+                    // Ensure content is an array for the addMessage function
+                    const contentParts = Array.isArray(msg.content) ? msg.content : [{ type: 'text', text: msg.content }];
+                    addMessage(msg.role === 'user' ? 'user' : 'bot', contentParts);
+                });
+            } catch (error) {
+                 messageContainer.innerHTML = '';
+                 addMessage('bot', [{ type: 'text', text: `Error loading chat: ${error.message}` }]);
+            }
+        };
+
+        const deleteChat = async (chatId) => {
+            if (!confirm('Are you sure you want to delete this chat?')) return;
+            try {
+                const response = await fetchWithAuth(`${API_BASE_URL}/api/chat/${chatId}`, { method: 'DELETE' });
+                if (!response.ok) throw new Error('Failed to delete chat.');
+                
+                // If the deleted chat was the active one, start a new chat
+                if (currentChatId === chatId) {
+                    startNewChat();
+                }
+                fetchRecentChats(); // Refresh the list
+            } catch (error) {
+                alert(error.message);
+            }
+        };
+
+        // --- EVENT LISTENERS ---
         chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const userText = userInput.value.trim();
             if (!userText && !selectedFile) return;
 
             sendBtn.disabled = true;
-            addMessage('user', userText || 'Analyzing image...');
-            const thinkingMessage = addMessage('bot', '...');
+            const userMessageContent = [];
+            if (selectedFile) userMessageContent.push({ type: 'image_url', image_url: { url: imagePreview.src } });
+            if (userText) userMessageContent.push({ type: 'text', text: userText });
+            addMessage('user', userMessageContent);
+            const thinkingMessage = addMessage('bot', null, true);
             
             const formData = new FormData();
             formData.append('message', userText);
-            if (selectedFile) {
-                formData.append('image', selectedFile);
-            }
-            if (currentChatId) {
-                formData.append('chatId', currentChatId);
-            }
+            if (selectedFile) formData.append('image', selectedFile);
+            if (currentChatId) formData.append('chatId', currentChatId);
 
             try {
-                const response = await fetchWithAuth(`${API_BASE_URL}/api/chat`, {
-                    method: 'POST',
-                    body: formData
-                });
-                
+                const response = await fetchWithAuth(`${API_BASE_URL}/api/chat`, { method: 'POST', body: formData });
                 const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.message || 'The server returned an error.');
-                }
+                if (!response.ok) throw new Error(data.message || 'The server returned an error.');
                 
                 const botReplyBubble = thinkingMessage.querySelector('.message-content p');
                 botReplyBubble.textContent = data.reply;
                 
+                const wasNewChat = !currentChatId;
                 if (data.newChatId) {
                     currentChatId = data.newChatId;
                 }
-
+                // If it was a new chat, refresh the recent chats list
+                if (wasNewChat) {
+                    await fetchRecentChats();
+                    document.querySelector(`#recent-chats-list li[data-chat-id="${currentChatId}"]`)?.classList.add('active');
+                }
             } catch (error) {
                 const errorBubble = thinkingMessage.querySelector('.message-content p');
                 errorBubble.textContent = `Sorry, an error occurred: ${error.message}`;
@@ -244,6 +344,17 @@
                 removeImage();
                 sendBtn.disabled = false;
                 userInput.focus();
+            }
+        });
+
+        recentChatsList.addEventListener('click', (e) => {
+            const li = e.target.closest('li');
+            const deleteBtn = e.target.closest('.delete-chat-btn');
+            if (deleteBtn && li) {
+                e.stopPropagation();
+                deleteChat(li.dataset.chatId);
+            } else if (li) {
+                loadChatHistory(li.dataset.chatId);
             }
         });
 
@@ -262,9 +373,9 @@
         });
         removeImageBtn.addEventListener('click', removeImage);
 
-        // --- UI CONTROL EVENT LISTENERS ---
-        newChatBtn.addEventListener('click', startNewChat);
-        menuToggleBtn.addEventListener('click', () => body.classList.toggle('sidebar-open'));
+        menuToggleBtn.addEventListener('click', () => {
+             body.classList.toggle('sidebar-closed');
+        });
         
         const applyTheme = (theme) => {
             const themeIcon = themeToggleBtn.querySelector('i');
@@ -276,7 +387,6 @@
                 if (themeIcon) themeIcon.classList.replace('fa-moon', 'fa-sun');
             }
         };
-
         const savedTheme = localStorage.getItem('theme') || 'dark';
         applyTheme(savedTheme);
 
@@ -287,9 +397,14 @@
         });
 
         // --- INITIALIZATION ---
+        fetchRecentChats();
         startNewChat();
+        if (window.innerWidth > 768) {
+             body.classList.remove('sidebar-closed');
+        } else {
+             body.classList.add('sidebar-closed');
+        }
     });
     </script>
 </body>
 </html>
-
