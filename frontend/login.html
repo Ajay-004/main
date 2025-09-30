@@ -116,8 +116,13 @@
         label { display: block; margin-bottom: 8px; color: var(--label-color); font-weight: 500; }
         input { width: 100%; padding: 12px 15px; border: 1px solid var(--border-color); border-radius: 6px; font-size: 1rem; }
         input:focus { outline: none; border-color: var(--primary-color); }
-        .submit-button { width: 100%; padding: 14px; background-color: var(--primary-color); color: white; border: none; border-radius: 6px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: background-color 0.3s; }
+        .submit-button {
+            width: 100%; padding: 14px; background-color: var(--primary-color);
+            color: white; border: none; border-radius: 6px; font-size: 1.1rem;
+            font-weight: 600; cursor: pointer; transition: background-color 0.3s, opacity 0.3s;
+        }
         .submit-button:hover { background-color: #245738; }
+        .submit-button:disabled { background-color: #9E9E9E; opacity: 0.7; cursor: not-allowed; }
         .form-footer { text-align: center; margin-top: 25px; color: var(--label-color); }
         .form-footer a { color: var(--primary-color); text-decoration: none; font-weight: 600; }
         #error-message {
@@ -136,19 +141,20 @@
                 order: -1; 
                 padding: 60px 20px 40px 20px;
             }
-            .branding-title h1 {
-                font-size: 3rem;
-            }
-            .feature-item h3 {
-                font-size: 1.3rem;
-            }
-            .login-section {
-                padding-bottom: 40px;
-            }
+            .branding-title h1 { font-size: 3rem; }
+            .feature-item h3 { font-size: 1.3rem; }
+            .login-section { padding-bottom: 40px; }
         }
     </style>
 </head>
 <body>
+    <script>
+        // AUTH GUARD: If a user is already logged in, redirect them to the main page immediately.
+        if (localStorage.getItem('token')) {
+            window.location.href = 'index.html';
+        }
+    </script>
+
     <div id="loader-overlay"><div class="loader"></div></div>
 
     <div class="language-selector-container">
@@ -176,8 +182,8 @@
                     </div>
                     <button type="submit" class="submit-button" id="submit-btn">Login</button>
                     <div class="form-footer">
-                        <span id="footer-text">Don't have an account?</span>
-                        <a href="sign.html" id="footer-link">Sign Up</a>
+                        <p><span id="footer-text">Don't have an account?</span>
+                        <a href="sign.html" id="footer-link">Sign Up</a></p>
                     </div>
                 </form>
             </div>
@@ -203,8 +209,8 @@
             const loaderOverlay = document.getElementById('loader-overlay');
             const languageSelector = document.getElementById('language-selector');
             const errorMessageDiv = document.getElementById('error-message');
+            const submitButton = document.getElementById('submit-btn');
 
-            // Language translations
             const translations = {
                 en: { 
                     "form-title": "Welcome Back!", "label-username": "Username", "label-password": "Password", "submit-btn": "Login", "footer-text": "Don't have an account?", "footer-link": "Sign Up",
@@ -218,17 +224,22 @@
                 },
                 ml: { 
                     "form-title": "വീണ്ടും സ്വാഗതം!", "label-username": "ഉപയോക്തൃനാമം", "label-password": "പാസ്വേഡ്", "submit-btn": "സൈൻ ഇൻ ചെയ്യുക", "footer-text": "ഒരു അക്കൗണ്ട് ഇല്ലേ?", "footer-link": "സൈൻ അപ്പ് ചെയ്യുക",
-                    "brand-title": "ഫാംവൈസ്", "brand-subtitle": "\"നിങ്ങളുടെ ഫാമിന്റെ ഇന്റലിജൻസ്സ്\"",
+                    "brand-title": "ഫാംവൈസ്", "brand-subtitle": "\"നിങ്ങളുടെ ഫാമിന്റെ ഇന്റലിജൻസ്\"",
                     "feature-1": "കൃഷി സഹായി ബോട്ട്", "feature-2": "വിള രോഗനിർണയം", "feature-3": "കാലാവസ്ഥാ പ്രവചനം", "feature-4": "കർഷക സമൂഹം"
                 }
             };
 
             const changeLanguage = (lang) => {
-                for (const key in translations[lang]) {
+                const langData = translations[lang] || translations.en;
+                for (const key in langData) {
                     const el = document.getElementById(key);
-                    if (el) el.textContent = translations[lang][key];
+                    if (el) el.textContent = langData[key];
                 }
             };
+
+            const savedLang = localStorage.getItem('preferredLanguage') || 'en';
+            languageSelector.value = savedLang;
+            changeLanguage(savedLang);
 
             languageSelector.addEventListener('change', (e) => {
                 const lang = e.target.value;
@@ -236,23 +247,17 @@
                 localStorage.setItem('preferredLanguage', lang);
             });
 
-            const savedLang = localStorage.getItem('preferredLanguage') || 'en';
-            languageSelector.value = savedLang;
-            changeLanguage(savedLang);
-
             loginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                loaderOverlay.style.display = 'flex';
-                errorMessageDiv.textContent = '';
                 
+                // Show visual feedback and disable the button to prevent multiple clicks
+                loaderOverlay.style.display = 'flex';
+                submitButton.disabled = true;
+                submitButton.textContent = 'Logging In...';
+                errorMessageDiv.textContent = '';
+
                 const username = document.getElementById('username').value.trim();
                 const password = document.getElementById('password').value;
-
-                if (!username || !password) {
-                    loaderOverlay.style.display = 'none';
-                    errorMessageDiv.textContent = "Please enter username and password.";
-                    return;
-                }
 
                 try {
                     const response = await fetch(`${API_BASE_URL}/api/login`, {
@@ -263,30 +268,39 @@
                     const data = await response.json();
 
                     if (!response.ok) {
-                        throw new Error(data.message || "Login failed. Please check credentials.");
+                        throw new Error(data.message || "Login failed. Please check your credentials.");
                     }
 
                     localStorage.setItem('token', data.token);
-                    // Redirect immediately on successful login (no unnecessary delays)
                     window.location.href = 'index.html';
                 } catch (error) {
+                    // On error, hide the loader and re-enable the form
                     loaderOverlay.style.display = 'none';
+                    submitButton.disabled = false;
+                    changeLanguage(savedLang); // This restores the original button text
                     errorMessageDiv.textContent = error.message;
                 }
             });
 
-            // Feature slider animation
+            // Features slider animation logic
             const features = document.querySelectorAll('.feature-item');
-            let currentIndex = 0;
-            setInterval(() => {
-                features[currentIndex].classList.remove('active');
-                features[currentIndex].classList.add('exit');
-                currentIndex = (currentIndex + 1) % features.length;
-                features[currentIndex].classList.add('active');
-                setTimeout(() => {
-                    features.forEach(f => f.classList.remove('exit'));
-                }, 800);
-            }, 3000);
+            if (features.length > 0) {
+                let currentIndex = 0;
+                setInterval(() => {
+                    const currentFeature = features[currentIndex];
+                    const nextIndex = (currentIndex + 1) % features.length;
+                    const nextFeature = features[nextIndex];
+
+                    currentFeature.classList.remove('active');
+                    currentFeature.classList.add('exit');
+                    
+                    nextFeature.classList.add('active');
+                    
+                    setTimeout(() => currentFeature.classList.remove('exit'), 800);
+                    
+                    currentIndex = nextIndex;
+                }, 3000);
+            }
         });
     </script>
 </body>
