@@ -31,6 +31,10 @@
         .navbar { background-color: var(--header-footer-bg); padding: 15px 0; border-bottom: 1px solid var(--border-color); position: relative; z-index: 100; box-shadow: 0 2px 4px var(--shadow-color); }
         .navbar-container { display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; padding: 0 20px; }
         .logo { font-size: 24px; font-weight: 800; color: var(--accent-green); }
+        .nav-menu { display: flex; align-items: center; gap: 30px; }
+        .nav-menu a { color: var(--text-secondary); display: flex; align-items: center; gap: 8px; font-weight: 500; padding: 8px 12px; border-radius: 8px; transition: color 0.2s, background-color 0.2s; }
+        .nav-menu a:hover { color: var(--text-primary); background-color: var(--sidebar-hover-bg); }
+        .nav-menu a.active { color: var(--accent-green); font-weight: 600; }
         .nav-actions { display: flex; align-items: center; gap: 10px; }
         .theme-button, .icon-btn { background: none; border: none; color: var(--text-secondary); font-size: 18px; cursor: pointer; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; transition: background-color 0.2s; }
         .theme-button:hover, .icon-btn:hover { background-color: var(--sidebar-hover-bg); }
@@ -38,6 +42,11 @@
         .dropdown-content { display: none; position: absolute; background-color: var(--header-footer-bg); min-width: 150px; box-shadow: 0 8px 16px var(--shadow-color); z-index: 100; list-style: none; padding: 8px 0; border-radius: 8px; border: 1px solid var(--border-color); right: 0; top: 100%; margin-top: 5px; }
         .dropdown-content.show { display: block; }
         .dropdown-content li a:hover { background-color: var(--sidebar-hover-bg); }
+        .hamburger-menu { display: none; }
+        .mobile-nav-dropdown { display: none; position: absolute; top: 100%; left: 0; width: 100%; background-color: var(--header-footer-bg); border-top: 1px solid var(--border-color); }
+        .mobile-nav-dropdown.show { display: block; }
+        .mobile-nav-dropdown .nav-menu { flex-direction: column; align-items: flex-start; gap: 0; padding: 0 20px; }
+        .mobile-nav-dropdown .nav-menu a { padding: 15px 0; width: 100%; border-bottom: 1px solid var(--border-color); }
         .sidebar { width: 260px; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; transition: margin-left 0.3s; position: fixed; height: 100vh; z-index: 200; }
         .new-chat-btn { margin: 15px; padding: 10px 15px; border-radius: 8px; background: var(--accent-green); color: white; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; font-size: 0.95rem; border: none; }
         .sidebar-content { flex-grow: 1; overflow-y: auto; padding: 0 15px; }
@@ -75,6 +84,7 @@
         .send-btn { background-color: var(--send-btn-bg); color: white; }
         .mic-btn.listening i { color: var(--danger-red); }
         
+        @media (max-width: 992px) { .navbar .nav-menu { display: none; } .hamburger-menu { display: flex; } }
         @media (max-width: 768px) { .sidebar { margin-left: -260px; box-shadow: 0 0 20px rgba(0,0,0,0.2); } .chat-container { margin-left: 0; } body.sidebar-open .sidebar { margin-left: 0; } }
     </style>
 </head>
@@ -102,6 +112,13 @@
                     <button class="icon-btn" id="menu-toggle-btn" title="Toggle Sidebar" aria-label="Toggle Sidebar"><i class="fa-solid fa-bars"></i></button>
                     <a href="index.html" class="logo" data-lang-key="logo_text">FarmWise</a>
                 </div>
+                <nav class="nav-menu">
+                    <a href="index.html" data-lang-key="nav_home"><i class="fa-solid fa-home"></i> Home</a>
+                    <a href="chatbot.html" data-lang-key="nav_chatbot" class="active"><i class="fa-solid fa-robot"></i> Krishi Sahayi Bot</a>
+                    <a href="plant.html" data-lang-key="nav_crop_disease"><i class="fa-solid fa-leaf"></i> Crop Disease Diagnosis</a>
+                    <a href="weather.html" data-lang-key="nav_weather"><i class="fa-solid fa-cloud-sun"></i> Weather Prediction</a>
+                    <a href="community.html" data-lang-key="nav_community"><i class="fa-solid fa-users"></i> Farmer Community</a>
+                </nav>
                 <div class="nav-actions">
                     <div class="language-dropdown">
                         <button class="language-selector icon-btn" title="Select Language"><i class="fa-solid fa-language"></i></button>
@@ -113,7 +130,11 @@
                     </div>
                     <a href="#" id="logout-btn-nav" class="icon-btn" title="Logout"><i class="fa-solid fa-right-from-bracket"></i></a>
                     <button id="theme-toggle" class="theme-button" title="Toggle Theme"><i class="fa-solid fa-sun"></i></button>
+                    <button class="hamburger-menu icon-btn" id="hamburger-btn" aria-label="Toggle Menu"><i class="fa-solid fa-bars"></i></button>
                 </div>
+            </div>
+            <div class="mobile-nav-dropdown" id="mobile-nav-dropdown">
+                <nav class="nav-menu"></nav>
             </div>
         </header>
 
@@ -141,13 +162,11 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // --- CONFIG & STATE ---
     const API_BASE_URL = 'https://mains-ayqd.onrender.com';
     let currentChatId = null;
     let selectedFile = null;
     let currentLanguage = localStorage.getItem('chatLanguage') || 'en';
 
-    // --- DOM ELEMENT SELECTORS ---
     const body = document.body;
     const messageContainer = document.getElementById('message-container');
     const chatMain = document.getElementById('chat-main');
@@ -163,11 +182,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoutBtnSidebar = document.getElementById('logout-btn-sidebar');
     const languageDropdown = document.querySelector('.language-dropdown');
     const dropdownContent = document.querySelector('.dropdown-content');
+    const hamburgerBtn = document.getElementById('hamburger-btn');
+    const mobileNavDropdown = document.getElementById('mobile-nav-dropdown');
     const menuToggleBtn = document.getElementById('menu-toggle-btn');
     const newChatBtn = document.getElementById('new-chat-btn');
     const recentChatsList = document.getElementById('recent-chats-list');
-    
-    // --- API HELPER ---
+
     const fetchWithAuth = async (url, options = {}) => {
         const token = localStorage.getItem('token');
         if (!token) { window.location.href = 'login.html'; throw new Error('No token'); }
@@ -178,7 +198,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return response;
     };
 
-    // --- UI & CHAT FUNCTIONS ---
     const addMessage = (sender, content, isError = false) => {
         const messageDiv = document.createElement('div');
         messageDiv.classList.add('message', `${sender}-message`);
@@ -227,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
         messageContainer.innerHTML = '';
         userInput.value = '';
         removeImage();
-        addMessage('bot', `Hello! I'm FarmWise Bot. How can I assist with your farming questions today?`);
+        addMessage('bot', `Hello! I'm FarmWise Bot. How can I assist you today?`);
         document.querySelectorAll('#recent-chats-list li').forEach(li => li.classList.remove('active'));
         if (window.innerWidth <= 768) body.classList.add('sidebar-closed');
     };
@@ -261,7 +280,6 @@ document.addEventListener('DOMContentLoaded', () => {
         addMessage('bot', 'Loading...');
         document.querySelectorAll('#recent-chats-list li').forEach(li => li.classList.toggle('active', li.dataset.chatId === chatId));
         if (window.innerWidth <= 768) body.classList.add('sidebar-closed');
-
         try {
             const res = await fetchWithAuth(`${API_BASE_URL}/api/chat/${chatId}`);
             if (!res.ok) throw new Error('Failed to load history.');
@@ -280,18 +298,16 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) { alert(error.message); }
     };
 
-    // --- THEME & LANGUAGE ---
     const languageData = {
-        en: { logo_text: "FarmWise", nav_home: "Home", nav_chatbot: "Krishi Sahayi Bot", input_placeholder: "Ask anything about farming..." },
-        ta: { logo_text: "பார்ம்வைஸ்", nav_home: "முகப்பு", nav_chatbot:"கிருஷி சஹாயி பாட்", input_placeholder: "விவசாயம் பற்றி எதுவும் கேளுங்கள்..." },
-        ml: { logo_text: "ഫാംവൈസ്", nav_home: "ഹോം", nav_chatbot: "കൃഷി സഹായി ബോട്ട്", input_placeholder: "കൃഷിയെക്കുറിച്ച് എന്തും ചോദിക്കൂ..." }
+        en: { logo_text: "FarmWise", nav_home: "Home", nav_chatbot: "Krishi Sahayi Bot", nav_crop_disease: "Crop Disease Diagnosis", nav_weather: "Weather Prediction", nav_community: "Farmer Community", input_placeholder: "Ask anything about farming..." },
+        ta: { logo_text: "பார்ம்வைஸ்", nav_home: "முகப்பு", nav_chatbot:"கிருஷி சஹாயி பாட்", nav_crop_disease: "பயிர் நோய் கண்டறிதல்", nav_weather: "வானிலை முன்னறிவிப்பு", nav_community: "விவசாயிகள் சமூகம்", input_placeholder: "விவசாயம் பற்றி எதுவும் கேளுங்கள்..." },
+        ml: { logo_text: "ഫാംവൈസ്", nav_home: "ഹോം", nav_chatbot: "കൃഷി സഹായി ബോട്ട്", nav_crop_disease: "വിള രോഗനിർണയം", nav_weather: "കാലാവസ്ഥാ പ്രവചനം", nav_community: "കർഷക സമൂഹം", input_placeholder: "കൃഷിയെക്കുറിച്ച് എന്തും ചോദിക്കൂ..." }
     };
-
-    const setLanguage = (lang) => { /* ... unchanged ... */ };
-    const applyTheme = (theme) => { /* ... unchanged ... */ };
-    const speakText = (text, langCode) => { /* ... unchanged ... */ };
-
-    // --- EVENT LISTENERS ---
+    
+    const setLanguage = (lang) => { /* Function unchanged */ };
+    const applyTheme = (theme) => { /* Function unchanged */ };
+    const speakText = (text, langCode) => { /* Function unchanged */ };
+    
     const setupEventListeners = () => {
         chatForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -302,8 +318,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (selectedFile) userMessageContent.push({ type: 'image_url', image_url: URL.createObjectURL(selectedFile) });
             if (userText) userMessageContent.push({ type: 'text', text: userText });
             addMessage('user', userMessageContent);
-            const thinkingMessage = addMessage('bot', '...');
             
+            const thinkingMessage = addMessage('bot', '...');
             const formData = new FormData();
             formData.append('message', userText);
             formData.append('language', currentLanguage);
@@ -338,15 +354,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const file = e.target.files[0];
             if(file){ 
                 selectedFile = file;
-                imagePreviewContainer.style.display = 'block';
                 imagePreviewContainer.innerHTML = `<img id="image-preview" src="${URL.createObjectURL(file)}"><button id="remove-image-btn" class="icon-btn">&times;</button>`;
+                imagePreviewContainer.style.display = 'block';
                 document.getElementById('remove-image-btn').addEventListener('click', removeImage);
             }
         });
         themeToggleBtn.addEventListener('click', () => { /* ... */ });
         languageDropdown.addEventListener('click', (e) => { e.stopPropagation(); dropdownContent.classList.toggle('show'); });
         dropdownContent.addEventListener('click', (e) => { if(e.target.dataset.lang){ setLanguage(e.target.dataset.lang); dropdownContent.classList.remove('show'); } });
-        window.addEventListener('click', () => dropdownContent.classList.remove('show'));
+        hamburgerBtn.addEventListener('click', (e) => { /* ... */ });
+        window.addEventListener('click', () => { /* ... */ });
         recentChatsList.addEventListener('click', (e) => {
             const li = e.target.closest('li');
             const deleteBtn = e.target.closest('.delete-chat-btn');
@@ -354,7 +371,6 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (li) { loadChatHistory(li.dataset.chatId); }
         });
         messageContainer.addEventListener('click', e => { /* ... */ });
-        
         // Speech Recognition setup...
     };
 
