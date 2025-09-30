@@ -140,7 +140,7 @@ router.post('/chat', authMiddleware, upload.single('image'), async (req, res) =>
         ];
         
         const completion = await openrouter.chat.completions.create({
-            model: "google/gemma-3-27b-it",
+            model: "mistralai/mistral-7b-instruct:free",
             messages: messagesForAPI,
         });
 
@@ -235,3 +235,4 @@ router.get('/weather/forecast', authMiddleware, async (req, res) => {
 });
 
 module.exports = router;
+
