@@ -7,22 +7,17 @@ const OpenAI = require('openai');
 require('dotenv').config();
 
 // --- DATABASE MODELS ---
-// Ensure the path to your models is correct
 const User = require('../models/User');
 const Chat = require('../models/chat');
 
 // --- INITIALIZATION ---
 const router = express.Router();
-const upload = multer({ storage: multer.memoryStorage() }); // Use memoryStorage to handle files as buffers
+const upload = multer({ storage: multer.memoryStorage() });
 
 // Initialize the client for the OpenRouter service
 const openrouter = new OpenAI({
     baseURL: "https://openrouter.ai/api/v1",
     apiKey: process.env.OPENROUTER_API_KEY,
-    defaultHeaders: {
-        "HTTP-Referer": "https://your-frontend-domain.com", // Optional: Replace with your site URL
-        "X-Title": "FarmWise AI Assistant", // Optional: Replace with your app name
-      },
 });
 
 // --- AUTHENTICATION MIDDLEWARE ---
@@ -42,7 +37,7 @@ const authMiddleware = (req, res, next) => {
 
 // =============== USER AUTHENTICATION ROUTES ===============
 
-// POST /api/signup - Register a new user
+// POST /api/signup
 router.post('/signup', async (req, res) => {
     const { username, email, phone, password, state } = req.body;
     try {
@@ -63,7 +58,7 @@ router.post('/signup', async (req, res) => {
     }
 });
 
-// POST /api/login - Authenticate a user and return a token
+// POST /api/login
 router.post('/login', async (req, res) => {
     const { username, password } = req.body;
     try {
@@ -82,10 +77,10 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// GET /api/profile - Get profile information for the authenticated user
+// GET /api/profile
 router.get('/profile', authMiddleware, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id).select('-password'); // Exclude password from result
+        const user = await User.findById(req.user.id).select('-password');
         if (!user) {
             return res.status(404).json({ message: "User not found." });
         }
@@ -96,7 +91,7 @@ router.get('/profile', authMiddleware, async (req, res) => {
     }
 });
 
-// =============== CHATBOT ROUTE (WITH IMAGE SUPPORT) ===============
+// =============== CHATBOT ROUTE ===============
 
 router.post('/chat', authMiddleware, upload.single('image'), async (req, res) => {
     const { message, chatId, language } = req.body;
@@ -145,14 +140,13 @@ router.post('/chat', authMiddleware, upload.single('image'), async (req, res) =>
         ];
         
         const completion = await openrouter.chat.completions.create({
-            model: "google/gemini-pro-vision", // A model that can process both text and images
+            model: "google/gemma-3-27b-it",
             messages: messagesForAPI,
         });
 
         const botReplyText = completion.choices[0].message?.content;
-
         if (!botReplyText) {
-            throw new Error("AI model returned an empty or invalid response.");
+            throw new Error("AI model returned an empty response.");
         }
 
         currentChat.history.push({ role: 'assistant', content: botReplyText });
@@ -169,9 +163,9 @@ router.post('/chat', authMiddleware, upload.single('image'), async (req, res) =>
     }
 });
 
+// =============== CHAT HISTORY ROUTES ===============
 
-// =============== CHAT HISTORY MANAGEMENT ROUTES ===============
-
+// GET /api/chats
 router.get('/chats', authMiddleware, async (req, res) => {
     try {
         const chats = await Chat.find({ userId: req.user.id }).select('title createdAt').sort({ createdAt: -1 });
@@ -182,6 +176,7 @@ router.get('/chats', authMiddleware, async (req, res) => {
     }
 });
 
+// GET /api/chat/:chatId
 router.get('/chat/:chatId', authMiddleware, async (req, res) => {
     try {
         const chat = await Chat.findOne({ _id: req.params.chatId, userId: req.user.id });
@@ -195,6 +190,7 @@ router.get('/chat/:chatId', authMiddleware, async (req, res) => {
     }
 });
 
+// DELETE /api/chat/:chatId
 router.delete('/chat/:chatId', authMiddleware, async (req, res) => {
     try {
         const { chatId } = req.params;
@@ -209,12 +205,13 @@ router.delete('/chat/:chatId', authMiddleware, async (req, res) => {
     }
 });
 
-// =============== EXTERNAL API ROUTES ===============
+// =============== WEATHER ROUTE ===============
 
+// GET /api/weather/forecast
 router.get('/weather/forecast', authMiddleware, async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
-        const location = user?.state || 'Coimbatore'; // Default location if user has no state
+        const location = user?.state || 'Coimbatore';
         const apiKey = process.env.WEATHER_API_KEY;
 
         if (!apiKey) {
@@ -223,7 +220,6 @@ router.get('/weather/forecast', authMiddleware, async (req, res) => {
 
         const geoUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${location},IN&limit=1&appid=${apiKey}`;
         const geoResponse = await axios.get(geoUrl);
-
         if (!geoResponse.data || geoResponse.data.length === 0) {
             return res.status(404).json({ message: "Location could not be found." });
         }
@@ -231,10 +227,9 @@ router.get('/weather/forecast', authMiddleware, async (req, res) => {
 
         const forecastUrl = `https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&exclude=minutely,alerts&appid=${apiKey}&units=metric`;
         const forecastResponse = await axios.get(forecastUrl);
-
         res.json(forecastResponse.data);
     } catch (err) {
-        console.error("Weather Forecast Error:", err.response ? err.response.data : err.message);
+        console.error("Weather Forecast Error:", err.message);
         res.status(500).json({ message: "Could not fetch the weather forecast." });
     }
 });
