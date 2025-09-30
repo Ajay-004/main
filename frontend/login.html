@@ -204,7 +204,9 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const API_BASE_URL = 'https://main-back-g4pq.onrender.com';
+            // --- UPDATED API URL ---
+            const API_BASE_URL = 'https://mains-ayqd.onrender.com';
+            
             const loginForm = document.getElementById('login-form');
             const loaderOverlay = document.getElementById('loader-overlay');
             const languageSelector = document.getElementById('language-selector');
@@ -250,7 +252,6 @@
             loginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 
-                // Show visual feedback and disable the button to prevent multiple clicks
                 loaderOverlay.style.display = 'flex';
                 submitButton.disabled = true;
                 submitButton.textContent = 'Logging In...';
@@ -274,7 +275,6 @@
                     localStorage.setItem('token', data.token);
                     window.location.href = 'index.html';
                 } catch (error) {
-                    // On error, hide the loader and re-enable the form
                     loaderOverlay.style.display = 'none';
                     submitButton.disabled = false;
                     changeLanguage(savedLang); // This restores the original button text
