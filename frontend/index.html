@@ -11,159 +11,477 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
     <style>
-      /* --- GLOBAL & FONT STYLES --- */
-            :root {
-                /* Dark Theme Colors */
-                --bg-dark: #0D1117; --bg-medium: #161b22; --border-dark: #30363d; --text-primary-dark: #c9d1d9;
-                --text-secondary-dark: #8b949e; --text-white: #ffffff; --accent-green: #2ECC71; --danger-red: #e74c3c;
-                /* Light Theme Colors */
-                --bg-light: #f6f8fa; --bg-white: #ffffff; --border-light: #d0d7de; --text-primary-light: #24292f;
-                --text-secondary-light: #586069;
+        /* --- GLOBAL & FONT STYLES --- */
+        :root {
+            /* Dark Theme Colors (Default) */
+            --bg-dark: #0D1117;
+            --bg-medium: #161b22;
+            --border-dark: #30363d;
+            --text-primary-dark: #c9d1d9;
+            --text-secondary-dark: #8b949e;
+            --text-white: #ffffff;
+            --accent-green: #2ECC71;
+            --danger-red: #e74c3c;
+
+            /* Light Theme Colors */
+            --bg-light: #f6f8fa;
+            --bg-white: #ffffff;
+            --border-light: #d0d7de;
+            --text-primary-light: #24292f;
+            --text-secondary-light: #586069;
+        }
+
+        html, body {
+            margin: 0;
+            height: 100%;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary-dark);
+            font-size: 16px;
+            line-height: 1.5;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* --- Animation Keyframes --- */
+        @keyframes fadeInUp3D {
+            from {
+                opacity: 0;
+                transform: translateY(50px) rotateX(-90deg);
             }
-            html, body { margin: 0; height: 100%; }
-            body { font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color: var(--text-primary-dark); font-size: 16px; line-height: 1.5; transition: background-color 0.3s ease, color 0.3s ease; overflow-x: hidden; }
-            a { text-decoration: none; color: inherit; }
-
-            /* --- Animation Keyframes --- */
-            @keyframes fadeInUp3D {
-                from {
-                    opacity: 0;
-                    transform: translateY(50px) rotateX(-90deg);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0) rotateX(0);
-                }
+            to {
+                opacity: 1;
+                transform: translateY(0) rotateX(0);
             }
-            @keyframes floatAnimation {
-                0% { transform: translateY(0px); }
-                50% { transform: translateY(-10px); }
-                100% { transform: translateY(0px); }
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            background-color: var(--bg-medium);
+            padding: 15px 0;
+            border-bottom: 1px solid var(--border-dark);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            position: relative;
+        }
+
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--accent-green);
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .nav-menu a {
+            color: var(--text-primary-dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-menu a:hover {
+            color: var(--accent-green);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* --- LANGUAGE & THEME CONTROLS --- */
+        .language-dropdown {
+            position: relative;
+        }
+
+        .language-selector {
+            background: none;
+            border: none;
+            color: var(--text-primary-dark);
+            font-size: 15px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: background-color 0.2s;
+        }
+         .language-selector:hover {
+            background-color: var(--border-dark);
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: var(--bg-medium);
+            min-width: 150px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            list-style: none;
+            padding: 8px 0;
+            border-radius: 6px;
+            border: 1px solid var(--border-dark);
+            right: 0;
+            top: 100%;
+            margin-top: 5px;
+        }
+
+        .dropdown-content.show {
+            display: block;
+        }
+
+        .dropdown-content li a {
+            color: var(--text-primary-dark);
+            padding: 10px 15px;
+            display: block;
+            font-size: 14px;
+        }
+
+        .dropdown-content li a:hover {
+            background-color: var(--border-dark);
+        }
+
+        .theme-button,
+        #profile-btn {
+            background: none;
+            border: none;
+            color: var(--text-primary-dark);
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .theme-button:hover,
+        #profile-btn:hover {
+            background-color: var(--border-dark);
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            background-image: url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=2070');
+            background-size: cover;
+            background-position: center;
+            height: calc(100vh - 69px); /* Adjusted for navbar height */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-overlay {
+            background-color: rgba(13, 17, 23, 0.7);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            position: relative;
+            z-index: 2;
+            padding: 0 20px;
+            perspective: 1000px;
+        }
+
+        .hero-title {
+            font-size: 56px;
+            font-weight: 800;
+            color: var(--text-white);
+            margin: 10px 0 20px 0;
+            line-height: 1.15;
+            animation: fadeInUp3D 1s ease-out 0.3s backwards;
+        }
+
+        .hero-description {
+            font-size: 18px;
+            max-width: 700px;
+            margin: 0 auto 30px auto;
+            line-height: 1.6;
+            animation: fadeInUp3D 1s ease-out 0.6s backwards;
+        }
+
+        /* --- PROFILE PANEL --- */
+        .profile-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            z-index: 1050;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .side-profile-panel {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 350px;
+            max-width: 90%;
+            height: 100%;
+            background-color: var(--bg-medium);
+            z-index: 1100;
+            transform: translateX(100%);
+            transition: transform 0.3s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            padding: 25px;
+            box-sizing: border-box;
+            border-left: 1px solid var(--border-dark);
+        }
+
+        .profile-overlay.show {
+            display: block;
+            opacity: 1;
+        }
+
+        .side-profile-panel.show {
+            transform: translateX(0);
+        }
+
+        .profile-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-dark);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        .profile-header h3 {
+            margin: 0;
+            font-size: 22px;
+            color: var(--text-white);
+        }
+
+        .profile-details ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 25px 0;
+        }
+
+        .profile-details li {
+            margin-bottom: 20px;
+        }
+
+        .profile-details .label {
+            font-size: 13px;
+            color: var(--text-secondary-dark);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .profile-details .value {
+            font-size: 16px;
+            color: var(--text-primary-dark);
+        }
+
+        .logout-button {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--danger-red);
+            color: var(--text-white);
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 16px;
+            margin-top: auto;
+        }
+
+        .close-button {
+            background: none;
+            border: none;
+            color: var(--text-secondary-dark);
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        /* --- MOBILE NAVIGATION --- */
+        .hamburger-menu {
+            display: none; /* Hidden by default */
+            background: none;
+            border: none;
+            color: var(--text-primary-dark);
+            font-size: 18px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            transition: background-color 0.3s;
+        }
+         .hamburger-menu:hover {
+            background-color: var(--border-dark);
+        }
+
+        .mobile-nav-dropdown {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            background-color: var(--bg-medium);
+            border-top: 1px solid var(--border-dark);
+            padding: 10px 0;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .mobile-nav-dropdown.show {
+            display: block;
+        }
+
+        .mobile-nav-dropdown .nav-menu {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0;
+            padding: 0 20px;
+        }
+
+        .mobile-nav-dropdown .nav-menu a {
+            padding: 15px 0;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 500;
+            border-bottom: 1px solid var(--border-dark);
+        }
+
+        .mobile-nav-dropdown .nav-menu a:last-child {
+            border-bottom: none;
+        }
+
+        /* --- LIGHT THEME --- */
+        body.light-mode {
+            background-color: var(--bg-light);
+            color: var(--text-primary-light);
+        }
+
+        body.light-mode .navbar,
+        body.light-mode .side-profile-panel,
+        body.light-mode .mobile-nav-dropdown,
+        body.light-mode .dropdown-content {
+            background-color: var(--bg-white);
+            border-color: var(--border-light);
+        }
+
+        body.light-mode .nav-menu a,
+        body.light-mode .language-selector,
+        body.light-mode .theme-button,
+        body.light-mode #profile-btn,
+        body.light-mode .hamburger-menu {
+            color: var(--text-secondary-light);
+        }
+        
+        body.light-mode .dropdown-content li a {
+            color: var(--text-primary-light);
+        }
+        
+        body.light-mode .language-selector:hover,
+        body.light-mode .dropdown-content li a:hover,
+        body.light-mode .theme-button:hover,
+        body.light-mode #profile-btn:hover,
+        body.light-mode .hamburger-menu:hover {
+            background-color: var(--bg-light);
+        }
+        
+        body.light-mode .nav-menu a:hover {
+             color: var(--accent-green);
+        }
+
+        body.light-mode .hero-overlay {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+
+        body.light-mode .hero-title,
+        body.light-mode .hero-description {
+            color: var(--text-primary-light);
+        }
+
+        body.light-mode .profile-header h3,
+        body.light-mode .profile-details .value {
+            color: var(--text-primary-light);
+        }
+
+        body.light-mode .profile-details .label {
+            color: var(--text-secondary-light);
+        }
+        
+        body.light-mode .mobile-nav-dropdown .nav-menu a {
+            border-color: var(--border-light);
+        }
+
+        /* --- MEDIA QUERIES FOR RESPONSIVENESS --- */
+        @media (max-width: 992px) {
+            .navbar-container .nav-menu {
+                display: none; /* Hide desktop nav links */
             }
-
-            /* --- NAVBAR --- */
-            .navbar { background-color: var(--bg-medium); padding: 15px 0; border-bottom: 1px solid var(--border-dark); position: sticky; top: 0; z-index: 100; transition: background-color 0.3s ease, border-color 0.3s ease; position: relative; }
-            .navbar-container { display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; padding: 0 20px; }
-            .logo { font-size: 24px; font-weight: 800; color: var(--accent-green); }
-            .nav-menu { display: flex; align-items: center; gap: 30px; }
-            .nav-menu a { color: var(--text-primary-dark); display: flex; align-items: center; gap: 8px; transition: color 0.3s ease; }
-            .nav-menu a:hover { color: var(--text-white); }
-            .nav-actions { display: flex; align-items: center; gap: 15px; }
-
-            /* --- LANGUAGE & THEME CONTROLS --- */
-            .language-dropdown { position: relative; }
-            .language-selector { background: none; border: none; color: var(--text-primary-dark); font-size: 15px; cursor: pointer; padding: 5px 10px; border-radius: 6px; display: flex; align-items: center; gap: 5px; }
-            .dropdown-content { display: none; position: absolute; background-color: var(--bg-medium); min-width: 150px; box-shadow: 0 8px 16px rgba(0,0,0,0.2); z-index: 100; list-style: none; padding: 8px 0; border-radius: 6px; border: 1px solid var(--border-dark); right: 0; top: 100%; margin-top: 5px; }
-            .dropdown-content.show { display: block; }
-            .dropdown-content li a { color: var(--text-primary-dark); padding: 10px 15px; display: block; font-size: 14px; }
-            .dropdown-content li a:hover, .language-selector:hover { background-color: var(--border-dark); }
-            .theme-button, #profile-btn { background: none; border: none; color: var(--text-primary-dark); font-size: 18px; cursor: pointer; border-radius: 6px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; transition: background-color 0.3s ease; }
-            .theme-button:hover, #profile-btn:hover { background-color: var(--border-dark); }
-
-            /* --- HERO SECTION --- */
-            .hero { background-image: url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=2070'); background-size: cover; background-position: center; height: calc(100vh - 67px); display: flex; align-items: center; justify-content: center; text-align: center; position: relative; }
-            .hero-overlay { background-color: rgba(13, 17, 23, 0.7); position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transition: background-color 0.3s ease; }
-            .hero-content { max-width: 800px; position: relative; z-index: 2; padding: 0 20px; perspective: 1000px; }
+            .hamburger-menu {
+                display: flex; /* Show hamburger icon */
+                align-items: center;
+                justify-content: center;
+            }
             .hero-title {
-                font-size: 56px;
-                font-weight: 800;
-                color: var(--text-white);
-                margin: 10px 0 20px 0;
-                line-height: 1.15;
-                animation:
-                    fadeInUp3D 1s ease-out 0.3s backwards,
-                    floatAnimation 4s ease-in-out 1.3s infinite;
+                font-size: 42px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .hero-title {
+                font-size: 36px;
             }
             .hero-description {
-                font-size: 18px;
-                max-width: 700px;
-                margin: 0 auto 30px auto;
-                line-height: 1.6;
-                animation:
-                    fadeInUp3D 1s ease-out 0.6s backwards,
-                    floatAnimation 3.5s ease-in-out 1.6s infinite;
-            }
-
-            /* --- PROFILE PANEL --- */
-            .profile-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); z-index: 1050; opacity: 0; transition: opacity 0.3s ease; }
-            .side-profile-panel { position: fixed; top: 0; right: 0; width: 350px; max-width: 90%; height: 100%; background-color: var(--bg-medium); z-index: 1100; transform: translateX(100%); transition: transform 0.3s ease-in-out; display: flex; flex-direction: column; padding: 25px; box-sizing: border-box; border-left: 1px solid var(--border-dark); }
-            .profile-overlay.show { display: block; opacity: 1; }
-            .side-profile-panel.show { transform: translateX(0); }
-            .profile-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-dark); padding-bottom: 15px; margin-bottom: 25px; }
-            .profile-header h3 { margin: 0; font-size: 22px; color: var(--text-white); }
-            .profile-details ul { list-style: none; padding: 0; margin: 0 0 25px 0; }
-            .profile-details li { margin-bottom: 20px; }
-            .profile-details .label { font-size: 13px; color: var(--text-secondary-dark); display: block; margin-bottom: 5px; }
-            .profile-details .value { font-size: 16px; color: var(--text-primary-dark); }
-            .logout-button { width: 100%; padding: 15px; background-color: var(--danger-red); color: var(--text-white); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: background-color 0.3s ease; font-size: 16px; margin-top: auto; }
-            .close-button { background: none; border: none; color: var(--text-secondary-dark); font-size: 28px; cursor: pointer; }
-
-            /* --- MOBILE NAVIGATION --- */
-            .hamburger-menu { display: none; background: none; border: none; color: var(--text-primary-dark); font-size: 22px; cursor: pointer; }
-            .mobile-nav-dropdown {
-                display: none;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                width: 100%;
-                background-color: var(--bg-medium);
-                border-top: 1px solid var(--border-dark);
-                padding: 10px 0;
-                box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-            }
-            .mobile-nav-dropdown.show { display: block; }
-            .mobile-nav-dropdown .nav-menu {
-                display: flex;
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 0;
-                padding: 0 20px;
-            }
-            .mobile-nav-dropdown .nav-menu a {
-                padding: 15px 0;
-                width: 100%;
                 font-size: 16px;
-                font-weight: 500;
-                border-bottom: 1px solid var(--border-dark);
             }
-            .mobile-nav-dropdown .nav-menu a:last-child {
-                border-bottom: none;
-            }
-
-            /* --- LIGHT THEME --- */
-            body.light-mode { background-color: var(--bg-light); color: var(--text-primary-light); }
-            body.light-mode .navbar, body.light-mode .side-profile-panel { background-color: var(--bg-white); border-color: var(--border-light); }
-            body.light-mode .nav-menu a, body.light-mode .language-selector, body.light-mode .theme-button, body.light-mode #profile-btn, body.light-mode .hamburger-menu { color: var(--text-secondary-light); }
-            body.light-mode .dropdown-content { background-color: var(--bg-white); border-color: var(--border-light); }
-            body.light-mode .dropdown-content li a { color: var(--text-primary-light); }
-            body.light-mode .dropdown-content li a:hover, body.light-mode .language-selector:hover { background-color: var(--bg-light); }
-            body.light-mode .theme-button:hover, body.light-mode #profile-btn:hover { background-color: var(--bg-light); }
-            body.light-mode .hero-overlay { background-color: rgba(255, 255, 255, 0.4); }
-            body.light-mode .hero-title, body.light-mode .hero-description { color: var(--text-primary-light); }
-            body.light-mode .profile-header h3, body.light-mode .profile-details .value { color: var(--text-primary-light); }
-            body.light-mode .profile-details .label { color: var(--text-secondary-light); }
-            body.light-mode .mobile-nav-dropdown { background-color: var(--bg-white); border-color: var(--border-light); }
-            body.light-mode .mobile-nav-dropdown .nav-menu a { border-color: var(--border-light); }
-
-
-            /* --- MEDIA QUERIES FOR RESPONSIVENESS --- */
-            @media (max-width: 992px) {
-                .navbar-container .nav-menu { display: none; }
-                .hamburger-menu { display: block; }
-                .hero-title { font-size: 42px; }
-            }
-            @media (max-width: 576px) {
-                .hero-title { font-size: 36px; }
-                .hero-description { font-size: 16px; }
-            }
+        }
     </style>
 </head>
 <body>
     <script>
-        // AUTH GUARD: Checks for presence of token
-        const token = localStorage.getItem('token');
-        if (!token) {
-            // Token missing, force login
+        // AUTH GUARD: Redirects to login if token is missing.
+        // This must run before the rest of the page loads.
+        if (!localStorage.getItem('token')) {
             window.location.href = 'login.html';
         }
     </script>
@@ -222,173 +540,169 @@
         </div>
         <div class="profile-details">
             <ul>
-                <li><span class="label" data-lang-key="profile_label_username">Username</span><span id="profile-username" class="value"></span></li>
-                <li><span class="label" data-lang-key="profile_label_email">Email Address</span><span id="profile-email" class="value"></span></li>
-                <li><span class="label" data-lang-key="profile_label_phone">Phone Number</span><span id="profile-phone" class="value"></span></li>
-                <li><span class="label" data-lang-key="profile_label_state">State</span><span id="profile-state" class="value"></span></li>
+                <li><span class="label" data-lang-key="profile_label_username">Username</span><span id="profile-username" class="value">Loading...</span></li>
+                <li><span class="label" data-lang-key="profile_label_email">Email Address</span><span id="profile-email" class="value">Loading...</span></li>
+                <li><span class="label" data-lang-key="profile_label_phone">Phone Number</span><span id="profile-phone" class="value">Loading...</span></li>
+                <li><span class="label" data-lang-key="profile_label_state">State</span><span id="profile-state" class="value">Loading...</span></li>
             </ul>
         </div>
         <button id="logout-btn" class="logout-button"><i class="fa-solid fa-right-from-bracket"></i> <span data-lang-key="logout_button">Logout</span></button>
     </div>
 
     <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const body = document.body;
-        const themeToggleBtn = document.getElementById('theme-toggle');
-        const profileBtn = document.getElementById('profile-btn');
-        const logoutBtn = document.getElementById('logout-btn');
-        const languageDropdown = document.querySelector('.language-dropdown');
-        const languageSelectorBtn = document.querySelector('.language-selector');
-        const dropdownContent = document.querySelector('.dropdown-content');
-        const hamburgerBtn = document.getElementById('hamburger-btn');
-        const mobileNavDropdown = document.getElementById('mobile-nav-dropdown');
-        const profileOverlay = document.getElementById('profile-overlay');
-        const sideProfilePanel = document.getElementById('side-profile-panel');
-        const closePanelBtn = document.getElementById('close-panel-btn');
+        document.addEventListener('DOMContentLoaded', () => {
+            const body = document.body;
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const profileBtn = document.getElementById('profile-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            const languageDropdown = document.querySelector('.language-dropdown');
+            const languageSelectorBtn = document.querySelector('.language-selector');
+            const dropdownContent = document.querySelector('.dropdown-content');
+            const hamburgerBtn = document.getElementById('hamburger-btn');
+            const mobileNavDropdown = document.getElementById('mobile-nav-dropdown');
+            const profileOverlay = document.getElementById('profile-overlay');
+            const sideProfilePanel = document.getElementById('side-profile-panel');
+            const closePanelBtn = document.getElementById('close-panel-btn');
 
-        // --- AUTHENTICATION & DATA LOADING ---
-        const token = localStorage.getItem('token');
-        console.log('Loaded token:', token); // <-- DEBUG: Check token presence
+            // --- AUTHENTICATION & DATA LOADING ---
+            const token = localStorage.getItem('token');
+            if (token) {
+                fetchProfileData(token);
+            }
 
-        fetchProfileData(token);
-        
-        async function fetchProfileData(token) {
-            try {
-                const response = await fetch('https://mains-ayqd.onrender.com/api/profile', {
-                    headers: { 'x-auth-token': token }
+            async function fetchProfileData(authToken) {
+                try {
+                    const response = await fetch('https://mains-ayqd.onrender.com/api/profile', {
+                        headers: { 'x-auth-token': authToken }
+                    });
+
+                    if (response.status === 401 || response.status === 403) {
+                        alert('Session expired. Please sign in again.');
+                        localStorage.clear();
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    if (!response.ok) {
+                        throw new Error(`Server error: ${response.statusText}`);
+                    }
+
+                    const userData = await response.json();
+                    document.getElementById('profile-username').textContent = userData.username;
+                    document.getElementById('profile-email').textContent = userData.email;
+                    document.getElementById('profile-phone').textContent = userData.phone;
+                    document.getElementById('profile-state').textContent = userData.state;
+                } catch (error) {
+                    alert('Error loading profile: ' + error.message);
+                }
+            }
+
+            // --- LANGUAGE FUNCTIONALITY ---
+            const languageData = {
+                en: {
+                    logo_text: "FarmWise", nav_chatbot: "Krishi Sahayi Bot", nav_crop_disease: "Crop Disease Diagnosis", nav_weather: "Weather Prediction", nav_community: "Farmer Community",
+                    hero_title: "AI-Powered Guidance for Every Farmer", hero_description: "Get real-time weather updates, chat with our AI assistant, and manage your profile.",
+                    profile_title: "My Profile", profile_label_username: "Username",
+                    profile_label_email: "Email Address", profile_label_phone: "Phone Number", profile_label_state: "State",
+                    logout_button: "Logout"
+                },
+                ta: {
+                    logo_text: "பார்ம்வைஸ்", nav_chatbot: "கிருஷி சஹாயி பாட்", nav_crop_disease: "பயிர் நோய் கண்டறிதல்", nav_weather: "வானிலை முன்னறிவிப்பு", nav_community: "விவசாயிகள் சமூகம்",
+                    hero_title: "ஒவ்வொரு விவசாயிக்கும் AI-இயங்கும் வழிகாட்டுதல்", hero_description: "நிகழ்நேர வானிலை அறிவிப்புகளைப் பெறுங்கள், எங்கள் AI உதவியாளருடன் அரட்டையடிக்கவும், உங்கள் சுயவிவரத்தை நிர்வகிக்கவும்.",
+                    profile_title: "என் சுயவிவரம்", profile_label_username: "பயனர்பெயர்",
+                    profile_label_email: "மின்னஞ்சல் முகவரி", profile_label_phone: "தொலைபேசி எண்", profile_label_state: "மாநிலம்",
+                    logout_button: "வெளியேறு"
+                },
+                ml: {
+                    logo_text: "ഫാംവൈസ്", nav_chatbot: "കൃഷി സഹായി ബോട്ട്", nav_crop_disease: "വിള രോഗനിർണയം", nav_weather: "കാലാവസ്ഥാ പ്രവചനം", nav_community: "കർഷക സമൂഹം",
+                    hero_title: "ഓരോ കർഷകനും AI പിന്തുണയുള്ള മാർഗ്ഗനിർദ്ദേശം", hero_description: "തത്സമയ കാലാവസ്ഥാ അപ്‌ഡേറ്റുകൾ നേടുക, ഞങ്ങളുടെ AI അസിസ്റ്റന്റുമായി ചാറ്റ് ചെയ്യുക, നിങ്ങളുടെ പ്രൊഫൈൽ നിയന്ത്രിക്കുക.",
+                    profile_title: "എന്റെ പ്രൊഫൈൽ", profile_label_username: "ഉപയോക്തൃനാമം",
+                    profile_label_email: "ഇമെയിൽ വിലാസം", profile_label_phone: "ഫോൺ നമ്പർ", profile_label_state: "സംസ്ഥാനം",
+                    logout_button: "ലോഗൗട്ട്"
+                }
+            };
+
+            const setLanguage = (lang) => {
+                document.querySelectorAll('[data-lang-key]').forEach(element => {
+                    const key = element.getAttribute('data-lang-key');
+                    if (languageData[lang]?.[key]) {
+                        const icon = element.querySelector('i');
+                        const text = languageData[lang][key];
+                        // Preserve icon if it exists
+                        element.innerHTML = icon ? `${icon.outerHTML} ${text}` : text;
+                    }
                 });
-                // Only log out for 401/403 token problems; otherwise, show error.
-                if (response.status === 401 || response.status === 403) {
-                    alert('Session expired or unauthorized. Please sign in again.');
-                    localStorage.removeItem('token');
-                    window.location.href = 'login.html';
-                    return;
-                }
-                if (!response.ok) {
-                    // Debug message for other errors (network, backend bug, CORS, etc.)
-                    const errMsg = await response.text();
-                    alert('Failed to load profile: ' + errMsg);
-                    return;
-                }
-                const userData = await response.json();
-                document.getElementById('profile-username').textContent = userData.username;
-                document.getElementById('profile-email').textContent = userData.email;
-                document.getElementById('profile-phone').textContent = userData.phone;
-                document.getElementById('profile-state').textContent = userData.state;
-            } catch (error) {
-                // Network or unexpected JavaScript error
-                alert('Error loading profile: ' + error.message);
-            }
-        }
+                const selectedLangText = document.querySelector(`.dropdown-content a[data-lang="${lang}"]`).textContent;
+                languageSelectorBtn.innerHTML = `${selectedLangText.split(' ')[0]} <i class="fa-solid fa-angle-down"></i>`;
+                localStorage.setItem('language', lang);
+            };
 
-        // --- LANGUAGE FUNCTIONALITY ---
-        const languageData = {
-            en: {
-                logo_text: "FarmWise", nav_chatbot: "Krishi Sahayi Bot", nav_crop_disease: "Crop Disease Diagnosis", nav_weather: "Weather Prediction", nav_community: "Farmer Community",
-                hero_title: "AI-Powered Guidance for Every Farmer", hero_description: "Get real-time weather updates, chat with our AI assistant, and manage your profile.",
-                profile_title: "My Profile", profile_label_username: "Username",
-                profile_label_email: "Email Address", profile_label_phone: "Phone Number", profile_label_state: "State",
-                logout_button: "Logout"
-            },
-            ta: {
-                logo_text: "பார்ம்வைஸ்", nav_chatbot:" கிருஷி சஹாயி பாட்", nav_crop_disease: "பயிர் நோய் கண்டறிதல்", nav_weather: "வானிலை முன்னறிவிப்பு", nav_community: "விவசாயிகள் சமூகம்",
-                hero_title: "ஒவ்வொரு விவசாயிக்கும் AI-இயங்கும் வழிகாட்டுதல்", hero_description: "நிகழ்நேர வானிலை அறிவிப்புகளைப் பெறுங்கள், எங்கள் AI உதவியாளருடன் அரட்டையடிக்கவும், உங்கள் சுயவிவரத்தை நிர்வகிக்கவும்.",
-                profile_title: "என் சுயவிவரம்", profile_label_username: "பயனர்பெயர்",
-                profile_label_email: "மின்னஞ்சல் முகவரி", profile_label_phone: "தொலைபேசி எண்", profile_label_state: "மாநிலம்",
-                logout_button: "வெளியேறு"
-            },
-            ml: {
-                logo_text: "ഫാംവൈസ്", nav_chatbot: "കൃഷി സഹായി ബോട്ട്", nav_crop_disease: "വിള രോഗനിർണയം", nav_weather: "കാലാവസ്ഥാ പ്രവചനം", nav_community: "കർഷക സമൂഹം",
-                hero_title: "ഓരോ കർഷകനും AI പിന്തുണയുള്ള മാർഗ്ഗനിർദ്ദേശം", hero_description: "തത്സമയ കാലാവസ്ഥാ അപ്‌ഡേറ്റുകൾ നേടുക, ഞങ്ങളുടെ AI അസിസ്റ്റന്റുമായി ചാറ്റ് ചെയ്യുക, നിങ്ങളുടെ പ്രൊഫൈൽ നിയന്ത്രിക്കുക.",
-                profile_title: "എന്റെ പ്രൊഫൈൽ", profile_label_username: "ഉപയോക്തൃനാമം",
-                profile_label_email: "ഇമെയിൽ വിലാസം", profile_label_phone: "ഫോൺ നമ്പർ", profile_label_state: "സംസ്ഥാനം",
-                logout_button: "ലോഗൗട്ട്"
-            }
-        };
+            // --- THEME TOGGLE FUNCTIONALITY ---
+            const applyTheme = (theme) => {
+                const themeIcon = themeToggleBtn.querySelector('i');
+                body.classList.toggle('light-mode', theme === 'light');
+                if (themeIcon) {
+                   themeIcon.classList.toggle('fa-moon', theme === 'light');
+                   themeIcon.classList.toggle('fa-sun', theme !== 'light');
+                }
+            };
+            
+            themeToggleBtn.addEventListener('click', () => {
+                const newTheme = body.classList.contains('light-mode') ? 'dark' : 'light';
+                localStorage.setItem('theme', newTheme);
+                applyTheme(newTheme);
+            });
 
-        const setLanguage = (lang) => {
-            document.querySelectorAll('[data-lang-key]').forEach(element => {
-                const key = element.getAttribute('data-lang-key');
-                if (languageData[lang]?.[key]) {
-                    const iconHTML = element.querySelector('i')?.outerHTML || '';
-                    element.innerHTML = iconHTML + ' ' + languageData[lang][key];
+            // --- PROFILE PANEL & LOGOUT ---
+            const toggleProfilePanel = () => {
+                profileOverlay.classList.toggle('show');
+                sideProfilePanel.classList.toggle('show');
+            };
+
+            profileBtn.addEventListener('click', toggleProfilePanel);
+            closePanelBtn.addEventListener('click', toggleProfilePanel);
+            profileOverlay.addEventListener('click', toggleProfilePanel);
+
+            logoutBtn.addEventListener('click', () => {
+                localStorage.clear(); // Clears token, theme, and language
+                window.location.href = 'login.html';
+            });
+
+            // --- MOBILE NAV & DROPDOWNS ---
+            hamburgerBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                mobileNavDropdown.classList.toggle('show');
+            });
+            
+            languageSelectorBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownContent.classList.toggle('show');
+            });
+            
+            dropdownContent.addEventListener('click', (event) => {
+                if (event.target.tagName === 'A') {
+                    event.preventDefault();
+                    setLanguage(event.target.getAttribute('data-lang'));
+                    dropdownContent.classList.remove('show');
                 }
             });
-            const selectedLangText = document.querySelector(`.dropdown-content a[data-lang="${lang}"]`).textContent;
-            languageSelectorBtn.innerHTML = `${selectedLangText} <i class="fa-solid fa-angle-down"></i>`;
-            localStorage.setItem('language', lang);
-        };
 
-        dropdownContent.addEventListener('click', (event) => {
-            if (event.target.tagName === 'A') {
-                event.preventDefault();
-                const lang = event.target.getAttribute('data-lang');
-                setLanguage(lang);
-                dropdownContent.classList.remove('show');
-            }
+            // Close dropdowns if clicked outside
+            window.addEventListener('click', (e) => {
+                if (!languageDropdown.contains(e.target)) {
+                    dropdownContent.classList.remove('show');
+                }
+                if (mobileNavDropdown.classList.contains('show') && !hamburgerBtn.contains(e.target) && !mobileNavDropdown.contains(e.target)) {
+                    mobileNavDropdown.classList.remove('show');
+                }
+            });
+
+            // --- INITIALIZATION ---
+            const savedTheme = localStorage.getItem('theme') || 'dark'; // Default to dark
+            applyTheme(savedTheme);
+
+            const savedLang = localStorage.getItem('language') || 'en'; // Default to English
+            setLanguage(savedLang);
         });
-
-        languageSelectorBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownContent.classList.toggle('show'); });
-
-        const savedLang = localStorage.getItem('language') || 'en';
-        setLanguage(savedLang);
-
-        // --- THEME TOGGLE FUNCTIONALITY ---
-        const themeIcon = themeToggleBtn.querySelector('i');
-        const applyTheme = (theme) => {
-            if (theme === 'light') {
-                body.classList.add('light-mode');
-                themeIcon.classList.replace('fa-sun', 'fa-moon');
-            } else {
-                body.classList.remove('light-mode');
-                themeIcon.classList.replace('fa-moon', 'fa-sun');
-            }
-        };
-
-        const savedTheme = localStorage.getItem('theme') || 'dark';
-        applyTheme(savedTheme);
-
-        themeToggleBtn.addEventListener('click', () => {
-            const newTheme = body.classList.contains('light-mode') ? 'light' : 'dark';
-            localStorage.setItem('theme', newTheme);
-            applyTheme(newTheme);
-        });
-
-        // --- PROFILE PANEL & LOGOUT ---
-        const toggleProfilePanel = () => {
-            profileOverlay.classList.toggle('show');
-            sideProfilePanel.classList.toggle('show');
-        };
-
-        profileBtn.addEventListener('click', toggleProfilePanel);
-        closePanelBtn.addEventListener('click', toggleProfilePanel);
-        profileOverlay.addEventListener('click', toggleProfilePanel);
-
-        logoutBtn.addEventListener('click', () => {
-            localStorage.removeItem('token');
-            localStorage.removeItem('language'); // clears language preference on logout
-            localStorage.removeItem('theme'); // clears theme preference on logout
-            window.location.href = 'login.html';
-        });
-
-        // --- MOBILE NAV ---
-        hamburgerBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            mobileNavDropdown.classList.toggle('show');
-        });
-
-        // Close dropdowns if clicked outside
-        window.addEventListener('click', (e) => {
-            if (!languageDropdown.contains(e.target)) {
-                dropdownContent.classList.remove('show');
-            }
-            if (mobileNavDropdown.classList.contains('show') && !hamburgerBtn.contains(e.target) && !mobileNavDropdown.contains(e.target)) {
-                mobileNavDropdown.classList.remove('show');
-            }
-        });
-    });
     </script>
 </body>
 </html>
-
-
