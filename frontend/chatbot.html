@@ -49,7 +49,7 @@
         body {
             font-family: 'Roboto', sans-serif;
             display: flex;
-            height: 100vh;
+            height: 100dvh; /* MODIFIED: Fixes mobile view gap */
             background-color: var(--main-bg);
             color: var(--text-primary);
             overflow: hidden;
@@ -192,7 +192,7 @@
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            height: 100vh;
+            height: 100dvh; /* MODIFIED: Fixes mobile view gap */
             margin-left: 0;
             transition: margin-left 0.3s ease;
         }
@@ -536,7 +536,6 @@
                     <a href="plant.html" data-lang-key="nav_crop_disease"><i class="fa-solid fa-leaf"></i> Crop Disease Diagnosis</a>
                     <a href="weather.html" data-lang-key="nav_weather"><i class="fa-solid fa-cloud-sun"></i> Weather Prediction</a>
                     <a href="community.html" data-lang-key="nav_community"><i class="fa-solid fa-users"></i> Farmer Community</a>
-                    
                     <div class="mobile-menu-separator" data-lang-key="language_separator">Language</div>
                     <a href="#" class="lang-link-mobile" data-lang="en">English</a>
                     <a href="#" class="lang-link-mobile" data-lang="ta">தமிழ் (Tamil)</a>
@@ -608,7 +607,7 @@
                 const token = localStorage.getItem('token');
                 if (!token) {
                     alert('You are not logged in. Redirecting to login page.');
-                    // window.location.href = 'login.html'; // Uncomment to enforce login
+                    // window.location.href = 'login.html'; 
                     return;
                 }
                 const headers = { ...(options.headers || {}), 'x-auth-token': token };
@@ -619,7 +618,7 @@
                 if (response.status === 401) {
                     localStorage.removeItem('token');
                     alert('Your session has expired. Please log in again.');
-                    // window.location.href = 'login.html'; // Uncomment to enforce login
+                    // window.location.href = 'login.html'; 
                     throw new Error('Session expired');
                 }
                 return response;
@@ -629,7 +628,7 @@
                 e.preventDefault();
                 localStorage.clear();
                 alert('You have been logged out.');
-                // window.location.href = 'login.html'; // Uncomment to redirect
+                // window.location.href = 'login.html'; 
             });
 
             // --- Internationalization (i18n) ---
@@ -807,11 +806,27 @@
             };
 
             // --- Speech Recognition & Synthesis ---
+            let voices = [];
+            const populateVoiceList = () => {
+                voices = window.speechSynthesis.getVoices();
+            };
+            populateVoiceList();
+            if (window.speechSynthesis.onvoiceschanged !== undefined) {
+                window.speechSynthesis.onvoiceschanged = populateVoiceList;
+            }
+
             const speakText = (text, langCode) => {
                 window.speechSynthesis.cancel();
                 const utterance = new SpeechSynthesisUtterance(text);
                 const langMap = { 'en': 'en-US', 'ta': 'ta-IN', 'ml': 'ml-IN' };
                 utterance.lang = langMap[langCode] || 'en-US';
+
+                // Find a specific voice for the language if available
+                const specificVoice = voices.find(voice => voice.lang === utterance.lang);
+                if (specificVoice) {
+                    utterance.voice = specificVoice;
+                }
+                
                 utterance.rate = 0.9;
                 window.speechSynthesis.speak(utterance);
             };
@@ -929,7 +944,6 @@
                 }
             });
 
-            // Handle language selection from the new mobile menu links
             mobileNavDropdown.addEventListener('click', (event) => {
                 const target = event.target.closest('a');
                 if (target && target.matches('.lang-link-mobile')) {
