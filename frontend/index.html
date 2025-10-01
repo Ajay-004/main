@@ -72,17 +72,36 @@
             }
         }
 
+        @keyframes hero-flow {
+            from {
+                transform: scale(1);
+            }
+            to {
+                transform: scale(1.05);
+            }
+        }
+
+        /* MODIFICATION: Added keyframe for content floating effect */
+        @keyframes content-flow {
+            from {
+                transform: translateY(-5px);
+            }
+            to {
+                transform: translateY(5px);
+            }
+        }
+
         /* --- NAVBAR --- */
         .navbar {
             background-color: var(--bg-medium);
-            padding: 10px 0; /* Reduced padding slightly */
+            padding: 10px 0;
             border-bottom: 1px solid var(--border-dark);
             position: sticky;
             top: 0;
             z-index: 1000;
             transition: background-color 0.3s ease, border-color 0.3s ease;
             position: relative;
-            flex-shrink: 0; /* Prevents navbar from shrinking */
+            flex-shrink: 0;
         }
 
         .navbar-container {
@@ -98,7 +117,7 @@
             font-size: 24px;
             font-weight: 800;
             color: var(--accent-green);
-            white-space: nowrap; /* Prevent logo from wrapping */
+            white-space: nowrap;
         }
 
         .nav-menu {
@@ -143,7 +162,7 @@
             align-items: center;
             gap: 5px;
             transition: background-color 0.2s;
-            white-space: nowrap; /* Prevent language selector text from wrapping */
+            white-space: nowrap;
         }
          .language-selector:hover {
             background-color: var(--border-dark);
@@ -203,15 +222,27 @@
 
         /* --- HERO SECTION --- */
         .hero {
-            background-image: url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=207');
-            background-size: cover;
-            background-position: center;
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
             position: relative;
             flex-grow: 1;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=207');
+            background-size: cover;
+            background-position: center;
+            z-index: 1;
+            animation: hero-flow 20s infinite alternate ease-in-out;
         }
 
         .hero-overlay {
@@ -225,12 +256,13 @@
             align-items: center;
             justify-content: center;
             transition: background-color 0.3s ease;
+            z-index: 2;
         }
 
         .hero-content {
             max-width: 800px;
             position: relative;
-            z-index: 2;
+            z-index: 3;
             padding: 0 20px;
             perspective: 1000px;
         }
@@ -241,7 +273,10 @@
             color: var(--text-white);
             margin: 10px 0 20px 0;
             line-height: 1.15;
-            animation: fadeInUp3D 1s ease-out 0.3s backwards;
+            /* MODIFICATION: Layered the new content-flow animation */
+            animation: 
+                fadeInUp3D 1s ease-out 0.3s backwards,
+                content-flow 4s ease-in-out 1.3s infinite alternate;
         }
 
         .hero-description {
@@ -249,7 +284,10 @@
             max-width: 700px;
             margin: 0 auto 30px auto;
             line-height: 1.6;
-            animation: fadeInUp3D 1s ease-out 0.6s backwards;
+            /* MODIFICATION: Layered the new content-flow animation */
+            animation: 
+                fadeInUp3D 1s ease-out 0.6s backwards,
+                content-flow 4s ease-in-out 1.6s infinite alternate;
         }
 
         /* --- PROFILE PANEL --- */
@@ -354,7 +392,7 @@
 
         /* --- MOBILE NAVIGATION --- */
         .hamburger-menu {
-            display: none; /* Hidden by default */
+            display: none;
             background: none;
             border: none;
             color: var(--text-primary-dark);
@@ -371,24 +409,24 @@
 
         .mobile-nav-dropdown {
             display: none;
-            position: fixed; /* Changed to fixed to cover entire screen */
-            top: 0; /* Align to top */
+            position: fixed;
+            top: 0;
             left: 0;
             width: 100%;
-            height: 100%; /* Make it full height */
+            height: 100%;
             background-color: var(--bg-medium);
             border-top: 1px solid var(--border-dark);
             padding: 10px 0;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-            z-index: 999; /* Ensure it's below profile panel but above other content */
-            overflow-y: auto; /* Allow scrolling if content overflows */
-            transform: translateX(100%); /* Start off-screen */
+            z-index: 999;
+            overflow-y: auto;
+            transform: translateX(100%);
             transition: transform 0.3s ease-in-out;
         }
 
         .mobile-nav-dropdown.show {
             display: block;
-            transform: translateX(0); /* Slide in */
+            transform: translateX(0);
         }
 
         .mobile-nav-dropdown .nav-menu {
@@ -410,7 +448,6 @@
             border-bottom: none;
         }
 
-        /* Style for divider in mobile nav */
         .mobile-nav-divider {
             height: 1px;
             width: 100%;
@@ -478,7 +515,6 @@
             border-color: var(--border-light);
         }
         
-        /* Light theme for mobile divider */
         body.light-mode .mobile-nav-divider {
             background-color: var(--border-light);
         }
@@ -486,10 +522,10 @@
         /* --- MEDIA QUERIES FOR RESPONSIVENESS --- */
         @media (max-width: 992px) {
             .navbar-container .nav-menu {
-                display: none; /* Hide desktop nav links */
+                display: none;
             }
             .hamburger-menu {
-                display: flex; /* Show hamburger icon */
+                display: flex;
                 align-items: center;
                 justify-content: center;
             }
@@ -497,12 +533,10 @@
                 font-size: 42px;
             }
             
-            /* Make hero section fill the remaining screen height on mobile */
             .hero {
-                min-height: calc(100vh - var(--navbar-height, 61px)); /* Use CSS variable for navbar height */
+                min-height: calc(100vh - var(--navbar-height, 61px));
             }
             
-            /* Hide desktop language dropdown on mobile */
             .language-dropdown {
                 display: none;
             }
@@ -557,6 +591,7 @@
                 <a href="community.html" data-lang-key="nav_community"><i class="fa-solid fa-users"></i> Farmer Community</a>
                 
                 <div class="mobile-nav-divider"></div>
+                
                 <a href="#" class="lang-link" data-lang="en"><i class="fa-solid fa-globe"></i> English</a>
                 <a href="#" class="lang-link" data-lang="ta"><i class="fa-solid fa-globe"></i> தமிழ் (Tamil)</a>
                 <a href="#" class="lang-link" data-lang="ml"><i class="fa-solid fa-globe"></i> മലയാളം (Malayalam)</a>
@@ -610,15 +645,12 @@
             const closePanelBtn = document.getElementById('close-panel-btn');
             const navbar = document.querySelector('.navbar');
 
-            // Set a CSS variable for navbar height for use in hero section calculation
             const setNavbarHeightVar = () => {
                 document.documentElement.style.setProperty('--navbar-height', `${navbar.offsetHeight}px`);
             };
             setNavbarHeightVar();
             window.addEventListener('resize', setNavbarHeightVar);
 
-
-            // --- AUTHENTICATION & DATA LOADING ---
             const token = localStorage.getItem('token');
             if (token) {
                 fetchProfileData(token);
@@ -650,7 +682,6 @@
                 }
             }
 
-            // --- LANGUAGE FUNCTIONALITY ---
             const languageData = {
                 en: {
                     logo_text: "FarmWise", nav_chatbot: "Krishi Sahayi Bot", nav_crop_disease: "Crop Disease Diagnosis", nav_weather: "Weather Prediction", nav_community: "Farmer Community",
@@ -681,19 +712,16 @@
                     if (languageData[lang]?.[key]) {
                         const icon = element.querySelector('i');
                         const text = languageData[lang][key];
-                        // Ensure icon is placed before text, especially for languages with different text directions
                         element.innerHTML = icon ? `${icon.outerHTML} <span class="lang-text">${text}</span>` : text;
                     }
                 });
 
-                // Update desktop language selector
                 const selectedLangElement = document.querySelector(`.dropdown-content a[data-lang="${lang}"]`);
                 if (selectedLangElement) {
                     const selectedLangText = selectedLangElement.textContent;
                     languageSelectorBtn.innerHTML = `${selectedLangText.split(' ')[0]} <i class="fa-solid fa-angle-down"></i>`;
                 }
                 
-                // Update mobile language links (optional, for visual feedback)
                 document.querySelectorAll('.mobile-nav-dropdown .lang-link').forEach(link => {
                     link.classList.toggle('active-lang', link.getAttribute('data-lang') === lang);
                 });
@@ -701,7 +729,6 @@
                 localStorage.setItem('language', lang);
             };
 
-            // --- THEME TOGGLE FUNCTIONALITY ---
             const applyTheme = (theme) => {
                 const themeIcon = themeToggleBtn.querySelector('i');
                 body.classList.toggle('light-mode', theme === 'light');
@@ -717,11 +744,9 @@
                 applyTheme(newTheme);
             });
 
-            // --- PROFILE PANEL & LOGOUT ---
             const toggleProfilePanel = () => {
                 profileOverlay.classList.toggle('show');
                 sideProfilePanel.classList.toggle('show');
-                // Close mobile nav if open
                 mobileNavDropdown.classList.remove('show');
             };
 
@@ -734,13 +759,10 @@
                 window.location.href = 'login.html';
             });
 
-            // --- MOBILE NAV & DROPDOWNS ---
             hamburgerBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 mobileNavDropdown.classList.toggle('show');
-                // Close desktop language dropdown if open
                 dropdownContent.classList.remove('show');
-                // Close profile panel if open
                 profileOverlay.classList.remove('show');
                 sideProfilePanel.classList.remove('show');
             });
@@ -748,7 +770,6 @@
             languageSelectorBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 dropdownContent.classList.toggle('show');
-                // Close mobile nav if open
                 mobileNavDropdown.classList.remove('show');
             });
             
@@ -760,33 +781,28 @@
                 }
             });
 
-            // Event listener for language links in mobile nav
             mobileNavDropdown.addEventListener('click', (event) => {
                 const langLink = event.target.closest('.lang-link');
                 if (langLink) {
                     event.preventDefault();
                     setLanguage(langLink.getAttribute('data-lang'));
-                    mobileNavDropdown.classList.remove('show'); // Hide menu after selection
+                    mobileNavDropdown.classList.remove('show');
                 }
             });
 
             window.addEventListener('click', (e) => {
-                // Close desktop language dropdown
                 if (languageDropdown && !languageDropdown.contains(e.target)) {
                     dropdownContent.classList.remove('show');
                 }
-                // Close mobile nav
                 if (mobileNavDropdown.classList.contains('show') && !hamburgerBtn.contains(e.target) && !mobileNavDropdown.contains(e.target)) {
                     mobileNavDropdown.classList.remove('show');
                 }
-                // Close profile panel
                 if (profileOverlay.classList.contains('show') && !sideProfilePanel.contains(e.target) && e.target !== profileBtn) {
                      profileOverlay.classList.remove('show');
                      sideProfilePanel.classList.remove('show');
                 }
             });
 
-            // --- INITIALIZATION ---
             const savedTheme = localStorage.getItem('theme') || 'dark';
             applyTheme(savedTheme);
 
