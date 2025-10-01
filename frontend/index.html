@@ -31,9 +31,8 @@
             --text-secondary-light: #586069;
         }
 
-        html, body {
-            margin: 0;
-            height: 100%;
+        html {
+             height: 100%;
         }
 
         body {
@@ -44,11 +43,23 @@
             line-height: 1.5;
             transition: background-color 0.3s ease, color 0.3s ease;
             overflow-x: hidden;
+            margin: 0;
+            /* MODIFICATION 1: Make body a flex container */
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
         }
 
         a {
             text-decoration: none;
             color: inherit;
+        }
+        
+        /* MODIFICATION 2: Make the main content area fill remaining space */
+        main {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
         }
 
         /* --- Animation Keyframes --- */
@@ -73,6 +84,7 @@
             z-index: 1000;
             transition: background-color 0.3s ease, border-color 0.3s ease;
             position: relative;
+            flex-shrink: 0; /* Prevents navbar from shrinking */
         }
 
         .navbar-container {
@@ -194,12 +206,13 @@
             background-image: url('https://images.unsplash.com/photo-1625246333195-78d9c38ad449?q=80&w=2070');
             background-size: cover;
             background-position: center;
-            height: calc(100vh - 69px); /* Adjusted for navbar height */
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
             position: relative;
+            /* MODIFICATION 3: Remove fixed height, let it grow */
+            flex-grow: 1;
         }
 
         .hero-overlay {
@@ -480,7 +493,6 @@
 <body>
     <script>
         // AUTH GUARD: Redirects to login if token is missing.
-        // This must run before the rest of the page loads.
         if (!localStorage.getItem('token')) {
             window.location.href = 'login.html';
         }
@@ -627,7 +639,6 @@
                     if (languageData[lang]?.[key]) {
                         const icon = element.querySelector('i');
                         const text = languageData[lang][key];
-                        // Preserve icon if it exists
                         element.innerHTML = icon ? `${icon.outerHTML} ${text}` : text;
                     }
                 });
@@ -663,7 +674,7 @@
             profileOverlay.addEventListener('click', toggleProfilePanel);
 
             logoutBtn.addEventListener('click', () => {
-                localStorage.clear(); // Clears token, theme, and language
+                localStorage.clear();
                 window.location.href = 'login.html';
             });
 
@@ -686,7 +697,6 @@
                 }
             });
 
-            // Close dropdowns if clicked outside
             window.addEventListener('click', (e) => {
                 if (!languageDropdown.contains(e.target)) {
                     dropdownContent.classList.remove('show');
@@ -697,10 +707,10 @@
             });
 
             // --- INITIALIZATION ---
-            const savedTheme = localStorage.getItem('theme') || 'dark'; // Default to dark
+            const savedTheme = localStorage.getItem('theme') || 'dark';
             applyTheme(savedTheme);
 
-            const savedLang = localStorage.getItem('language') || 'en'; // Default to English
+            const savedLang = localStorage.getItem('language') || 'en';
             setLanguage(savedLang);
         });
     </script>
