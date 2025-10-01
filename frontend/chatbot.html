@@ -207,6 +207,7 @@
             z-index: 100;
             transition: background-color 0.3s ease, border-color 0.3s ease;
             position: relative;
+            flex-shrink: 0;
         }
 
         .navbar-container {
@@ -314,6 +315,16 @@
         }
         .mobile-nav-dropdown .nav-menu a:last-child { border-bottom: none; }
 
+        .mobile-menu-separator {
+            width: 100%;
+            padding: 15px 0 5px 0;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+        }
+
         .chat-main {
             flex-grow: 1;
             overflow-y: auto;
@@ -393,6 +404,7 @@
             padding: 15px 20px;
             border-top: 1px solid var(--border-color);
             z-index: 10;
+            flex-shrink: 0;
         }
 
         .chat-input-container {
@@ -524,6 +536,11 @@
                     <a href="plant.html" data-lang-key="nav_crop_disease"><i class="fa-solid fa-leaf"></i> Crop Disease Diagnosis</a>
                     <a href="weather.html" data-lang-key="nav_weather"><i class="fa-solid fa-cloud-sun"></i> Weather Prediction</a>
                     <a href="community.html" data-lang-key="nav_community"><i class="fa-solid fa-users"></i> Farmer Community</a>
+                    
+                    <div class="mobile-menu-separator" data-lang-key="language_separator">Language</div>
+                    <a href="#" class="lang-link-mobile" data-lang="en">English</a>
+                    <a href="#" class="lang-link-mobile" data-lang="ta">தமிழ் (Tamil)</a>
+                    <a href="#" class="lang-link-mobile" data-lang="ml">മലയാളം (Malayalam)</a>
                 </nav>
             </div>
         </header>
@@ -546,7 +563,7 @@
                     </div>
                     <button type="button" class="icon-btn mic-btn" id="mic-btn" title="Voice Input"><i class="fa-solid fa-microphone"></i></button>
                     <button type="submit" class="send-btn" id="send-btn" title="Send Message">
-                        <svg width="24" height="24" viewBox="0 0 24" fill="white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
                     </button>
                 </form>
             </div>
@@ -591,7 +608,7 @@
                 const token = localStorage.getItem('token');
                 if (!token) {
                     alert('You are not logged in. Redirecting to login page.');
-                    // window.location.href = 'login.html';
+                    // window.location.href = 'login.html'; // Uncomment to enforce login
                     return;
                 }
                 const headers = { ...(options.headers || {}), 'x-auth-token': token };
@@ -602,7 +619,7 @@
                 if (response.status === 401) {
                     localStorage.removeItem('token');
                     alert('Your session has expired. Please log in again.');
-                    // window.location.href = 'login.html';
+                    // window.location.href = 'login.html'; // Uncomment to enforce login
                     throw new Error('Session expired');
                 }
                 return response;
@@ -612,19 +629,19 @@
                 e.preventDefault();
                 localStorage.clear();
                 alert('You have been logged out.');
-                // window.location.href = 'login.html';
+                // window.location.href = 'login.html'; // Uncomment to redirect
             });
 
             // --- Internationalization (i18n) ---
             const languageData = {
                 en: {
-                    logo_text: "FarmWise", nav_home: "Home", nav_chatbot: "Krishi Sahayi Bot", nav_crop_disease: "Crop Disease Diagnosis", nav_weather: "Weather Prediction", nav_community: "Farmer Community", new_chat: "New Chat", recent_chats: "Recent Chats", logout: "Logout"
+                    logo_text: "FarmWise", nav_home: "Home", nav_chatbot: "Krishi Sahayi Bot", nav_crop_disease: "Crop Disease Diagnosis", nav_weather: "Weather Prediction", nav_community: "Farmer Community", new_chat: "New Chat", recent_chats: "Recent Chats", logout: "Logout", language_separator: "Language"
                 },
                 ta: {
-                    logo_text: "பார்ம்வைஸ்", nav_home: "முகப்பு", nav_chatbot: "கிருஷி சஹாயி பாட்", nav_crop_disease: "பயிர் நோய் கண்டறிதல்", nav_weather: "வானிலை முன்னறிவிப்பு", nav_community: "விவசாயிகள் சமூகம்", new_chat: "புதிய அரட்டை", recent_chats: "சமீபத்திய அரட்டைகள்", logout: "வெளியேறு"
+                    logo_text: "பார்ம்வைஸ்", nav_home: "முகப்பு", nav_chatbot: "கிருஷி சஹாயி பாட்", nav_crop_disease: "பயிர் நோய் கண்டறிதல்", nav_weather: "வானிலை முன்னறிவிப்பு", nav_community: "விவசாயிகள் சமூகம்", new_chat: "புதிய அரட்டை", recent_chats: "சமீபத்திய அரட்டைகள்", logout: "வெளியேறு", language_separator: "மொழி"
                 },
                 ml: {
-                    logo_text: "ഫാംവൈസ്", nav_home: "ഹോം", nav_chatbot: "കൃഷി സഹായി ബോട്ട്", nav_crop_disease: "വിള രോഗനിർണയം", nav_weather: "കാലാവസ്ഥാ പ്രവചനം", nav_community: "കർഷക സമൂഹം", new_chat: "പുതിയ ചാറ്റ്", recent_chats: "സമീപകാല ചാറ്റുകൾ", logout: "ലോഗൗട്ട്"
+                    logo_text: "ഫാംവൈസ്", nav_home: "ഹോം", nav_chatbot: "കൃഷി സഹായി ബോട്ട്", nav_crop_disease: "വിള രോഗനിർണയം", nav_weather: "കാലാവസ്ഥാ പ്രവചനം", nav_community: "കർഷക സമൂഹം", new_chat: "പുതിയ ചാറ്റ്", recent_chats: "സമീപകാല ചാറ്റുകൾ", logout: "ലോഗൗട്ട്", language_separator: "ഭാഷ"
                 }
             };
 
@@ -852,10 +869,6 @@
                     }
                     const data = await response.json();
                     
-                    // --- NEW DEBUGGING LINE ADDED ---
-                    console.log("Server Response:", data);
-                    // --- END OF NEW LINE ---
-
                     if (data.reply && data.reply.trim() !== '') {
                         streamBotResponse(data.reply);
                     } else {
@@ -865,8 +878,8 @@
                     if (!currentChatId && data.newChatId) {
                         currentChatId = data.newChatId;
                         await fetchRecentChats();
-                         const activeLi = document.querySelector(`#recent-chats-list .delete-chat-btn[data-chat-id="${currentChatId}"]`);
-                         if(activeLi) activeLi.closest('li').classList.add('active');
+                          const activeLi = document.querySelector(`#recent-chats-list .delete-chat-btn[data-chat-id="${currentChatId}"]`);
+                          if(activeLi) activeLi.closest('li').classList.add('active');
                     }
                 } catch (error) {
                     if (error.message !== 'Session expired') addMessageToUI('bot', { text: `Sorry, an error occurred: ${error.message}` });
@@ -913,6 +926,16 @@
                     event.preventDefault();
                     setLanguage(event.target.getAttribute('data-lang'));
                     dropdownContent.classList.remove('show');
+                }
+            });
+
+            // Handle language selection from the new mobile menu links
+            mobileNavDropdown.addEventListener('click', (event) => {
+                const target = event.target.closest('a');
+                if (target && target.matches('.lang-link-mobile')) {
+                    event.preventDefault();
+                    setLanguage(target.getAttribute('data-lang'));
+                    mobileNavDropdown.classList.remove('show');
                 }
             });
             
