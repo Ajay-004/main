@@ -80,8 +80,7 @@
                 transform: scale(1.05);
             }
         }
-
-        /* MODIFICATION: Added keyframe for content floating effect */
+        
         @keyframes content-flow {
             from {
                 transform: translateY(-5px);
@@ -273,7 +272,6 @@
             color: var(--text-white);
             margin: 10px 0 20px 0;
             line-height: 1.15;
-            /* MODIFICATION: Layered the new content-flow animation */
             animation: 
                 fadeInUp3D 1s ease-out 0.3s backwards,
                 content-flow 4s ease-in-out 1.3s infinite alternate;
@@ -284,7 +282,6 @@
             max-width: 700px;
             margin: 0 auto 30px auto;
             line-height: 1.6;
-            /* MODIFICATION: Layered the new content-flow animation */
             animation: 
                 fadeInUp3D 1s ease-out 0.6s backwards,
                 content-flow 4s ease-in-out 1.6s infinite alternate;
@@ -443,6 +440,16 @@
             font-weight: 500;
             border-bottom: 1px solid var(--border-dark);
         }
+        
+        /* MODIFICATION: Style for the mobile logout button */
+        #mobile-logout-btn {
+            color: var(--danger-red);
+            font-weight: 500;
+        }
+        #mobile-logout-btn:hover {
+            background-color: rgba(231, 76, 60, 0.1);
+            color: var(--danger-red);
+        }
 
         .mobile-nav-dropdown .nav-menu a:last-child {
             border-bottom: none;
@@ -595,6 +602,9 @@
                 <a href="#" class="lang-link" data-lang="en"><i class="fa-solid fa-globe"></i> English</a>
                 <a href="#" class="lang-link" data-lang="ta"><i class="fa-solid fa-globe"></i> தமிழ் (Tamil)</a>
                 <a href="#" class="lang-link" data-lang="ml"><i class="fa-solid fa-globe"></i> മലയാളം (Malayalam)</a>
+                
+                <div class="mobile-nav-divider"></div>
+                <a href="#" id="mobile-logout-btn" data-lang-key="nav_logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
             </nav>
         </div>
     </header>
@@ -635,6 +645,7 @@
             const themeToggleBtn = document.getElementById('theme-toggle');
             const profileBtn = document.getElementById('profile-btn');
             const logoutBtn = document.getElementById('logout-btn');
+            const mobileLogoutBtn = document.getElementById('mobile-logout-btn'); // MODIFICATION: Get mobile logout button
             const languageDropdown = document.querySelector('.language-dropdown');
             const languageSelectorBtn = document.querySelector('.language-selector');
             const dropdownContent = document.querySelector('.dropdown-content');
@@ -688,21 +699,21 @@
                     hero_title: "AI-Powered Guidance for Every Farmer", hero_description: "Get real-time weather updates, chat with our AI assistant, and manage your profile.",
                     profile_title: "My Profile", profile_label_username: "Username",
                     profile_label_email: "Email Address", profile_label_phone: "Phone Number", profile_label_state: "State",
-                    logout_button: "Logout"
+                    logout_button: "Logout", nav_logout: "Logout" // MODIFICATION: Added key
                 },
                 ta: {
                     logo_text: "பார்ம்வைஸ்", nav_chatbot: "கிருஷி சஹாயி பாட்", nav_crop_disease: "பயிர் நோய் கண்டறிதல்", nav_weather: "வானிலை முன்னறிவிப்பு", nav_community: "விவசாயிகள் சமூகம்",
                     hero_title: "ஒவ்வொரு விவசாயிக்கும் AI-இயங்கும் வழிகாட்டுதல்", hero_description: "நிகழ்நேர வானிலை அறிவிப்புகளைப் பெறுங்கள், எங்கள் AI உதவியாளருடன் அரட்டையடிக்கவும், உங்கள் சுயவிவரத்தை நிர்வகிக்கவும்.",
                     profile_title: "என் சுயவிவரம்", profile_label_username: "பயனர்பெயர்",
                     profile_label_email: "மின்னஞ்சல் முகவரி", profile_label_phone: "தொலைபேசி எண்", profile_label_state: "மாநிலம்",
-                    logout_button: "வெளியேறு"
+                    logout_button: "வெளியேறு", nav_logout: "வெளியேறு" // MODIFICATION: Added key
                 },
                 ml: {
                     logo_text: "ഫാംവൈസ്", nav_chatbot: "കൃഷി സഹായി ബോട്ട്", nav_crop_disease: "വിള രോഗനിർണയം", nav_weather: "കാലാവസ്ഥാ പ്രവചനം", nav_community: "കർഷക സമൂഹം",
                     hero_title: "ഓരോ കർഷകനും AI പിന്തുണയുള്ള മാർഗ്ഗനിർദ്ദേശം", hero_description: "തത്സമയ കാലാവസ്ഥാ അപ്‌ഡേറ്റുകൾ നേടുക, ഞങ്ങളുടെ AI അസിസ്റ്റന്റുമായി ചാറ്റ് ചെയ്യുക, നിങ്ങളുടെ പ്രൊഫൈൽ നിയന്ത്രിക്കുക.",
                     profile_title: "എന്റെ പ്രൊഫൈൽ", profile_label_username: "ഉപയോക്തൃനാമം",
                     profile_label_email: "ഇമെയിൽ വിലാസം", profile_label_phone: "ഫോൺ നമ്പർ", profile_label_state: "സംസ്ഥാനം",
-                    logout_button: "ലോഗൗട്ട്"
+                    logout_button: "ലോഗൗട്ട്", nav_logout: "ലോഗൗട്ട്" // MODIFICATION: Added key
                 }
             };
 
@@ -744,6 +755,19 @@
                 applyTheme(newTheme);
             });
 
+            // MODIFICATION: Reusable logout function and event listeners
+            const logoutUser = () => {
+                localStorage.clear();
+                window.location.href = 'login.html';
+            };
+
+            logoutBtn.addEventListener('click', logoutUser);
+
+            mobileLogoutBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                logoutUser();
+            });
+
             const toggleProfilePanel = () => {
                 profileOverlay.classList.toggle('show');
                 sideProfilePanel.classList.toggle('show');
@@ -753,11 +777,6 @@
             profileBtn.addEventListener('click', toggleProfilePanel);
             closePanelBtn.addEventListener('click', toggleProfilePanel);
             profileOverlay.addEventListener('click', toggleProfilePanel);
-
-            logoutBtn.addEventListener('click', () => {
-                localStorage.clear();
-                window.location.href = 'login.html';
-            });
 
             hamburgerBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
@@ -797,7 +816,7 @@
                 if (mobileNavDropdown.classList.contains('show') && !hamburgerBtn.contains(e.target) && !mobileNavDropdown.contains(e.target)) {
                     mobileNavDropdown.classList.remove('show');
                 }
-                if (profileOverlay.classList.contains('show') && !sideProfilePanel.contains(e.target) && e.target !== profileBtn) {
+                if (profileOverlay.classList.contains('show') && !sideProfilePanel.contains(e.target) && !profileBtn.contains(e.target)) {
                      profileOverlay.classList.remove('show');
                      sideProfilePanel.classList.remove('show');
                 }
