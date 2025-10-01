@@ -665,11 +665,15 @@
                 const contentDiv = document.createElement('div');
                 contentDiv.className = 'message-content';
 
-                if (text && text.trim() !== '') {
+                // THIS IS THE CORRECTED LINE:
+                // It now creates a <p> tag if `text` is not null or undefined,
+                // which includes empty strings (''), allowing the stream to work.
+                if (text != null) {
                     const p = document.createElement('p');
                     p.textContent = text;
                     contentDiv.appendChild(p);
                 }
+                
                 if (imageUrl) {
                     const img = document.createElement('img');
                     img.src = imageUrl;
@@ -695,7 +699,7 @@
                 const messageBubble = addMessageToUI('bot', { text: '' });
                 const p = messageBubble.querySelector('p');
                 const contentDiv = messageBubble.querySelector('.message-content');
-                if (!p) return;
+                if (!p || !contentDiv) return;
 
                 const words = fullText.split(/(\s+)/);
                 let wordIndex = 0;
@@ -768,7 +772,7 @@
                     messageContainer.innerHTML = ''; // Clear "Loading..." message
                     history.forEach(msg => {
                         const sender = msg.role === 'model' ? 'bot' : 'user';
-                        addMessageToUI(sender, { text: msg.content });
+                        addMessageToUI(sender, { text: msg.content }); // Assuming API returns {role, content}
                     });
                      if (window.innerWidth <= 768) body.classList.remove('sidebar-open');
                 } catch (error) {
@@ -837,17 +841,16 @@
 
                 try {
                     const apiUrl = `${API_BASE_URL}/api/chat`;
-                    let response;
                     const formData = new FormData();
                     formData.append('message', messageForApi);
                     formData.append('language', currentLanguage);
                     if (tempSelectedFile) formData.append('image', tempSelectedFile);
                     if (currentChatId) formData.append('chatId', currentChatId);
 
-                    response = await fetchWithAuth(apiUrl, { method: 'POST', body: formData });
+                    const response = await fetchWithAuth(apiUrl, { method: 'POST', body: formData });
                     
                     if (!response || !response.ok) {
-                        const errorData = await response.json();
+                        const errorData = response ? await response.json() : { message: 'Empty response from server.' };
                         throw new Error(errorData.message || 'Server returned an error.');
                     }
                     const data = await response.json();
