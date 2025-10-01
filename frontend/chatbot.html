@@ -418,10 +418,10 @@
         .chat-input-form {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 5px; 
             background-color: var(--input-bg);
             border-radius: 28px;
-            padding: 5px 10px;
+            padding: 5px;
             border: 1px solid var(--border-color);
         }
         .chat-input-form:focus-within {
@@ -430,11 +430,12 @@
 
         .input-wrapper {
             flex-grow: 1;
+            padding: 0 10px;
         }
         .input-wrapper input {
             width: 100%; border: none; outline: none;
             font-size: 1rem; color: var(--text-primary);
-            background: none; padding: 10px;
+            background: none; padding: 10px 0;
         }
 
         .send-btn {
@@ -545,7 +546,7 @@
                     </div>
                     <button type="button" class="icon-btn mic-btn" id="mic-btn" title="Voice Input"><i class="fa-solid fa-microphone"></i></button>
                     <button type="submit" class="send-btn" id="send-btn" title="Send Message">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
+                        <svg width="24" height="24" viewBox="0 0 24" fill="white"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
                     </button>
                 </form>
             </div>
@@ -590,19 +591,18 @@
                 const token = localStorage.getItem('token');
                 if (!token) {
                     alert('You are not logged in. Redirecting to login page.');
-                    // window.location.href = 'login.html'; // Uncomment when login page is ready
+                    // window.location.href = 'login.html';
                     return;
                 }
                 const headers = { ...(options.headers || {}), 'x-auth-token': token };
                 if (options.body instanceof FormData) {
-                    // Let the browser set the Content-Type for FormData
                     delete headers['Content-Type'];
                 }
                 const response = await fetch(url, { ...options, headers });
                 if (response.status === 401) {
                     localStorage.removeItem('token');
                     alert('Your session has expired. Please log in again.');
-                    // window.location.href = 'login.html'; // Uncomment when login page is ready
+                    // window.location.href = 'login.html';
                     throw new Error('Session expired');
                 }
                 return response;
@@ -612,7 +612,7 @@
                 e.preventDefault();
                 localStorage.clear();
                 alert('You have been logged out.');
-                // window.location.href = 'login.html'; // Uncomment when login page is ready
+                // window.location.href = 'login.html';
             });
 
             // --- Internationalization (i18n) ---
@@ -665,9 +665,6 @@
                 const contentDiv = document.createElement('div');
                 contentDiv.className = 'message-content';
 
-                // THIS IS THE CORRECTED LINE:
-                // It now creates a <p> tag if `text` is not null or undefined,
-                // which includes empty strings (''), allowing the stream to work.
                 if (text != null) {
                     const p = document.createElement('p');
                     p.textContent = text;
@@ -769,10 +766,10 @@
                     const response = await fetchWithAuth(`${API_BASE_URL}/api/chat/${chatId}`);
                     if (!response || !response.ok) throw new Error('Could not fetch history.');
                     const history = await response.json();
-                    messageContainer.innerHTML = ''; // Clear "Loading..." message
+                    messageContainer.innerHTML = ''; 
                     history.forEach(msg => {
                         const sender = msg.role === 'model' ? 'bot' : 'user';
-                        addMessageToUI(sender, { text: msg.content }); // Assuming API returns {role, content}
+                        addMessageToUI(sender, { text: msg.content });
                     });
                      if (window.innerWidth <= 768) body.classList.remove('sidebar-open');
                 } catch (error) {
@@ -854,7 +851,16 @@
                         throw new Error(errorData.message || 'Server returned an error.');
                     }
                     const data = await response.json();
-                    streamBotResponse(data.reply);
+                    
+                    // --- NEW DEBUGGING LINE ADDED ---
+                    console.log("Server Response:", data);
+                    // --- END OF NEW LINE ---
+
+                    if (data.reply && data.reply.trim() !== '') {
+                        streamBotResponse(data.reply);
+                    } else {
+                        addMessageToUI('bot', { text: "I'm sorry, I couldn't generate a response. Please try again." });
+                    }
 
                     if (!currentChatId && data.newChatId) {
                         currentChatId = data.newChatId;
