@@ -178,7 +178,10 @@ router.post('/chat', authMiddleware, upload.single('image'), async (req, res) =>
 // =============== CHAT HISTORY ROUTES ===============
 router.get('/chats', authMiddleware, async (req, res) => {
     try {
-        const chats = await Chat.find({ userId: req.user.id }).sort({ updatedAt: -1 });
+        // --- FIX: Added .select() to only fetch necessary data ---
+        const chats = await Chat.find({ userId: req.user.id })
+            .select('title createdAt updatedAt') // Only get the title and dates
+            .sort({ updatedAt: -1 }); // Sort by most recently updated
         res.json(chats);
     } catch (err) {
         console.error("Fetch Chats Error:", err.message);
@@ -188,11 +191,13 @@ router.get('/chats', authMiddleware, async (req, res) => {
 
 router.get('/chat/:chatId', authMiddleware, async (req, res) => {
     try {
+        // This is correct: it fetches the full chat object (title, history, etc.)
+        // for the chat the user clicked on.
         const chat = await Chat.findOne({ _id: req.params.chatId, userId: req.user.id });
         if (!chat) {
             return res.status(404).json({ message: 'Chat not found.' });
         }
-        res.json(chat);
+        res.json(chat); // Send the full chat object
     } catch (err) {
         console.error("Fetch Chat Error:", err.message);
         res.status(500).json({ message: 'Server error fetching chat.' });
@@ -213,10 +218,19 @@ router.delete('/chat/:chatId', authMiddleware, async (req, res) => {
 });
 
 // =============== WEATHER ROUTE WITH GEMINI AI ===============
+
+// --- BUG FIX: Added a second item to hourly/daily arrays ---
+// This teaches the AI to return a list, not a single object.
 const getForecastJsonStructure = () => ({
     current: { temp: 29.5, feels_like: 32.1, humidity: 78, wind_speed: 5.1, weather: [{ description: "scattered clouds", icon: "03d", main: "Clouds" }] },
-    hourly: [ { dt: 1664191200, temp: 28.5, weather: [{ icon: "04n", main: "Clouds" }] } ],
-    daily: [ { dt: 1664166600, temp: { min: 24.5, max: 32.8 }, weather: [{ icon: "03d", main: "Clouds" }] } ]
+    hourly: [ 
+        { dt: 1664191200, temp: 28.5, weather: [{ icon: "04n", main: "Clouds" }] },
+        { dt: 1664194800, temp: 28.2, weather: [{ icon: "04n", main: "Clouds" }] } // Added second item
+    ],
+    daily: [ 
+        { dt: 1664166600, temp: { min: 24.5, max: 32.8 }, weather: [{ icon: "03d", main: "Clouds" }] },
+        { dt: 1664253000, temp: { min: 24.1, max: 32.1 }, weather: [{ icon: "10d", main: "Rain" }] } // Added second item
+    ]
 });
 
 router.get('/weather/forecast', authMiddleware, async (req, res) => {
@@ -237,6 +251,8 @@ router.get('/weather/forecast', authMiddleware, async (req, res) => {
             - 'dt' (timestamp) fields should be correct for the current date and time.
             - 'icon' codes must be valid OpenWeatherMap icon codes (e.g., "01d", "04n", "10d").
             - 'wind_speed' should be in m/s (metric units).
+            - The 'hourly' array must contain exactly 12 items.
+            - The 'daily' array must contain exactly 7 items.
         `;
         
         // 3. Call the Gemini model
