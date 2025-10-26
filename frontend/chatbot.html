@@ -693,9 +693,16 @@
 
             const streamBotResponse = (fullText) => {
                 const messageBubble = addMessageToUI('bot', { text: '' });
-                const p = messageBubble.querySelector('p');
+                let p = messageBubble.querySelector('p');
                 const contentDiv = messageBubble.querySelector('.message-content');
-                if (!p) return;
+                
+                // --- FIX START ---
+                // If the <p> tag doesn't exist (because text was empty), create it.
+                if (!p) {
+                   p = document.createElement('p');
+                   contentDiv.appendChild(p);
+                }
+                // --- FIX END ---
 
                 const words = fullText.split(/(\s+)/);
                 let wordIndex = 0;
