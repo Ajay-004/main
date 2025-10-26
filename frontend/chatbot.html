@@ -481,6 +481,29 @@
             gap: 20px; /* Space between messages */
             padding-bottom: 20px; /* Space at the bottom */
         }
+        
+        /* Avatar styles (Added from your addMessageToUI logic) */
+        .avatar {
+            width: 30px;
+            height: 30px;
+            background-color: var(--input-bg);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+        .user-message .avatar {
+             background-color: var(--user-bubble-bg);
+             color: var(--text-primary);
+        }
+        html.dark-mode .user-message .avatar {
+             background-color: var(--user-bubble-bg);
+             color: #e0e0e0;
+        }
+
 
         /* Individual Message Styles */
         .message {
@@ -1017,6 +1040,7 @@
             messageDiv.classList.add('message', `${sender}-message`);
 
             const avatarIcon = sender === 'user' ? 'fa-user' : 'fa-robot';
+            // Use avatar class for styling
             messageDiv.innerHTML = `<div class="avatar"><i class="fa-solid ${avatarIcon}"></i></div>`;
 
             const messageBubble = document.createElement('div');
@@ -1045,8 +1069,19 @@
             // Only append contentDiv if it has children (text or image)
             if (contentDiv.hasChildNodes()) {
                 messageBubble.appendChild(contentDiv);
+                
+                // Add speaker button *only* for bot messages with text
+                if (sender === 'bot' && text != null && text.trim() !== '') {
+                    const speakerBtn = document.createElement('button');
+                    speakerBtn.className = 'speaker-btn';
+                    speakerBtn.title = 'Read aloud';
+                    speakerBtn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
+                    messageBubble.appendChild(speakerBtn); // Append to bubble
+                }
+
                 messageDiv.appendChild(messageBubble);
                 messageContainer.appendChild(messageDiv);
+                
                 // Scroll to bottom smoothly
                 chatMain.scrollTo({ top: chatMain.scrollHeight, behavior: 'smooth' });
             }
@@ -1054,16 +1089,41 @@
             return messageBubble; // Return the bubble for streaming
         };
 
+        // --- THIS IS THE WORD-BY-WORD FUNCTION ---
         const streamBotResponse = (fullText) => {
             // Ensure we only add non-empty responses
             if (!fullText || fullText.trim() === '') return;
 
-            const messageBubble = addMessageToUI('bot', { text: '' }); // Create bubble with empty text
-            if (!messageBubble) return; // In case addMessageToUI returned null
-            
-            const contentDiv = messageBubble.querySelector('.message-content');
+            // --- MANUALLY CREATE THE MESSAGE ELEMENTS ---
+            // This bypasses the faulty logic in addMessageToUI for streaming
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', 'bot-message');
+            messageDiv.style.animation = 'fadeIn 0.5s ease'; // Manually add animation
+
+            const avatarIcon = 'fa-robot';
+            messageDiv.innerHTML = `<div class="avatar"><i class="fa-solid ${avatarIcon}"></i></div>`;
+
+            const messageBubble = document.createElement('div');
+            messageBubble.className = 'message-bubble';
+            // Manually add bot-specific styles from CSS
+            messageBubble.style.backgroundColor = 'var(--bot-bubble-bg)';
+            messageBubble.style.border = '1px solid var(--border-color)';
+            messageBubble.style.borderTopLeftRadius = '4px';
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+
             const p = document.createElement('p'); // Create the paragraph element
+            p.style.whiteSpace = 'pre-wrap'; // Ensure line breaks are respected
             contentDiv.appendChild(p); // Add it to the content div
+            
+            messageBubble.appendChild(contentDiv);
+            messageDiv.appendChild(messageBubble);
+            messageContainer.appendChild(messageDiv);
+            
+            // Scroll to bottom smoothly
+            chatMain.scrollTo({ top: chatMain.scrollHeight, behavior: 'smooth' });
+            // --- END OF MANUAL CREATION ---
 
             const words = fullText.split(/(\s+)/); // Split including spaces
             let wordIndex = 0;
@@ -1082,6 +1142,8 @@
                     speakerBtn.title = 'Read aloud';
                     speakerBtn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
                     messageBubble.appendChild(speakerBtn); // Append to bubble
+                    // Make speaker button visible
+                    speakerBtn.style.opacity = '0.7'; 
                 }
             }, intervalTime); // Use dynamic interval time
         };
@@ -1090,7 +1152,7 @@
             imageInput.value = ''; // Clear file input
             selectedFile = null;
             if (imagePreview.src) {
-                 URL.revokeObjectURL(imagePreview.src); // Clean up object URL
+                URL.revokeObjectURL(imagePreview.src); // Clean up object URL
             }
             imagePreviewContainer.style.display = 'none'; // Hide preview
             imagePreview.src = ''; // Clear preview source
@@ -1211,6 +1273,7 @@
 
                         // Add message to UI only if there's content to display
                         if (messageText || messageImageUrl) {
+                            // Don't stream history, just add it directly
                             addMessageToUI(sender, { text: messageText, imageUrl: messageImageUrl });
                         }
                     });
@@ -1244,364 +1307,3 @@
                 // If the currently active chat was deleted, start a new one
                 if (currentChatId === chatId) {
                     startNewChat();
-                }
-                // Refresh the chat list visually
-                const listItem = recentChatsList.querySelector(`button[data-chat-id="${chatId}"]`)?.closest('li');
-                if (listItem) listItem.remove();
-                // Check if list is now empty
-                if (recentChatsList.children.length === 0) {
-                    recentChatsList.innerHTML = '<li style="color: var(--text-secondary); padding-left: 15px;">No recent chats.</li>';
-                }
-
-                // No need to call fetchRecentChats() again, just update UI directly
-
-            } catch (error) {
-                if (error.message !== 'Session expired') {
-                    console.error('Delete chat error:', error);
-                    alert(`Error deleting chat: ${error.message}`);
-                }
-            }
-        };
-
-        // Helper to attach listeners to delete buttons (call after rendering list)
-        const addDeleteButtonListeners = () => {
-            recentChatsList.querySelectorAll('.delete-chat-btn').forEach(button => {
-                // Remove existing listener to prevent duplicates if list is refreshed often
-                button.replaceWith(button.cloneNode(true));
-            });
-            // Add new listeners
-            recentChatsList.querySelectorAll('.delete-chat-btn').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    e.stopPropagation(); // Prevent li click event
-                    deleteChat(button.dataset.chatId);
-                });
-            });
-        };
-
-        // --- Speech Recognition & Synthesis ---
-        let voices = [];
-        const populateVoiceList = () => {
-            try { // Add try-catch as getVoices can sometimes fail
-                voices = window.speechSynthesis.getVoices();
-            } catch (error) {
-                console.error("Error getting speech synthesis voices:", error);
-            }
-        };
-        // Initial population and update listener
-        populateVoiceList();
-        if (window.speechSynthesis.onvoiceschanged !== undefined) {
-            window.speechSynthesis.onvoiceschanged = populateVoiceList;
-        }
-
-        const speakText = (text, langCode) => {
-            if (!text || typeof text !== 'string') return; // Basic validation
-            try {
-                window.speechSynthesis.cancel(); // Stop any previous speech
-                const utterance = new SpeechSynthesisUtterance(text);
-                const langMap = { 'en': 'en-US', 'ta': 'ta-IN', 'ml': 'ml-IN' };
-                utterance.lang = langMap[langCode] || 'en-US'; // Fallback to English
-
-                // Attempt to find a suitable voice
-                const specificVoice = voices.find(voice => voice.lang === utterance.lang);
-                if (specificVoice) {
-                    utterance.voice = specificVoice;
-                } else {
-                    // Fallback: try finding a voice for the base language (e.g., 'en' if 'en-US' not found)
-                    const baseLang = utterance.lang.split('-')[0];
-                    const fallbackVoice = voices.find(voice => voice.lang.startsWith(baseLang));
-                    if (fallbackVoice) utterance.voice = fallbackVoice;
-                }
-                
-                utterance.rate = 0.9; // Slightly slower rate
-                utterance.pitch = 1; // Default pitch
-                window.speechSynthesis.speak(utterance);
-            } catch (error) {
-                console.error("Speech synthesis error:", error);
-                alert("Sorry, text-to-speech is not available right now.");
-            }
-        };
-
-        // Speech Recognition Setup
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        let recognition; // Declare outside if block
-        if (SpeechRecognition) {
-            recognition = new SpeechRecognition(); // Initialize
-            recognition.continuous = false; // Stop after first result
-            recognition.interimResults = false; // Only final results
-
-            micBtn.addEventListener('click', () => {
-                if (micBtn.classList.contains('listening')) {
-                    recognition.stop(); // Allow stopping manually
-                } else {
-                    try {
-                        micBtn.classList.add('listening');
-                        micBtn.disabled = true; // Disable while listening
-                        const langMap = { 'en': 'en-US', 'ta': 'ta-IN', 'ml': 'ml-IN' };
-                        recognition.lang = langMap[currentLanguage] || 'en-US'; // Set language
-                        recognition.start();
-                    } catch (error) {
-                        console.error("Speech recognition start error:", error);
-                        alert("Could not start voice input. Please check permissions.");
-                        micBtn.classList.remove('listening');
-                        micBtn.disabled = false;
-                    }
-                }
-            });
-
-            recognition.onresult = event => {
-                const transcript = event.results[0][0].transcript;
-                userInput.value += (userInput.value ? ' ' : '') + transcript; // Append transcript
-                sendBtn.disabled = false; // Enable send button after getting transcript
-            };
-
-            recognition.onerror = event => {
-                console.error('Speech recognition error:', event.error);
-                let errorMsg = `Speech recognition error: ${event.error}.`;
-                if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
-                    errorMsg += ' Please ensure microphone access is granted.';
-                } else if (event.error === 'no-speech') {
-                    errorMsg = 'No speech detected. Please try again.';
-                }
-                alert(errorMsg);
-            };
-
-            recognition.onend = () => {
-                micBtn.classList.remove('listening'); // Remove listening style
-                micBtn.disabled = false; // Re-enable button
-            };
-        } else {
-            console.warn('Speech Recognition not supported in this browser.');
-            micBtn.style.display = 'none'; // Hide mic button if not supported
-        }
-
-        // --- Event Listeners Setup ---
-        chatForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            let userMessage = userInput.value.trim();
-            // Require either text or an image
-            if (!userMessage && !selectedFile) {
-                userInput.focus(); // Focus input if empty
-                return;
-            }
-
-            // Display user message optimistically
-            addMessageToUI('user', { text: userMessage, imageUrl: selectedFile ? imagePreview.src : null });
-
-            // Prepare data for API
-            // Use a default message if only image is sent
-            const messageForApi = (selectedFile && !userMessage) ? "Analyze the attached image" : userMessage;
-            const tempSelectedFile = selectedFile; // Store file before resetting
-
-            // Reset UI for next input
-            userInput.value = '';
-            resetImageInput();
-            sendBtn.disabled = true; // Disable send while processing
-
-            try {
-                const apiUrl = `${API_BASE_URL}/api/chat`;
-                const formData = new FormData();
-                formData.append('message', messageForApi);
-                formData.append('language', currentLanguage); // Send current language
-                if (tempSelectedFile) {
-                    formData.append('image', tempSelectedFile, tempSelectedFile.name); // Include filename
-                }
-                if (currentChatId) {
-                    formData.append('chatId', currentChatId);
-                }
-
-                // Show thinking indicator (optional)
-                const thinkingBubble = addMessageToUI('bot', { text: 'Thinking...' });
-
-                const response = await fetchWithAuth(apiUrl, { method: 'POST', body: formData });
-
-                // Remove thinking indicator
-                if (thinkingBubble) thinkingBubble.closest('.message').remove();
-
-                if (!response || !response.ok) {
-                    const errorData = response ? await response.json().catch(() => ({})) : { message: 'Empty response from server.' };
-                    throw new Error(errorData.message || `Server returned status ${response?.status || 'unknown'}.`);
-                }
-                const data = await response.json();
-
-                if (data.reply && data.reply.trim() !== '') {
-                    streamBotResponse(data.reply); // Stream the response
-                } else {
-                    addMessageToUI('bot', { text: "I received your message but couldn't generate a response." });
-                }
-
-                // If it was a new chat, update state and sidebar
-                if (!currentChatId && data.newChatId) {
-                    currentChatId = data.newChatId;
-                    await fetchRecentChats(); // Refresh list to show the new chat
-                    // Mark the new chat as active
-                    const activeLi = recentChatsList.querySelector(`button[data-chat-id="${currentChatId}"]`)?.closest('li');
-                    if (activeLi) activeLi.classList.add('active');
-                }
-                // If it wasn't a new chat, potentially update the 'updatedAt' sort order
-                else if (currentChatId) {
-                    // Simple refresh might be easiest if sorting is important
-                    // await fetchRecentChats();
-                }
-
-            } catch (error) {
-                // Remove thinking indicator on error too
-                const thinkingBubble = messageContainer.querySelector('.bot-message:last-child p');
-                if (thinkingBubble && thinkingBubble.textContent === 'Thinking...') {
-                    thinkingBubble.closest('.message').remove();
-                }
-                // Avoid alert loop for session expiry
-                if (error.message !== 'Session expired') {
-                    console.error('Send message error:', error);
-                    addMessageToUI('bot', { text: `Sorry, an error occurred: ${error.message}` });
-                }
-            } finally {
-                sendBtn.disabled = userInput.value.trim() === '' && !selectedFile; // Re-evaluate disable state
-                userInput.focus(); // Keep focus on input
-            }
-        });
-
-        newChatBtn.addEventListener('click', startNewChat);
-
-        // Theme Toggle
-        themeToggleBtn.addEventListener('click', () => {
-            const newTheme = document.documentElement.classList.contains('dark-mode') ? 'light' : 'dark';
-            localStorage.setItem('theme', newTheme);
-            applyTheme(newTheme);
-        });
-
-        // Sidebar Toggle (Menu Button)
-        menuToggleBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent window click listener closing it immediately
-            body.classList.toggle('sidebar-open');
-            // Show/hide overlay on mobile
-            if (window.innerWidth <= 768) {
-                sidebarOverlay.style.display = body.classList.contains('sidebar-open') ? 'block' : 'none';
-            }
-        });
-
-        // Sidebar Overlay Click Listener
-        sidebarOverlay.addEventListener('click', () => {
-            body.classList.remove('sidebar-open');
-            sidebarOverlay.style.display = 'none';
-        });
-
-        // Hamburger Button (Mobile Nav Toggle)
-        hamburgerBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent window click
-            mobileNavDropdown.classList.toggle('show');
-        });
-
-        // Language Selector Dropdown Toggle
-        languageSelectorBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Prevent window click
-            dropdownContent.classList.toggle('show');
-            mobileNavDropdown.classList.remove('show'); // Close mobile nav if open
-        });
-
-        // Language Selection from Dropdown
-        dropdownContent.addEventListener('click', (event) => {
-            const link = event.target.closest('a[data-lang]');
-            if (link) {
-                event.preventDefault();
-                setLanguage(link.getAttribute('data-lang'));
-                dropdownContent.classList.remove('show'); // Close dropdown
-            }
-        });
-
-        mobileNavDropdown.addEventListener('click', (event) => {
-            const target = event.target.closest('a');
-            if (target && target.matches('.lang-link-mobile')) {
-                event.preventDefault();
-                setLanguage(target.getAttribute('data-lang'));
-                mobileNavDropdown.classList.remove('show');
-            }
-        });
-
-        // Image Upload Handling
-        imageBtn.addEventListener('click', () => imageInput.click()); // Trigger file input
-        removeImageBtn.addEventListener('click', resetImageInput); // Remove preview
-        imageInput.addEventListener('change', () => {
-            const file = imageInput.files[0];
-            if (file) {
-                // Basic validation (optional: add size/type checks)
-                if (!file.type.startsWith('image/')) {
-                    alert('Please select an image file.');
-                    resetImageInput();
-                    return;
-                }
-                selectedFile = file;
-                // Clean up previous object URL before creating new one
-                if (imagePreview.src) {
-                    URL.revokeObjectURL(imagePreview.src);
-                }
-                imagePreview.src = URL.createObjectURL(file); // Show preview
-                imagePreviewContainer.style.display = 'block'; // Make preview visible
-                sendBtn.disabled = false; // Enable send button when image is added
-            } else {
-                resetImageInput(); // Reset if no file selected
-                sendBtn.disabled = userInput.value.trim() === ''; // Disable if input also empty
-            }
-        });
-
-        // Enable/Disable Send Button based on input/image
-        userInput.addEventListener('input', () => {
-            sendBtn.disabled = userInput.value.trim() === '' && !selectedFile;
-        });
-
-        // Text-to-Speech Trigger
-        messageContainer.addEventListener('click', (e) => {
-            const speakerBtn = e.target.closest('.speaker-btn');
-            if (speakerBtn) {
-                const messageBubble = speakerBtn.closest('.message-bubble');
-                const textToSpeak = messageBubble?.querySelector('.message-content p')?.textContent;
-                if (textToSpeak) {
-                    speakText(textToSpeak, currentLanguage); // Use current language
-                } else {
-                    console.warn("Could not find text to speak for speaker button.");
-                }
-            }
-        });
-
-        // Global Click Listener (for closing dropdowns/mobile sidebar)
-        window.addEventListener('click', (e) => {
-            // Close language dropdown if clicked outside
-            if (!languageSelectorBtn.parentElement.contains(e.target)) {
-                dropdownContent.classList.remove('show');
-            }
-            // Close mobile nav if clicked outside
-            if (mobileNavDropdown.classList.contains('show') && !hamburgerBtn.contains(e.target) && !mobileNavDropdown.contains(e.target)) {
-                mobileNavDropdown.classList.remove('show');
-            }
-            // Close mobile sidebar if overlay is clicked (handled by overlay listener now)
-            // Or if clicked outside sidebar when overlay isn't used (desktop behavior mimic)
-            if (body.classList.contains('sidebar-open') && window.innerWidth > 768) {
-                const sidebar = document.getElementById('sidebar');
-                if (!sidebar.contains(e.target) && !menuToggleBtn.contains(e.target)) {
-                    body.classList.remove('sidebar-open');
-                }
-            }
-        });
-
-        // --- Initialization ---
-        const initializeApp = async () => { // Make async
-            const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'); // Default based on system
-            applyTheme(savedTheme);
-            const savedLang = localStorage.getItem('chatLanguage') || 'en'; // Default to English
-            setLanguage(savedLang);
-
-            // Check login status before fetching chats
-            if (localStorage.getItem('token')) {
-                await fetchRecentChats(); // Fetch chats after setting up UI
-                startNewChat(); // Start with a new chat interface
-            } else {
-                // If not logged in, show login prompt or redirect immediately
-                alert('Please log in to use the chatbot.');
-                window.location.href = 'login.html';
-            }
-        };
-
-        initializeApp(); // Run initialization
-    });
-    </script>
-</body>
-</html>
