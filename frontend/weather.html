@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <script>
-        // Set theme on initial load to prevent flashing
+        // Set theme on initial load
         if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
         } else {
@@ -16,29 +16,25 @@
     </script>
     <style>
         :root {
-            /* Light Theme (Default) */
             --bg-main: #f6f8fa; --bg-secondary: #ffffff; --border-color: #d0d7de;
             --text-primary: #24292f; --text-secondary: #586069; --accent-green: #238636;
+            --accent-green-hover: #2ea043;
             --shadow-color: rgba(140, 149, 159, 0.15); --danger-red: #d73a49;
         }
         html.dark {
-            /* Dark Theme Overrides */
             --bg-main: #0D1117; --bg-secondary: #161b22; --border-color: #30363d;
             --text-primary: #c9d1d9; --text-secondary: #8b949e; --accent-green: #2ECC71;
+            --accent-green-hover: #58d68d;
             --shadow-color: rgba(0,0,0,0.4); --danger-red: #e74c3c;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-main); color: var(--text-primary); transition: background-color 0.3s ease, color 0.3s ease; }
         a { text-decoration: none; color: inherit; }
-
-        /* --- HEADER / NAVBAR STYLES --- */
         .navbar { background-color: var(--bg-secondary); padding: 15px 0; border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; position: relative; }
         .navbar-container { display: flex; justify-content: space-between; align-items: center; max-width: 1400px; margin: 0 auto; padding: 0 20px; }
         .header-left { display: flex; align-items: center; gap: 20px; }
         .logo { font-size: 24px; font-weight: 800; color: var(--accent-green); }
-        .location-button { background-color: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); padding: 8px 12px; border-radius: 6px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background-color 0.2s, color 0.2s; }
-        .location-button:hover { background-color: var(--border-color); color: var(--text-primary); }
-        .nav-menu { display: none; } /* Hide on mobile by default */
+        .nav-menu { display: none; }
         @media (min-width: 992px) { .nav-menu { display: flex; align-items: center; gap: 30px; } }
         .nav-menu a { color: var(--text-primary); display: flex; align-items: center; gap: 8px; font-weight: 500; }
         .nav-menu a:hover { color: var(--accent-green); }
@@ -54,29 +50,21 @@
         #theme-toggle .fa-moon { display: none; }
         html.dark #theme-toggle .fa-sun { display: none; }
         html.dark #theme-toggle .fa-moon { display: inline-block; }
-        
-        /* Mobile menu styles */
         .hamburger-btn { display: block; background: none; border: none; font-size: 18px; color: var(--text-primary); cursor: pointer; }
         @media (min-width: 992px) { .hamburger-btn { display: none; } }
-        .mobile-nav-dropdown {
-          display: none; position: absolute; top: 100%; left: 0; width: 100%;
-          background-color: var(--bg-secondary); border-top: 1px solid var(--border-color);
-          padding: 10px 0; box-shadow: 0 8px 16px rgba(0,0,0,0.1); z-index: 99;
-        }
+        .mobile-nav-dropdown { display: none; position: absolute; top: 100%; left: 0; width: 100%; background-color: var(--bg-secondary); border-top: 1px solid var(--border-color); padding: 10px 0; box-shadow: 0 8px 16px rgba(0,0,0,0.1); z-index: 99; }
         .mobile-nav-dropdown.show { display: block; }
-        .mobile-nav-dropdown .nav-menu {
-          display: flex; flex-direction: column; align-items: flex-start;
-          gap: 0; padding: 0 20px;
-        }
-        .mobile-nav-dropdown .nav-menu a {
-          padding: 15px 0; width: 100%; font-size: 16px; border-bottom: 1px solid var(--border-color);
-        }
+        .mobile-nav-dropdown .nav-menu { display: flex; flex-direction: column; align-items: flex-start; gap: 0; padding: 0 20px; }
+        .mobile-nav-dropdown .nav-menu a { padding: 15px 0; width: 100%; font-size: 16px; border-bottom: 1px solid var(--border-color); }
         .mobile-nav-dropdown .nav-menu a:last-child { border-bottom: none; }
         html.dark .mobile-nav-dropdown .nav-menu a { border-color: var(--border-color); }
-
         /* --- WEATHER PAGE STYLES --- */
         .container { max-width: 1200px; margin: 20px auto; padding: 0 20px; }
-        .loading-overlay { display: flex; justify-content: center; align-items: center; height: 80vh; flex-direction: column; gap: 1rem; }
+        .get-weather-prompt { text-align: center; padding: 60px 20px; background-color: var(--bg-secondary); border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 12px var(--shadow-color); }
+        .cta-button { background-color: var(--accent-green); color: #ffffff; border: none; padding: 15px 30px; font-size: 1.1rem; font-weight: 600; border-radius: 8px; cursor: pointer; transition: background-color 0.3s ease; display: inline-flex; align-items: center; gap: 10px; }
+        .cta-button:hover { background-color: var(--accent-green-hover); }
+        html.dark .cta-button { color: var(--bg-main); }
+        .loading-overlay { display: flex; justify-content: center; align-items: center; height: auto; padding: 60px 20px; flex-direction: column; gap: 1rem; background-color: var(--bg-secondary); border-radius: 12px; border: 1px solid var(--border-color); box-shadow: 0 4px 12px var(--shadow-color); }
         .loader { border: 5px solid var(--border-color); border-top: 5px solid var(--accent-green); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .weather-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
@@ -101,15 +89,13 @@
         .daily-item .temps .low { color: var(--text-secondary); }
         .alert-item { gap: 15px; }
         .alert-item i { font-size: 1.2rem; color: var(--danger-red); }
-
-        /* --- ADDED: Media query for small mobile screens --- */
         @media (max-width: 600px) {
             .container { padding: 0 15px; margin-top: 15px; }
             .card { padding: 20px; }
             .current-weather .temp { font-size: 3.5rem; }
-            .location-button { display: none; } /* Hide location button on very small screens to save space */
+            .get-weather-prompt { padding: 40px 20px; }
+            .cta-button { font-size: 1rem; padding: 12px 24px; }
         }
-
     </style>
 </head>
 <body>
@@ -117,9 +103,6 @@
         <div class="navbar-container">
             <div class="header-left">
                 <a href="index.html" class="logo" data-lang-key="header_title">FarmWise</a>
-                <button id="get-location-btn" class="location-button" data-lang-key="location_btn">
-                    <i class="fa-solid fa-location-crosshairs"></i> Use My Location
-                </button>
             </div>
             <nav class="nav-menu">
                 <a href="index.html" data-lang-key="nav_home"><i class="fa-solid fa-home"></i> Home</a>
@@ -156,49 +139,67 @@
             </nav>
         </div>
     </header>
-
-    <div class="container" id="weather-container" style="display: none;">
+    <div class="container" id="weather-page-container">
+        <div class="get-weather-prompt" id="get-weather-prompt">
+            <button id="fetch-weather-btn" class="cta-button" data-lang-key="get_weather_btn">
+                <i class="fa-solid fa-location-crosshairs"></i> Get Weather for My Location
+            </button>
+        </div>
+        <div class="loading-overlay" id="loader" style="display: none;">
+            <div class="loader"></div>
+            <p data-lang-key="loader_text">Contacting AI for your forecast...</p>
+        </div>
+        <div id="weather-grid-container" style="display: none;"></div>
     </div>
-
-    <div class="loading-overlay" id="loader">
-        <div class="loader"></div>
-    </div>
-
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-
-        const dummyData = {
-            current: { temp: 29.5, feels_like: 32.1, humidity: 78, wind_speed: 5.1, weather: [{ description: "scattered clouds", icon: "03d", main: "Clouds" }] },
-            hourly: [ { dt: 1664191200, temp: 28.5, weather: [{ icon: "04n", main: "Clouds" }] }, { dt: 1664194800, temp: 27.9, weather: [{ icon: "04n", main: "Clouds" }] }, { dt: 1664198400, temp: 27.2, weather: [{ icon: "10n", main: "Rain" }] }, { dt: 1664202000, temp: 26.8, weather: [{ icon: "10n", main: "Rain" }] }, { dt: 1664205600, temp: 26.5, weather: [{ icon: "04n", main: "Clouds" }] }, { dt: 1664209200, temp: 26.1, weather: [{ icon: "03n", main: "Clouds" }] }, { dt: 1664212800, temp: 25.9, weather: [{ icon: "03n", main: "Clouds" }] }, { dt: 1664216400, temp: 25.5, weather: [{ icon: "02n", main: "Clouds" }] }, { dt: 1664220000, temp: 26.0, weather: [{ icon: "02d", main: "Clouds" }] }, { dt: 1664223600, temp: 27.2, weather: [{ icon: "01d", main: "Clear" }] }, { dt: 1664227200, temp: 28.9, weather: [{ icon: "01d", main: "Clear" }] }, { dt: 1664230800, temp: 30.1, weather: [{ icon: "02d", main: "Clouds" }] } ],
-            daily: [ { dt: 1664166600, temp: { min: 24.5, max: 32.8 }, weather: [{ icon: "03d", main: "Clouds" }] }, { dt: 1664253000, temp: { min: 23.9, max: 31.5 }, weather: [{ icon: "10d", main: "Rain" }] }, { dt: 1664339400, temp: { min: 23.5, max: 30.0 }, weather: [{ icon: "11d", main: "Thunderstorm" }] }, { dt: 1664425800, temp: { min: 24.1, max: 32.2 }, weather: [{ icon: "01d", main: "Clear" }] }, { dt: 1664512200, temp: { min: 25.0, max: 33.1 }, weather: [{ icon: "02d", main: "Clouds" }] }, { dt: 1664598600, temp: { min: 24.8, max: 31.9 }, weather: [{ icon: "03d", main: "Clouds" }] }, { dt: 1664685000, temp: { min: 23.7, max: 30.5 }, weather: [{ icon: "10d", main: "Rain" }] }, { dt: 1664771400, temp: { min: 23.9, max: 30.8 }, weather: [{ icon: "10d", main: "Rain" }] } ]
-        };
-
         const loader = document.getElementById('loader');
-        const weatherContainer = document.getElementById('weather-container');
-        const getLocationBtn = document.getElementById('get-location-btn');
+        const getWeatherPrompt = document.getElementById('get-weather-prompt');
+        const fetchWeatherBtn = document.getElementById('fetch-weather-btn');
+        const weatherGridContainer = document.getElementById('weather-grid-container');
         const themeToggleBtn = document.getElementById('theme-toggle');
         const hamburgerBtn = document.getElementById('hamburger-btn');
         const mobileNavDropdown = document.getElementById('mobile-nav-dropdown');
-
         const translations = {
-            en: { header_title: "FarmWise", nav_home: "Home", location_btn: "Use My Location", nav_bot: "Krishi Sahayi Bot", nav_disease: "Crop Disease Diagnosis", nav_weather: "Weather Prediction", nav_community: "Farmer Community", card_title_current: "Current Weather in", card_title_alerts: "Farming Alerts", card_title_hourly: "Hourly Forecast", card_title_daily: "7-Day Forecast" },
-            ta: { header_title: "ஃபார்ம்வைஸ்", nav_home: "முகப்பு", location_btn: "எனது இருப்பிடத்தைப் பயன்படுத்து", nav_bot: "கிருஷி சஹாயி பாட்", nav_disease: "பயிர் நோய் கண்டறிதல்", nav_weather: "வானிலை முன்னறிவிப்பு", nav_community: "உழவர் சமூகம்", card_title_current: "தற்போதைய வானிலை", card_title_alerts: "விவசாய எச்சரிக்கைகள்", card_title_hourly: "மணிநேர முன்னறிவிப்பு", card_title_daily: "7-நாள் முன்னறிவிப்பு" },
-            ml: { header_title: "ഫാംവൈസ്", nav_home: "ഹോം", location_btn: "എന്റെ സ്ഥലം ഉപയോഗിക്കുക", nav_bot: "കൃഷി സഹായി ബോട്ട്", nav_disease: "വിള രോഗനിർണയം", nav_weather: "കാലാവസ്ഥാ പ്രവചനം", nav_community: "കർഷക സമൂഹം", card_title_current: "ഇപ്പോഴത്തെ കാലാവസ്ഥ", card_title_alerts: "കർഷക ജാഗ്രത", card_title_hourly: "മണിക്കൂർ പ്രവചനം", card_title_daily: "7 ദിവസത്തെ പ്രവചനം" }
+            en: { 
+                header_title: "FarmWise", nav_home: "Home", nav_bot: "Krishi Sahayi Bot", 
+                nav_disease: "Crop Disease Diagnosis", nav_weather: "Weather Prediction", nav_community: "Farmer Community",
+                get_weather_btn: "Get Weather for My Location",
+                loader_text: "Contacting AI for your forecast...",
+                card_title_current: "Current Weather in", card_title_alerts: "Farming Alerts", 
+                card_title_hourly: "Hourly Forecast", card_title_daily: "7-Day Forecast" 
+            },
+            ta: { 
+                header_title: "ஃபார்ம்வைஸ்", nav_home: "முகப்பு", nav_bot: "கிருஷி சஹாயி பாட்", 
+                nav_disease: "பயிர் நோய் கண்டறிதல்", nav_weather: "வானிலை முன்னறிவிப்பு", nav_community: "உழவர் சமூகம்",
+                get_weather_btn: "எனது இருப்பிடத்திற்கான வானிலையைப் பெறுங்கள்",
+                loader_text: "உங்கள் முன்னறிவிப்புக்காக AI ஐத் தொடர்புகொள்கிறது...",
+                card_title_current: "தற்போதைய வானிலை", card_title_alerts: "விவசாய எச்சரிக்கைகள்", 
+                card_title_hourly: "மணிநேர முன்னறிவிப்பு", card_title_daily: "7-நாள் முன்னறிவிப்பு" 
+            },
+            ml: { 
+                header_title: "ഫാംവൈസ്", nav_home: "ഹോം", nav_bot: "കൃഷി സഹായി ബോട്ട്", 
+                nav_disease: "വിള രോഗനിർണയം", nav_weather: "കാലാവസ്ഥാ പ്രവചനം", nav_community: "കർഷക സമൂഹം",
+                get_weather_btn: "എന്റെ ലൊക്കേഷനായുള്ള കാലാവസ്ഥ നേടുക",
+                loader_text: "നിങ്ങളുടെ പ്രവചനത്തിനായി AI-യുമായി ബന്ധപ്പെടുന്നു...",
+                card_title_current: "ഇപ്പോഴത്തെ കാലാവസ്ഥ", card_title_alerts: "കർഷക ജാഗ്രത", 
+                card_title_hourly: "മണിക്കൂർ പ്രവചനം", card_title_daily: "7 ദിവസത്തെ പ്രവചനം" 
+            }
         };
+
         const langBtn = document.getElementById('language-selector-btn');
         const langDropdown = document.getElementById('language-dropdown-content');
         const currentLangDisplay = document.getElementById('current-lang-display');
-        
+
         const setLanguage = (lang) => {
             localStorage.setItem('language', lang);
             const langName = lang === 'ta' ? 'தமிழ்' : lang === 'ml' ? 'മലയാളം' : 'English';
             currentLangDisplay.textContent = langName;
-            
             document.querySelectorAll('[data-lang-key]').forEach(el => {
                 const key = el.getAttribute('data-lang-key');
                 if (translations[lang] && translations[lang][key]) {
                     if (key === 'card_title_current') {
-                        const locationName = el.textContent.split(' in ')[1] || 'Coimbatore';
+                        const locationName = el.textContent.split(' in ')[1] || el.textContent.split(' (')[1]?.replace(')','');
                         const translatedPrefix = translations[lang][key];
                         if (lang === 'en') {
                             el.textContent = `${translatedPrefix} ${locationName}`;
@@ -213,7 +214,9 @@
             });
         };
 
-        langBtn.addEventListener('click', (e) => { e.stopPropagation(); langDropdown.classList.toggle('show'); });
+        langBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); langDropdown.classList.toggle('show');
+        });
         langDropdown.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -230,16 +233,10 @@
             applyTheme(newTheme);
             localStorage.setItem('theme', newTheme);
         });
-
-        getLocationBtn.addEventListener('click', () => {
-            alert('Live location feature is disabled in this demo. Please add your OpenWeatherMap API key to enable it.');
-        });
-
         hamburgerBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             mobileNavDropdown.classList.toggle('show');
         });
-
         document.addEventListener('click', (e) => {
             if (!langBtn.parentElement.contains(e.target)) {
                 langDropdown.classList.remove('show');
@@ -248,20 +245,53 @@
                 mobileNavDropdown.classList.remove('show');
             }
         });
-        
+
+        fetchWeatherBtn.addEventListener('click', () => {
+            fetchWeather();
+        });
+
+        const fetchWeather = async () => {
+            getWeatherPrompt.style.display = 'none';
+            loader.style.display = 'flex';
+            weatherGridContainer.style.display = 'none';
+            const token = localStorage.getItem('token');
+            if (!token) {
+                loader.innerHTML = `<p style="color: var(--danger-red); text-align: center;">You must be <a href="login.html" style="text-decoration: underline;">logged in</a> to use this feature.</p>`;
+                return;
+            }
+            try {
+                const response = await fetch('/api/weather/forecast', {
+                    headers: { 'x-auth-token': token }
+                });
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to fetch weather data');
+                }
+                const data = await response.json();
+                renderAllWeather(data.forecast, data.location);
+                setLanguage(localStorage.getItem('language') || 'en'); // Re-apply language
+            } catch (error) {
+                console.error('Error fetching weather:', error);
+                loader.style.display = 'block';
+                loader.innerHTML = `<p style="color: var(--danger-red); text-align: center;">Error: ${error.message}. Please try again later.</p>`;
+            }
+        };
+
         const renderAllWeather = (data, locationName) => {
             const currentLang = localStorage.getItem('language') || 'en';
-            weatherContainer.innerHTML = `
+            const locationText = (currentLang === 'en') ? `in ${locationName}` : `(${locationName})`;
+
+            weatherGridContainer.innerHTML = `
                 <div class="weather-grid">
                     <div style="display: flex; flex-direction: column; gap: 20px;">
                         <div class="card current-weather">
-                            <h2 class="card-title" data-lang-key="card_title_current">${translations[currentLang].card_title_current} in ${locationName}</h2>
+                            <h2 class="card-title" data-lang-key="card_title_current">${translations[currentLang].card_title_current} ${locationText}</h2>
                             <div style="display: flex; justify-content: space-between; align-items: center;">
                                 <div>
                                     <p class="temp">${Math.round(data.current.temp)}°</p>
                                     <p class="condition">${data.current.weather[0].description}</p>
                                 </div>
-                                <img src="https://openweathermap.org/img/wn/${data.current.weather[0].icon}@2x.png" alt="weather icon">
+                                <img src="<https://openweathermap.org/img/wn/${data.current.weather>[0].icon}@2x.png" alt="weather icon">
                             </div>
                             <div class="details">
                                 <div class="detail-item"><span>Feels like:</span> <span>${Math.round(data.current.feels_like)}°</span></div>
@@ -283,13 +313,11 @@
                         <div id="daily-container"></div>
                     </div>
                 </div>`;
-            
             renderHourlyForecast(data.hourly);
             renderDailyForecast(data.daily);
             renderFarmingAlerts(data.hourly, data.daily);
-
             loader.style.display = 'none';
-            weatherContainer.style.display = 'block';
+            weatherGridContainer.style.display = 'block';
         };
 
         const renderHourlyForecast = (hourly) => {
@@ -299,7 +327,7 @@
                 return `
                     <div class="hourly-item">
                         <p class="time">${time}:00</p>
-                        <img src="https://openweathermap.org/img/wn/${hour.weather[0].icon}.png" alt="icon">
+                        <img src="<https://openweathermap.org/img/wn/${hour.weather>[0].icon}.png" alt="icon">
                         <p class="temp">${Math.round(hour.temp)}°</p>
                     </div>`;
             }).join('');
@@ -307,12 +335,12 @@
 
         const renderDailyForecast = (daily) => {
             const container = document.getElementById('daily-container');
-            container.innerHTML = daily.slice(1).map(day => {
+            container.innerHTML = daily.slice(1, 8).map(day => {
                 const dayName = new Date(day.dt * 1000).toLocaleDateString('en-US', { weekday: 'short' });
                 return `
                     <div class="daily-item">
                         <span class="day">${dayName}</span>
-                        <img src="https://openweathermap.org/img/wn/${day.weather[0].icon}.png" alt="icon">
+                        <img src="<https://openweathermap.org/img/wn/${day.weather>[0].icon}.png" alt="icon">
                         <span class="temps">
                             <span class="high">${Math.round(day.temp.max)}°</span> / 
                             <span class="low">${Math.round(day.temp.min)}°</span>
@@ -320,12 +348,11 @@
                     </div>`;
             }).join('');
         };
-        
+
         const renderFarmingAlerts = (hourly, daily) => {
             const container = document.getElementById('alerts-container');
             container.innerHTML = '';
             let alertsFound = false;
-            
             const next12Hours = hourly.slice(0, 12);
             if (next12Hours.some(hour => hour.weather[0].main.includes('Rain') || hour.weather[0].main.includes('Thunderstorm'))) {
                 container.innerHTML += `<div class="alert-item"><i class="fa-solid fa-cloud-showers-heavy"></i><p><strong>Immediate Warning:</strong> Rain expected in the next few hours. Secure equipment and prepare for wet conditions.</p></div>`;
@@ -333,7 +360,7 @@
             }
             const next3Days = daily.slice(1, 4);
             if (next3Days.some(day => day.weather[0].main.includes('Rain') || day.weather[0].main.includes('Thunderstorm'))) {
-                 container.innerHTML += `<div class="alert-item"><i class="fa-solid fa-cloud-rain"></i><p><strong>3-Day Outlook:</strong> Rain is forecast this week. Consider delaying pesticide or fertilizer application.</p></div>`;
+                container.innerHTML += `<div class="alert-item"><i class="fa-solid fa-cloud-rain"></i><p><strong>3-Day Outlook:</strong> Rain is forecast this week. Consider delaying pesticide or fertilizer application.</p></div>`;
                 alertsFound = true;
             }
             if (!alertsFound) {
@@ -341,17 +368,9 @@
             }
         };
 
-        const displayDefaultWeather = () => {
-            setTimeout(() => {
-                renderAllWeather(dummyData, 'Coimbatore');
-                setLanguage(localStorage.getItem('language') || 'en');
-            }, 500);
-        };
-        
         // --- Initialize page ---
         const savedLang = localStorage.getItem('language') || 'en';
         setLanguage(savedLang);
-        displayDefaultWeather();
     });
     </script>
 </body>
