@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>FarmWise Bot</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,639 +11,178 @@
     <script>
         // Apply theme early to prevent flash
         if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-            document.documentElement.classList.add('dark-mode'); // Use class on html
+            document.documentElement.classList.add('dark-mode');
         } else {
             document.documentElement.classList.remove('dark-mode');
         }
     </script>
     <style>
         :root {
-            --header-footer-bg: #FFFFFF;
-            --main-bg: #EAF4EE;
-            --text-primary: #202123;
-            --text-secondary: #5F6368;
-            --input-bg: #F1F3F4;
-            --border-color: #DEE2E6;
-            --send-btn-bg: #2ECC71;
-            --bot-bubble-bg: #FFFFFF;
-            --user-bubble-bg: #DCF8C6;
-            --shadow-color: rgba(0, 0, 0, 0.07);
-            --sidebar-bg: #F8F9FA;
-            --sidebar-hover-bg: #E9ECEF;
-            --danger-red: #e74c3c;
-            --accent-green: #2ECC71;
-            --accent-green-hover: #27ae60; /* Added hover state */
+            --header-footer-bg: #FFFFFF; --main-bg: #EAF4EE; --text-primary: #202123;
+            --text-secondary: #5F6368; --input-bg: #F1F3F4; --border-color: #DEE2E6;
+            --send-btn-bg: #2ECC71; --bot-bubble-bg: #FFFFFF; --user-bubble-bg: #DCF8C6;
+            --shadow-color: rgba(0,0,0,0.07); --sidebar-bg: #F8F9FA; --sidebar-hover-bg: #E9ECEF;
+            --danger-red: #e74c3c; --accent-green: #2ECC71; --accent-green-hover: #27ae60;
         }
-
-        html.dark-mode {
-            --header-footer-bg: #161b22;
-            --main-bg: #0D1117;
-            --text-primary: #c9d1d9;
-            --text-secondary: #8b949e;
-            --input-bg: #21262d;
-            --border-color: #30363d;
-            --bot-bubble-bg: #161b22;
-            --user-bubble-bg: #004D40; /* Dark green for user bubble */
-            --shadow-color: rgba(0, 0, 0, 0.2);
-            --sidebar-bg: #0D1117; /* Match main background */
-            --sidebar-hover-bg: #161b22;
-             --accent-green-hover: #58d68d; /* Lighter green for hover in dark mode */
+        html.dark-mode { /* Changed from body.dark-mode to html.dark-mode */
+            --header-footer-bg: #161b22; --main-bg: #0D1117; --text-primary: #c9d1d9;
+            --text-secondary: #8b949e; --input-bg: #3C4043; --border-color: #30363d;
+            --bot-bubble-bg: #3C4043; --user-bubble-bg: #004D40; --shadow-color: rgba(0,0,0,0.2);
+            --sidebar-bg: #2D2E30; --sidebar-hover-bg: #3C4043; --accent-green-hover: #58d68d;
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Roboto', sans-serif;
-            display: flex;
-            height: 100dvh; /* Use dynamic viewport height */
-            background-color: var(--main-bg);
-            color: var(--text-primary);
-            overflow: hidden; /* Prevent scrolling on body */
-            transition: background-color 0.3s, color 0.3s;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Roboto', sans-serif; display: flex; height: 100dvh; background-color: var(--main-bg); color: var(--text-primary); overflow: hidden; transition: background-color 0.3s, color 0.3s; }
          html.dark-mode body { /* Apply body styles in dark mode too */
              background-color: var(--main-bg);
              color: var(--text-primary);
          }
-
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
+        a { text-decoration: none; color: inherit; }
         /* Sidebar Styles */
-        .sidebar {
-            width: 260px;
-            background-color: var(--sidebar-bg);
-            border-right: 1px solid var(--border-color);
-            display: flex;
-            flex-direction: column;
-            flex-shrink: 0;
-            transition: margin-left 0.3s ease;
-            position: fixed; /* Use fixed for overlay effect on mobile */
-            top: 0;
-            left: 0;
-            height: 100%;
-            z-index: 300;
-            margin-left: -260px; /* Initially hidden */
-        }
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; flex-shrink: 0; transition: margin-left 0.3s ease; position: fixed; /* Keep fixed */ top: 0; left: 0; height: 100%; z-index: 200; margin-left: -260px; /* Initially hidden */ }
+        body.sidebar-open .sidebar { margin-left: 0; }
+        .sidebar-header { padding: 15px; border-bottom: 1px solid var(--border-color); }
+        .new-chat-btn { width: 100%; padding: 10px 15px; border-radius: 8px; background: var(--header-footer-bg); color: var(--text-primary); display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.95rem; border: 1px solid var(--border-color); transition: background-color 0.2s; }
+        .new-chat-btn:hover { background-color: var(--sidebar-hover-bg); }
+        .sidebar-content { flex-grow: 1; overflow-y: auto; padding: 15px; }
+        .recent-title { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 10px; padding-left: 5px; }
+        #recent-chats-list { list-style: none; }
+        #recent-chats-list li { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; border-radius: 8px; cursor: pointer; margin-bottom: 5px; transition: background-color 0.2s; }
+        #recent-chats-list li:hover { background-color: var(--sidebar-hover-bg); }
+        #recent-chats-list li.active { background-color: var(--accent-green); color: white; }
+         #recent-chats-list li.active:hover { background-color: var(--accent-green-hover); }
+        .chat-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-grow: 1; pointer-events: none; /* Prevent clicks on text from interfering */ margin-right: 5px; }
+        .delete-chat-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; opacity: 0; transition: opacity 0.2s, color 0.2s; padding: 5px; border-radius: 5px; flex-shrink: 0; }
+        #recent-chats-list li:hover .delete-chat-btn { opacity: 1; }
+        #recent-chats-list li.active .delete-chat-btn { color: white; opacity: 0.7;}
+        #recent-chats-list li.active:hover .delete-chat-btn { opacity: 1; }
+        .delete-chat-btn:hover { color: var(--danger-red); }
+         #recent-chats-list li.active .delete-chat-btn:hover { color: #ffdddd; }
 
-        body.sidebar-open .sidebar {
-            margin-left: 0; /* Slide in */
-        }
+        .sidebar-footer { padding: 10px 15px; border-top: 1px solid var(--border-color); margin-top: auto; }
+        .sidebar-nav-link { display: flex; align-items: center; gap: 15px; padding: 12px 15px; border-radius: 8px; color: var(--text-primary); font-weight: 500; transition: background-color 0.2s; }
+        .sidebar-nav-link:hover { background-color: var(--sidebar-hover-bg); }
+        .sidebar-nav-link i { width: 20px; text-align: center; color: var(--text-secondary); }
 
-        .sidebar-header {
-            padding: 15px;
-            border-bottom: 1px solid var(--border-color);
-            flex-shrink: 0; /* Prevent header from shrinking */
-        }
-
-        .new-chat-btn {
-            width: 100%;
-            padding: 10px 15px;
-            border-radius: 8px;
-            background: var(--header-footer-bg);
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-            font-size: 0.95rem;
-            border: 1px solid var(--border-color);
-            transition: background-color 0.2s;
-        }
-        .new-chat-btn:hover {
-            background-color: var(--sidebar-hover-bg);
-        }
-
-        .sidebar-content {
-            flex-grow: 1; /* Allow content to take remaining space */
-            overflow-y: auto; /* Enable scrolling for chat list */
-            padding: 15px;
-        }
-
-        .recent-title {
-            font-size: 0.8rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            color: var(--text-secondary);
-            margin-bottom: 10px;
-            padding-left: 5px; /* Align with list items */
-        }
-
-        #recent-chats-list {
-            list-style: none;
-        }
-
-        #recent-chats-list li {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 5px 10px 15px; /* Adjust padding */
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            margin-bottom: 5px; /* Add space between items */
-        }
-
-        #recent-chats-list li:hover {
-            background-color: var(--sidebar-hover-bg);
-        }
-
-        #recent-chats-list li.active {
-            background-color: var(--accent-green);
-            color: white; /* Make text white on active */
-        }
-         #recent-chats-list li.active:hover {
-             background-color: var(--accent-green-hover); /* Slightly different hover for active */
+        /* Chat Container Styles */
+        .chat-container { flex-grow: 1; display: flex; flex-direction: column; height: 100dvh; margin-left: 0; /* Adjusted for sidebar logic */ transition: margin-left 0.3s ease; }
+        /* Shift chat container only on larger screens when sidebar opens */
+         @media (min-width: 769px) {
+            .chat-container { margin-left: 260px; }
+            body.sidebar-closed .chat-container { margin-left: 0; }
          }
 
-        #recent-chats-list li.active .delete-chat-btn {
-            color: white; /* Make delete icon white on active */
-        }
-         #recent-chats-list li.active .delete-chat-btn:hover {
-             color: #ffdddd; /* Lighter red for hover on active */
-         }
-
-
-        .chat-title {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            flex-grow: 1;
-            margin-right: 10px;
-        }
-
-        .delete-chat-btn {
-            background: none;
-            border: none;
-            color: var(--text-secondary);
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 5px;
-            opacity: 0.6;
-            transition: opacity 0.2s, color 0.2s;
-            flex-shrink: 0; /* Prevent button from shrinking */
-        }
-
-        #recent-chats-list li:hover .delete-chat-btn {
-            opacity: 1;
-        }
-        .delete-chat-btn:hover {
-            color: var(--danger-red);
-        }
-
-        .sidebar-footer {
-            padding: 10px 15px;
-            border-top: 1px solid var(--border-color);
-            margin-top: auto; /* Push footer to bottom */
-             flex-shrink: 0; /* Prevent footer from shrinking */
-        }
-        .sidebar-nav-link {
-            display: flex; align-items: center; gap: 15px;
-            padding: 12px 15px; border-radius: 8px;
-            color: var(--text-primary); font-weight: 500;
-            transition: background-color 0.2s;
-        }
-        .sidebar-nav-link:hover {
-            background-color: var(--sidebar-hover-bg);
-        }
-        .sidebar-nav-link i {
-            width: 20px; text-align: center; color: var(--text-secondary); /* Icon color */
-        }
-
-        /* Main Chat Area Styles */
-        .chat-container {
-            flex-grow: 1; /* Take remaining width */
-            display: flex;
-            flex-direction: column;
-            height: 100dvh; /* Full viewport height */
-            margin-left: 0; /* Start with sidebar closed */
-            transition: margin-left 0.3s ease; /* Animate margin shift */
-            background-color: var(--main-bg); /* Ensure main bg covers */
-        }
-
-        /* Shift content when sidebar opens on larger screens */
-         @media (min-width: 769px) { /* Adjust breakpoint as needed */
-             body.sidebar-open .chat-container {
-                 margin-left: 260px;
-             }
-         }
-
-
-        /* Navbar Styles */
-        .navbar {
-            background-color: var(--header-footer-bg);
-            padding: 10px 0; /* Reduced padding */
-            border-bottom: 1px solid var(--border-color);
-            z-index: 100;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-            position: relative; /* Needed for mobile dropdown */
-            flex-shrink: 0; /* Prevent navbar from shrinking */
-        }
-
-        .navbar-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            max-width: 1400px; /* Limit width */
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .navbar-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .logo {
-            font-family: 'Inter', sans-serif; /* Use Inter for logo */
-            font-size: 24px;
-            font-weight: 800;
-            color: var(--accent-green);
-        }
-
-        .nav-menu {
-            /* General styles for nav items */
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 8px; /* Space between icon and text */
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-        .nav-menu a:hover { /* Target the anchor within nav-menu */
-             color: var(--accent-green);
-         }
-        .nav-menu i { /* Style icons */
-             width: 18px; text-align: center; color: var(--text-secondary);
-         }
-
-         /* Desktop Navigation */
-        .desktop-nav {
-             display: none; /* Hide by default */
-             align-items: center;
-             gap: 30px; /* Space between links */
-         }
-        @media (min-width: 992px) { /* Show only on larger screens */
-             .desktop-nav { display: flex; }
-         }
-
-
-        .nav-actions {
-            display: flex;
-            align-items: center;
-            gap: 10px; /* Reduced gap */
-        }
-
-        /* Icon Button Style (used for menu, theme) */
-        .icon-btn {
-             background: none; border: none; color: var(--text-secondary); font-size: 18px;
-             cursor: pointer; border-radius: 50%; width: 40px; height: 40px;
-             display: flex; align-items: center; justify-content: center;
-             transition: background-color 0.2s ease, color 0.2s ease;
-         }
-        .icon-btn:hover {
-             background-color: var(--sidebar-hover-bg);
-             color: var(--text-primary);
-         }
-
-        /* Language Dropdown Styles */
-        .language-dropdown { position: relative; }
-        .language-selector {
-             background: none; border: none; color: var(--text-secondary);
-             font-size: 15px; cursor: pointer; padding: 5px 10px; border-radius: 6px;
-             display: flex; align-items: center; gap: 5px;
-             transition: background-color 0.2s;
-        }
-        .language-selector:hover { background-color: var(--sidebar-hover-bg); }
-        .language-selector i { font-size: 0.7rem; } /* Smaller dropdown arrow */
-
-        .dropdown-content {
-             display: none; position: absolute; background-color: var(--header-footer-bg);
-             min-width: 160px; box-shadow: 0 8px 16px var(--shadow-color); z-index: 101;
-             list-style: none; padding: 8px 0; border-radius: 8px;
-             border: 1px solid var(--border-color); right: 0; top: 100%; margin-top: 8px;
-        }
-        .dropdown-content.show { display: block; }
-        .dropdown-content li a {
-             color: var(--text-primary); padding: 10px 20px; display: block; font-size: 14px;
-             white-space: nowrap; /* Prevent wrapping */
-        }
-        .dropdown-content li a:hover { background-color: var(--sidebar-hover-bg); }
-
-        /* Hamburger Button (Mobile Menu Toggle) */
-         .hamburger-btn { display: none; } /* Hide by default */
-         @media (max-width: 991px) { /* Show only on smaller screens */
-             .hamburger-btn { display: flex; }
-         }
-
-
-        /* Mobile Navigation Dropdown */
-        .mobile-nav-dropdown {
-             display: none; position: absolute; top: 100%; left: 0; width: 100%;
-             background-color: var(--header-footer-bg); border-top: 1px solid var(--border-color);
-             z-index: 99; box-shadow: 0 4px 8px var(--shadow-color); /* Add shadow */
-        }
-        .mobile-nav-dropdown.show { display: block; }
-        .mobile-nav-dropdown .nav-menu { /* Re-use nav-menu class for items */
-             display: flex; flex-direction: column; align-items: flex-start;
-             gap: 0; padding: 10px 20px;
-        }
-        .mobile-nav-dropdown .nav-menu a {
-             padding: 15px 0; width: 100%; font-size: 16px;
-             border-bottom: 1px solid var(--border-color);
-        }
-        .mobile-nav-dropdown .nav-menu a:last-child { border-bottom: none; }
+        /* Chat Header */
+        .chat-header { background-color: var(--header-footer-bg); padding: 15px 30px; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 20px; flex-shrink: 0; }
+        .chat-header h2 { font-family: 'Inter', sans-serif; font-size: 20px; font-weight: 600; flex-grow: 1; /* Allow title to take space */ white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .icon-btn { background: none; border: none; color: var(--text-secondary); font-size: 20px; cursor: pointer; padding: 8px; border-radius: 50%; width: 40px; height: 40px; display: flex; align-items:center; justify-content:center; }
+         .icon-btn:hover { background-color: var(--sidebar-hover-bg); }
+        .theme-button i { transition: transform 0.3s ease; } /* Add rotation effect */
+         html.dark-mode .theme-button i.fa-sun { transform: rotate(90deg); }
+         html:not(.dark-mode) .theme-button i.fa-moon { transform: rotate(90deg); }
 
 
         /* Chat Main Area */
-        .chat-main {
-            flex-grow: 1; /* Take remaining vertical space */
-            overflow-y: auto; /* Enable scrolling for messages */
-            padding: 20px;
-             background-color: var(--main-bg); /* Ensure chat area bg */
-        }
+        .chat-main { flex-grow: 1; overflow-y: auto; padding: 30px 40px; }
+        .chat-message-container { max-width: 1100px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+        /* Message Styles */
+        .message { display: flex; align-items: flex-start; gap: 15px; max-width: 85%; animation: fadeIn 0.3s ease-out; }
+         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .message .avatar { width: 40px; height: 40px; border-radius: 50%; background-color: var(--sidebar-hover-bg); display: flex; align-items: center; justify-content: center; font-size: 20px; color: var(--text-secondary); flex-shrink: 0; }
+        .message-bubble { padding: 12px 18px; border-radius: 18px; box-shadow: 0 2px 4px var(--shadow-color); word-wrap: break-word; overflow-wrap: break-word; position: relative; } /* Added relative */
+        .bot-message { align-self: flex-start; }
+        .bot-message .message-bubble { background-color: var(--bot-bubble-bg); border: 1px solid var(--border-color); border-top-left-radius: 4px; }
+        .user-message { align-self: flex-end; flex-direction: row-reverse; }
+        .user-message .message-bubble { background-color: var(--user-bubble-bg); border-bottom-right-radius: 4px; }
+         html.dark-mode .user-message .message-bubble { color: #e0e0e0; }
+        .message-content p { color: var(--text-primary); line-height: 1.6; white-space: pre-wrap; margin: 0; }
+        .message-content img { display: block; max-width: 100%; max-height: 300px; border-radius: 8px; margin-top: 10px; cursor: pointer; object-fit: contain; }
+         /* Speaker Button */
+         .speaker-btn { background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1rem; opacity: 0; transition: opacity 0.3s, color 0.3s; padding: 5px; position: absolute; right: 8px; bottom: 8px; }
+         .bot-message .message-bubble:hover .speaker-btn { opacity: 0.7; }
+         .speaker-btn:hover { color: var(--accent-green); opacity: 1; }
 
-        .chat-message-container {
-            max-width: 900px; /* Limit message width */
-            width: 100%;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 20px; /* Space between messages */
-            padding-bottom: 20px; /* Space at the bottom */
-        }
-
-        /* Individual Message Styles */
-        .message {
-            display: flex;
-            align-items: flex-start; /* Align icon/avatar with top of bubble */
-            gap: 15px;
-            max-width: 85%; /* Limit message width */
-            animation: fadeIn 0.5s ease;
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        .message-bubble {
-             padding: 12px 18px;
-             border-radius: 18px; /* Rounded corners */
-             line-height: 1.6;
-             box-shadow: 0 2px 4px var(--shadow-color);
-             position: relative; /* For speaker button positioning */
-             word-wrap: break-word; /* Ensure long words break */
-             overflow-wrap: break-word; /* Better word breaking */
-             hyphens: auto; /* Add hyphens if needed */
-         }
-
-
-        /* Bot Message Specific Styles */
-        .bot-message { align-self: flex-start; } /* Align left */
-        .bot-message .message-bubble {
-             background-color: var(--bot-bubble-bg);
-             border: 1px solid var(--border-color);
-             border-top-left-radius: 4px; /* Slight point */
-         }
-
-        /* User Message Specific Styles */
-        .user-message {
-             align-self: flex-end; /* Align right */
-             flex-direction: row-reverse; /* Reverse order for right alignment */
-        }
-        .user-message .message-bubble {
-             background-color: var(--user-bubble-bg);
-             border-bottom-right-radius: 4px; /* Slight point */
-        }
-        /* Ensure user text is readable in dark mode */
-         html.dark-mode .user-message .message-bubble {
-             color: #e0e0e0;
-         }
-
-
-        .message-content img {
-            max-width: 100%; /* Prevent image overflow */
-            max-height: 300px; /* Limit image height */
-            object-fit: contain; /* Scale image while preserving aspect ratio */
-            border-radius: 8px;
-            margin-top: 10px;
-            cursor: pointer; /* Indicate it might be clickable (e.g., zoom) */
-            display: block; /* Prevent extra space below image */
-        }
-        .message-content p {
-             white-space: pre-wrap; /* Preserve line breaks and spaces */
-             /* word-wrap and overflow-wrap handled by message-bubble */
-        }
-
-        /* Speaker Button */
-        .speaker-btn {
-             background: none; border: none; color: var(--text-secondary);
-             cursor: pointer; font-size: 1rem; opacity: 0; /* Hidden by default */
-             transition: opacity 0.3s, color 0.3s;
-             padding: 5px; position: absolute; right: 8px; bottom: 8px; /* Adjusted position */
-         }
-        .bot-message .message-bubble:hover .speaker-btn { opacity: 0.7; } /* Show on hover */
-        .speaker-btn:hover { color: var(--accent-green); opacity: 1; }
-
-
-        /* Footer / Input Area Styles */
-        .footer {
-            background-color: var(--header-footer-bg);
-            padding: 15px 20px;
-            border-top: 1px solid var(--border-color);
-            z-index: 10; /* Ensure it's above scrolled content */
-            flex-shrink: 0; /* Prevent footer from shrinking */
-        }
-
-        .chat-input-container {
-            max-width: 900px; /* Match message container width */
-            margin: 0 auto;
-        }
-
-        /* Image Preview Styles */
-        #image-preview-container {
-            margin-bottom: 10px; position: relative;
-            display: none; /* Hidden initially */
-            width: fit-content; /* Size to content */
-        }
-        #image-preview {
-            max-height: 100px; /* Limit preview height */
-            border-radius: 8px; border: 1px solid var(--border-color);
-             display: block; /* Prevent extra space */
-        }
-        #remove-image-btn {
-            position: absolute; top: -10px; right: -10px; /* Position top-right */
-            background: var(--header-footer-bg); color: var(--text-secondary);
-            border: 1px solid var(--border-color); border-radius: 50%;
-            width: 24px; height: 24px; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-             font-size: 1rem; line-height: 1; /* Center the 'x' */
-            box-shadow: 0 1px 3px var(--shadow-color); /* Add subtle shadow */
-        }
-        #remove-image-btn:hover {
-            color: var(--danger-red);
-            background-color: var(--sidebar-hover-bg);
-        }
-
-        /* Input Form Styles */
-        .chat-input-form {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            background-color: var(--input-bg);
-            border-radius: 28px; /* Pill shape */
-            padding: 5px 10px; /* Padding inside the pill */
-            border: 1px solid var(--border-color);
-            transition: border-color 0.2s; /* Animate focus border */
-        }
-        .chat-input-form:focus-within {
-             border-color: var(--accent-green);
-         }
-
-        .input-wrapper {
-            flex-grow: 1;
-             /* Removed padding, handled by form */
-        }
-        .input-wrapper input {
-            width: 100%; border: none; outline: none;
-            font-size: 1rem; color: var(--text-primary);
-            background: none; padding: 10px 0; /* Vertical padding */
-             height: 44px; /* Match button height */
-        }
-         .input-wrapper input::placeholder { /* Style placeholder */
-             color: var(--text-secondary);
-             opacity: 0.8;
-         }
-
-
-        /* Send Button Styles */
-        .send-btn {
-            background-color: var(--send-btn-bg);
-            border: none;
-            color: white;
-            width: 44px; height: 44px; /* Consistent size */
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; flex-shrink: 0;
-            transition: background-color 0.2s, transform 0.1s;
-        }
+        /* Footer Input Area */
+        .footer { background-color: var(--header-footer-bg); padding: 15px 30px; box-shadow: 0 -2px 4px var(--shadow-color); border-top: 1px solid var(--border-color); z-index: 10; flex-shrink: 0; }
+        .chat-input-container { max-width: 1100px; margin: 0 auto; }
+        #image-preview-container { margin-bottom: 10px; position: relative; display: none; width: fit-content; }
+        #image-preview { display: block; max-height: 100px; border-radius: 8px; border: 1px solid var(--border-color); }
+        #remove-image-btn { position: absolute; top: -10px; right: -10px; background: var(--header-footer-bg); color: var(--text-secondary); border: 1px solid var(--border-color); border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 3px var(--shadow-color); }
+         #remove-image-btn:hover { color: var(--danger-red); background-color: var(--sidebar-hover-bg); }
+        .chat-input-form { display: flex; align-items: center; gap: 10px; }
+        .input-wrapper { flex-grow: 1; display: flex; align-items: center; background-color: var(--input-bg); border-radius: 28px; padding: 0 20px; transition: box-shadow 0.2s; }
+         .input-wrapper:focus-within { box-shadow: 0 0 0 2px var(--accent-green); }
+        .input-wrapper input { width: 100%; border: none; outline: none; font-size: 1rem; color: var(--text-primary); background: none; padding: 14px 0; height: 50px; } /* Ensure height matches buttons */
+         .input-wrapper input::placeholder { color: var(--text-secondary); opacity: 0.8; }
+        .send-btn { background-color: var(--send-btn-bg); border: none; color: white; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background-color 0.2s, transform 0.1s; }
         .send-btn:hover { background-color: var(--accent-green-hover); }
-        .send-btn:active { transform: scale(0.9); }
+         .send-btn:active { transform: scale(0.9); }
         .send-btn:disabled { background-color: #9E9E9E; cursor: not-allowed; }
-        .send-btn svg { /* Ensure SVG scales if needed */
-             width: 20px; height: 20px;
-         }
+        .send-btn svg { width: 20px; height: 20px; }
+         /* Input area icon buttons */
+         .chat-input-form .icon-btn { width: 50px; height: 50px; flex-shrink: 0; font-size: 18px; }
 
-        /* Mic Button Styles */
-         .mic-btn.listening i { color: var(--danger-red); animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
-
-        /* General Icon Button Styling (Image, Mic) */
-        .chat-input-form .icon-btn {
-            width: 44px; height: 44px; /* Match send button size */
-            font-size: 18px; /* Adjust icon size if needed */
-            flex-shrink: 0;
-        }
+         /* Mobile Sidebar Overlay */
+         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 199; }
+         body.sidebar-open .sidebar-overlay { display: block; }
+         @media (min-width: 769px) { .sidebar-overlay { display: none !important; } }
 
         /* Responsive Adjustments */
-        @media (max-width: 991px) { /* Tablet and below */
-             .desktop-nav { display: none; }
-             /* Sidebar behavior handled by JS/body class */
-        }
-        @media (max-width: 768px) { /* Mobile */
-             .sidebar { /* Ensure sidebar takes full width if needed, adjust as per design */
-                 /* width: 100%; */
-                 /* margin-left: -100%; */
-             }
-             body.sidebar-open .chat-container {
-                  /* On mobile, sidebar overlays, so no margin shift needed unless intended */
-                  /* margin-left: 260px; */ /* Remove or adjust if overlay is desired */
-             }
-             .message { max-width: 95%; } /* Slightly wider messages */
-             .chat-main { padding: 15px; }
-             .footer { padding: 10px 15px; } /* Reduce footer padding */
-             .chat-input-form { padding: 5px; gap: 3px; } /* Tighter input form */
-             .chat-input-form .icon-btn, .send-btn { width: 40px; height: 40px; } /* Smaller buttons */
-             .input-wrapper input { height: 40px; font-size: 0.95rem; }
-        }
+        @media (max-width: 768px) {
+            .sidebar { margin-left: -260px; /* Fully hidden */ width: 260px; /* Ensure width is fixed */ }
+            .chat-container { margin-left: 0; } /* Chat always takes full width */
+            body.sidebar-open .sidebar { margin-left: 0; } /* Sidebar slides in */
+             /* Remove chat container margin shift on mobile */
+             body.sidebar-open .chat-container { margin-left: 0; }
 
-         /* Overlay for when sidebar is open on mobile */
-         .sidebar-overlay {
-             display: none;
-             position: fixed;
-             top: 0; left: 0; right: 0; bottom: 0;
-             background-color: rgba(0,0,0,0.5);
-             z-index: 299; /* Below sidebar */
-         }
-        body.sidebar-open .sidebar-overlay {
-             display: block;
-         }
-         @media (min-width: 769px) {
-             .sidebar-overlay { display: none !important; } /* No overlay on desktop */
-         }
+            .chat-header { padding: 10px 15px; gap: 10px; }
+            .chat-main { padding: 15px; }
+            .message { max-width: 95%; }
+            .footer { padding: 10px 15px; }
+             .chat-input-form { gap: 5px; }
+             .input-wrapper { padding: 0 15px; }
+             .input-wrapper input { height: 44px; font-size: 0.95rem; }
+             .chat-input-form .icon-btn, .send-btn { width: 44px; height: 44px; }
+             .send-btn svg { width: 18px; height: 18px; }
 
+        }
     </style>
 </head>
-<body>
+<body class="sidebar-closed"> <script>
+        // AUTH GUARD: Redirect to login if token is not found.
+        if (!localStorage.getItem('token')) {
+            window.location.href = 'login.html';
+        }
+    </script>
+
     <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <button class="new-chat-btn" id="new-chat-btn"><i class="fa-solid fa-plus"></i> <span data-lang-key="new_chat">New Chat</span></button>
+            <button class="new-chat-btn" id="new-chat-btn"><i class="fa-solid fa-plus"></i> New Chat</button>
         </div>
         <div class="sidebar-content">
-            <p class="recent-title" data-lang-key="recent_chats">Recent Chats</p>
+            <p class="recent-title">Recent Chats</p>
             <ul id="recent-chats-list">
                 </ul>
         </div>
         <div class="sidebar-footer">
-            <a href="#" id="logout-btn" class="sidebar-nav-link">
-                <i class="fa-solid fa-right-from-bracket"></i>
-                <span data-lang-key="logout">Logout</span>
+            <a href="index.html" class="sidebar-nav-link">
+                <i class="fa-solid fa-house"></i>
+                <span>Home</span>
             </a>
+            <a href="#" id="logout-btn" class="sidebar-nav-link">
+                 <i class="fa-solid fa-right-from-bracket"></i>
+                 <span>Logout</span>
+             </a>
         </div>
     </aside>
 
     <div class="sidebar-overlay" id="sidebar-overlay"></div>
 
-
     <div class="chat-container">
-        <header class="navbar">
-            <div class="navbar-container">
-                <div class="navbar-left">
-                    <button class="icon-btn" id="menu-toggle-btn" title="Toggle Menu"><i class="fa-solid fa-bars"></i></button>
-                    <a href="index.html" class="logo" data-lang-key="logo_text">FarmWise</a>
-                </div>
-                <nav class="desktop-nav"> <a href="index.html" class="nav-menu" data-lang-key="nav_home"><i class="fa-solid fa-home"></i> Home</a>
-                    <a href="chatbot.html" class="nav-menu" data-lang-key="nav_chatbot"><i class="fa-solid fa-robot"></i> Krishi Sahayi Bot</a>
-                    <a href="plant.html" class="nav-menu" data-lang-key="nav_crop_disease"><i class="fa-solid fa-leaf"></i> Crop Disease Diagnosis</a>
-                    <a href="weather.html" class="nav-menu" data-lang-key="nav_weather"><i class="fa-solid fa-cloud-sun"></i> Weather Prediction</a>
-                    <a href="community.html" class="nav-menu" data-lang-key="nav_community"><i class="fa-solid fa-users"></i> Farmer Community</a>
-                </nav>
-                <div class="nav-actions">
-                    <div class="language-dropdown">
-                        <button class="language-selector" id="language-selector-btn">English <i class="fa-solid fa-angle-down"></i></button>
-                        <ul class="dropdown-content" id="language-dropdown-content">
-                            <li><a href="#" data-lang="en">English</a></li>
-                            <li><a href="#" data-lang="ta">தமிழ் (Tamil)</a></li>
-                            <li><a href="#" data-lang="ml">മലയാളം (Malayalam)</a></li>
-                        </ul>
-                    </div>
-                    <button id="theme-toggle" class="icon-btn" title="Toggle Theme">
-                        <i class="fa-solid fa-sun"></i> </button>
-                    <button class="hamburger-btn icon-btn" id="hamburger-btn"><i class="fa-solid fa-bars"></i></button> </div>
-            </div>
-            <div class="mobile-nav-dropdown" id="mobile-nav-dropdown">
-                <nav class="nav-menu">
-                    <a href="index.html" data-lang-key="nav_home"><i class="fa-solid fa-home"></i> Home</a>
-                    <a href="chatbot.html" data-lang-key="nav_chatbot"><i class="fa-solid fa-robot"></i> Krishi Sahayi Bot</a>
-                    <a href="plant.html" data-lang-key="nav_crop_disease"><i class="fa-solid fa-leaf"></i> Crop Disease Diagnosis</a>
-                    <a href="weather.html" data-lang-key="nav_weather"><i class="fa-solid fa-cloud-sun"></i> Weather Prediction</a>
-                    <a href="community.html" data-lang-key="nav_community"><i class="fa-solid fa-users"></i> Farmer Community</a>
-                </nav>
-            </div>
+        <header class="chat-header">
+            <button class="icon-btn" id="menu-toggle-btn" title="Toggle Menu"><i class="fa-solid fa-bars"></i></button>
+            <h2 id="chat-header-title">FarmWise Bot</h2>
+            <button id="theme-toggle" class="icon-btn theme-button" title="Toggle Theme" style="margin-left: auto;">
+                 <i class="fa-solid fa-sun"></i> </button>
         </header>
 
         <main class="chat-main" id="chat-main">
@@ -661,9 +200,8 @@
                     <button type="button" class="icon-btn" id="image-btn" title="Upload Image"><i class="fa-solid fa-image"></i></button>
                     <input type="file" id="image-input" accept="image/*" style="display: none;" />
                     <div class="input-wrapper">
-                        <input type="text" id="user-input" placeholder="Ask about crops, soil, or pests..." autocomplete="off" />
+                        <input type="text" id="user-input" placeholder="Ask about crops, or upload an image..." autocomplete="off" />
                     </div>
-                    <button type="button" class="icon-btn mic-btn" id="mic-btn" title="Voice Input"><i class="fa-solid fa-microphone"></i></button>
                     <button type="submit" class="send-btn" id="send-btn" title="Send Message" disabled> <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path></svg>
                     </button>
                 </form>
@@ -672,649 +210,527 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const API_BASE_URL = 'https://mains-ayqd.onrender.com'; // Make sure this is correct
-
-            // DOM Element References
-            const body = document.body;
-            const messageContainer = document.getElementById('message-container');
-            const chatMain = document.getElementById('chat-main');
-            const newChatBtn = document.getElementById('new-chat-btn');
-            const recentChatsList = document.getElementById('recent-chats-list');
-            const chatForm = document.getElementById('chat-form');
-            const userInput = document.getElementById('user-input');
-            const sendBtn = document.getElementById('send-btn');
-            const themeToggleBtn = document.getElementById('theme-toggle');
-            const menuToggleBtn = document.getElementById('menu-toggle-btn');
-            const micBtn = document.getElementById('mic-btn');
-            const imageBtn = document.getElementById('image-btn');
-            const imageInput = document.getElementById('image-input');
-            const imagePreviewContainer = document.getElementById('image-preview-container');
-            const imagePreview = document.getElementById('image-preview');
-            const removeImageBtn = document.getElementById('remove-image-btn');
-            const languageDropdown = document.querySelector('.language-dropdown');
-            const languageSelectorBtn = document.getElementById('language-selector-btn'); // Corrected selector
-            const dropdownContent = document.getElementById('language-dropdown-content'); // Corrected selector
-            const hamburgerBtn = document.getElementById('hamburger-btn');
-            const mobileNavDropdown = document.getElementById('mobile-nav-dropdown');
-            const logoutBtn = document.getElementById('logout-btn');
-            const sidebarOverlay = document.getElementById('sidebar-overlay'); // Added Overlay
-
-            // State Variables
-            let currentChatId = null;
-            let currentLanguage = 'en';
-            let selectedFile = null;
-
-            // --- API & Authentication ---
-            const fetchWithAuth = async (url, options = {}) => {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    alert('You are not logged in. Redirecting to login page.');
-                    window.location.href = 'login.html'; // Redirect if no token
-                    return null; // Return null to indicate failure
-                }
-                const headers = { ...(options.headers || {}), 'x-auth-token': token };
-                // Don't set Content-Type for FormData, browser does it with boundary
-                if (!(options.body instanceof FormData)) {
-                     headers['Content-Type'] = 'application/json';
-                }
-
-                try {
-                     const response = await fetch(url, { ...options, headers });
-                     if (response.status === 401) {
-                         localStorage.clear(); // Clear everything on session expiry
-                         alert('Your session has expired. Please log in again.');
-                         window.location.href = 'login.html'; // Redirect on expiry
-                         throw new Error('Session expired'); // Throw error to stop further processing
-                     }
-                    // Check for other non-OK statuses
-                    if (!response.ok) {
-                        const errorData = await response.json().catch(() => ({ message: `HTTP error! status: ${response.status}` }));
-                        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
-                    }
-                    return response; // Return response for further processing
-                 } catch (error) {
-                     console.error('Fetch error:', error);
-                     // Avoid double alert if session expired
-                     if (error.message !== 'Session expired') {
-                        alert(`Network error or server unavailable: ${error.message}`);
-                     }
-                    throw error; // Re-throw to be caught by caller
-                 }
-            };
-
-            logoutBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                localStorage.clear(); // Clear token and any other stored data
-                alert('You have been logged out.');
-                window.location.href = 'login.html'; // Redirect to login
-            });
-
-            // --- Internationalization (i18n) ---
-            const languageData = {
-                en: {
-                    logo_text: "FarmWise", nav_home: "Home", nav_chatbot: "Krishi Sahayi Bot", nav_crop_disease: "Crop Disease Diagnosis", nav_weather: "Weather Prediction", nav_community: "Farmer Community", new_chat: "New Chat", recent_chats: "Recent Chats", logout: "Logout", language_separator: "Language", placeholder_text: "Ask about crops, soil, or pests..."
-                },
-                ta: {
-                    logo_text: "ஃபார்ம்வைஸ்", nav_home: "முகப்பு", nav_chatbot: "கிருஷி சஹாயி பாட்", nav_crop_disease: "பயிர் நோய் கண்டறிதல்", nav_weather: "வானிலை முன்னறிவிப்பு", nav_community: "விவசாயிகள் சமூகம்", new_chat: "புதிய அரட்டை", recent_chats: "சமீபத்திய அரட்டைகள்", logout: "வெளியேறு", language_separator: "மொழி", placeholder_text: "பயிர்கள், மண், அல்லது பூச்சிகள் பற்றி கேளுங்கள்..."
-                },
-                ml: {
-                    logo_text: "ഫാംവൈസ്", nav_home: "ഹോം", nav_chatbot: "കൃഷി സഹായി ബോട്ട്", nav_crop_disease: "വിള രോഗനിർണയം", nav_weather: "കാലാവസ്ഥാ പ്രവചനം", nav_community: "കർഷക സമൂഹം", new_chat: "പുതിയ ചാറ്റ്", recent_chats: "സമീപകാല ചാറ്റുകൾ", logout: "ലോഗൗട്ട്", language_separator: "ഭാഷ", placeholder_text: "വിളകൾ, മണ്ണ്, അല്ലെങ്കിൽ കീടങ്ങളെക്കുറിച്ച് ചോദിക്കുക..."
-                }
-            };
-
-            const setLanguage = (lang) => {
-                if (!languageData[lang]) lang = 'en'; // Default to English if lang is invalid
-                document.querySelectorAll('[data-lang-key]').forEach(element => {
-                    const key = element.getAttribute('data-lang-key');
-                    if (languageData[lang]?.[key]) {
-                        const iconHTML = element.querySelector('i')?.outerHTML || '';
-                        const text = languageData[lang][key];
-                        // Preserve existing non-text nodes if any, simple case for icon + text
-                        element.innerHTML = iconHTML ? `${iconHTML} ${text}` : text;
-                    }
-                });
-                // Update language selector button text
-                 const selectedLangElement = dropdownContent.querySelector(`a[data-lang="${lang}"]`);
-                 if (selectedLangElement) {
-                     languageSelectorBtn.innerHTML = `${selectedLangElement.textContent.split(' ')[0]} <i class="fa-solid fa-angle-down"></i>`;
-                 } else {
-                     languageSelectorBtn.innerHTML = `English <i class="fa-solid fa-angle-down"></i>`; // Fallback
-                 }
-
-                 // Update placeholder text
-                 if (userInput && languageData[lang]?.placeholder_text) {
-                     userInput.placeholder = languageData[lang].placeholder_text;
-                 }
-
-
-                currentLanguage = lang;
-                localStorage.setItem('chatLanguage', lang);
-            };
-
-            // --- Theme Management ---
-            const applyTheme = (theme) => {
-                const themeIcon = themeToggleBtn.querySelector('i');
-                document.documentElement.classList.toggle('dark-mode', theme === 'dark');
-                if (themeIcon) {
-                    themeIcon.className = `fa-solid ${theme === 'dark' ? 'fa-sun' : 'fa-moon'}`;
-                }
-            };
-
-            // --- UI Rendering & DOM Manipulation ---
-            const addMessageToUI = (sender, content) => {
-                // Ensure messageContainer exists
-                if (!messageContainer) {
-                    console.error("Critical Error: messageContainer element not found.");
-                    return null; // Return null to indicate failure
-                }
-
-                const { text, imageUrl } = content;
-                const messageDiv = document.createElement('div');
-                messageDiv.classList.add('message', `${sender}-message`);
-
-                const messageBubble = document.createElement('div');
-                messageBubble.className = 'message-bubble';
-
-                const contentDiv = document.createElement('div');
-                contentDiv.className = 'message-content';
-
-                // Append text content if it exists and is not empty
-                if (text != null && text.trim() !== '') {
-                    const p = document.createElement('p');
-                    p.textContent = text;
-                    contentDiv.appendChild(p);
-                }
-
-                // Append image if it exists
-                if (imageUrl) {
-                    const img = document.createElement('img');
-                    img.src = imageUrl;
-                    img.alt = "Chat image";
-                     img.onerror = () => { img.alt = "Image failed to load"; img.style.display = 'none'; };
-                    contentDiv.appendChild(img);
-                }
-
-                // Add speaker button *only if* it's a bot message with actual text
-                if (sender === 'bot' && text && text.trim() !== '') {
-                    const speakerBtn = document.createElement('button');
-                    speakerBtn.className = 'speaker-btn';
-                    speakerBtn.title = 'Read aloud';
-                    speakerBtn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
-                    messageBubble.appendChild(speakerBtn);
-                }
-
-                // Only proceed if there's content to display
-                 if (contentDiv.hasChildNodes()) {
-                    messageBubble.appendChild(contentDiv);
-                    messageDiv.appendChild(messageBubble);
-                    messageContainer.appendChild(messageDiv); // This is where the error could happen
-
-                    // Scroll to bottom smoothly, ensuring chatMain exists
-                    if (chatMain) {
-                        chatMain.scrollTo({ top: chatMain.scrollHeight, behavior: 'smooth' });
-                    } else {
-                        console.error("Error: chatMain element not found for scrolling.");
-                    }
-                    return messageBubble; // Return the bubble for streaming
-                }
-                return null; // Return null if nothing was added
-            };
-
-
-            const streamBotResponse = (fullText) => {
-                 if (!fullText || fullText.trim() === '') return;
-
-                 const messageBubble = addMessageToUI('bot', { text: '' });
-                 // Check if bubble creation failed (e.g., messageContainer was null)
-                 if (!messageBubble) return;
-
-                 const contentDiv = messageBubble.querySelector('.message-content');
-                 const p = document.createElement('p');
-                 if (!contentDiv) {
-                     console.error("Error streaming: Could not find contentDiv in newly created bubble.");
-                     return;
-                 }
-                 contentDiv.appendChild(p);
-
-                 const words = fullText.split(/(\s+)/);
-                 let wordIndex = 0;
-                 const intervalTime = Math.max(10, 50 - words.length * 0.1);
-
-                 const intervalId = setInterval(() => {
-                     if (!chatMain) { // Add safety check for chatMain
-                         clearInterval(intervalId);
-                         console.error("Error streaming: chatMain element disappeared.");
-                         return;
-                     }
-                     if (wordIndex < words.length) {
-                         p.textContent += words[wordIndex] || '';
-                         chatMain.scrollTop = chatMain.scrollHeight;
-                         wordIndex++;
-                     } else {
-                         clearInterval(intervalId);
-                         const speakerBtn = document.createElement('button');
-                         speakerBtn.className = 'speaker-btn';
-                         speakerBtn.title = 'Read aloud';
-                         speakerBtn.innerHTML = '<i class="fa-solid fa-volume-high"></i>';
-                         messageBubble.appendChild(speakerBtn);
-                     }
-                 }, intervalTime);
-             };
-
-            const resetImageInput = () => {
-                imageInput.value = '';
-                selectedFile = null;
-                imagePreviewContainer.style.display = 'none';
-                if (imagePreview.src) { // Only revoke if there's a src
-                     URL.revokeObjectURL(imagePreview.src);
-                     imagePreview.src = '';
-                }
-                 // Update send button state after resetting image
-                 sendBtn.disabled = userInput.value.trim() === '' && !selectedFile;
-            };
-
-            // --- Chat Logic ---
-            const startNewChat = () => {
-                currentChatId = null;
-                userInput.value = '';
-                if (messageContainer) { // Check if container exists
-                    messageContainer.innerHTML = '';
-                    addMessageToUI('bot', { text: 'Hello! Ask me anything about agriculture.' });
-                } else {
-                    console.error("Cannot start new chat: messageContainer not found.");
-                }
-                document.querySelectorAll('#recent-chats-list li.active').forEach(li => li.classList.remove('active'));
-                resetImageInput();
-                if (window.innerWidth <= 768) {
-                    body.classList.remove('sidebar-open');
-                    if (sidebarOverlay) sidebarOverlay.style.display = 'none';
-                }
-                 sendBtn.disabled = true; // Ensure send is disabled
-                 if (userInput) userInput.focus(); // Focus input if it exists
-            };
-
-            const fetchRecentChats = async () => {
-                 // Ensure recentChatsList exists before trying to modify it
-                 if (!recentChatsList) {
-                    console.error("Cannot fetch chats: recentChatsList element not found.");
-                    return;
-                 }
-                 try {
-                     const response = await fetchWithAuth(`${API_BASE_URL}/api/chats`);
-                     // fetchWithAuth already handles !response check and throws error
-                     if (!response) return; // Exit if fetch failed (e.g., redirect happened)
-
-                     const chats = await response.json();
-                     recentChatsList.innerHTML = ''; // Clear previous list
-
-                     if (chats.length === 0) {
-                         recentChatsList.innerHTML = '<li style="color: var(--text-secondary); padding-left: 15px;">No recent chats.</li>';
-                     } else {
-                        chats.forEach(chat => {
-                            const li = document.createElement('li');
-                            if (chat._id === currentChatId) li.classList.add('active');
-                            li.innerHTML = `
-                                <span class="chat-title" title="${chat.title}">${chat.title || 'Untitled Chat'}</span>
-                                <button class="delete-chat-btn" data-chat-id="${chat._id}" title="Delete chat">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                </button>`;
-                             li.addEventListener('click', (e) => {
-                                 if (!e.target.closest('.delete-chat-btn')) {
-                                    loadChatHistory(chat._id);
-                                 }
-                             });
-                            recentChatsList.appendChild(li); // Check for recentChatsList exists here
-                        });
-                         addDeleteButtonListeners();
-                     }
-                 } catch (error) {
-                     if (error.message !== 'Session expired') {
-                        console.error('Failed to fetch recent chats:', error);
-                        // Check again before modifying
-                        if (recentChatsList) {
-                             recentChatsList.innerHTML = '<li>Error loading chats.</li>';
-                        }
-                     }
-                 }
-             };
-
-            const loadChatHistory = async (chatId) => {
-                 if (currentChatId === chatId) return;
-
-                 currentChatId = chatId;
-                 if (!messageContainer) { // Check before clearing/adding
-                    console.error("Cannot load history: messageContainer not found.");
-                    return;
-                 }
-                 messageContainer.innerHTML = '';
-                 addMessageToUI('bot', { text: 'Loading chat history...' });
-
-                 document.querySelectorAll('#recent-chats-list li').forEach(li => li.classList.remove('active'));
-                 const activeLi = recentChatsList?.querySelector(`button[data-chat-id="${chatId}"]`)?.closest('li'); // Add optional chaining
-                 if (activeLi) activeLi.classList.add('active');
-
-                 resetImageInput();
-
-                 try {
-                     const response = await fetchWithAuth(`${API_BASE_URL}/api/chat/${chatId}`);
-                     if (!response) return; // Exit if fetch failed
-
-                     const chatData = await response.json();
-                     const history = chatData.history || [];
-
-                     if (!messageContainer) return; // Check again before modifying
-                     messageContainer.innerHTML = ''; // Clear loading message
-
-                     if (history.length === 0) {
-                        addMessageToUI('bot', { text: 'This chat has no messages yet.' });
-                     } else {
-                         history.forEach(msg => {
-                             const sender = msg.role === 'model' ? 'bot' : 'user';
-                             let messageText = null;
-                             let messageImageUrl = null;
-
-                             if (Array.isArray(msg.parts)) {
-                                 msg.parts.forEach(part => {
-                                     if (part.text) {
-                                         messageText = part.text;
-                                     } else if (part.inlineData) {
-                                          messageImageUrl = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-                                     }
-                                 });
-                             }
-                             if (messageText || messageImageUrl) {
-                                addMessageToUI(sender, { text: messageText, imageUrl: messageImageUrl });
-                             }
-                         });
-                     }
-
-                     if (window.innerWidth <= 768) {
-                        body.classList.remove('sidebar-open');
-                        if (sidebarOverlay) sidebarOverlay.style.display = 'none';
-                     }
-                      if (chatMain) chatMain.scrollTop = chatMain.scrollHeight; // Scroll to bottom
-
-                 } catch (error) {
-                     if (error.message !== 'Session expired') {
-                        console.error('Error loading chat history:', error);
-                        if (messageContainer) { // Check before modifying
-                           messageContainer.innerHTML = '';
-                           addMessageToUI('bot', { text: `Could not load chat history. ${error.message}` });
-                        }
-                     }
-                 }
-             };
-
-            const deleteChat = async (chatId) => {
-                 if (!confirm('Are you sure you want to delete this chat history?')) return;
-                 try {
-                     const response = await fetchWithAuth(`${API_BASE_URL}/api/chat/${chatId}`, { method: 'DELETE' });
-                     if (!response) return; // Exit if fetch failed
-
-                    // Check if deletion was successful on the server even if response is OK
-                     if (response.status !== 200) { // Or check for specific success status like 204 No Content
-                         const errorData = await response.json().catch(() => ({}));
-                         throw new Error(errorData.message || `Failed to delete chat (Status: ${response.status})`);
-                     }
-
-
-                     if (currentChatId === chatId) {
-                         startNewChat();
-                     }
-                      // Visually remove from list
-                      const listItem = recentChatsList?.querySelector(`button[data-chat-id="${chatId}"]`)?.closest('li'); // Optional chaining
-                      if (listItem) listItem.remove();
-
-                      if (recentChatsList && recentChatsList.children.length === 0) {
-                           recentChatsList.innerHTML = '<li style="color: var(--text-secondary); padding-left: 15px;">No recent chats.</li>';
-                      }
-
-                 } catch (error) {
-                     if (error.message !== 'Session expired') {
-                        console.error('Delete chat error:', error);
-                        alert(`Error deleting chat: ${error.message}`);
-                     }
-                 }
-             };
-
-            const addDeleteButtonListeners = () => {
-                 if (!recentChatsList) return; // Check if list exists
-                 recentChatsList.querySelectorAll('.delete-chat-btn').forEach(button => {
-                     // Simple way to ensure no duplicate listeners: remove and re-add
-                     const newButton = button.cloneNode(true);
-                     button.parentNode.replaceChild(newButton, button);
-                     newButton.addEventListener('click', (e) => {
-                         e.stopPropagation();
-                         deleteChat(newButton.dataset.chatId);
-                     });
-                 });
-             };
-
-
-            // --- Speech Recognition & Synthesis --- (Keep as is, seems correct)
-             let voices = [];
-            const populateVoiceList = () => { /* ... */ };
-            populateVoiceList();
-            if (window.speechSynthesis.onvoiceschanged !== undefined) { /* ... */ }
-            const speakText = (text, langCode) => { /* ... */ };
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            let recognition;
-            if (SpeechRecognition) {
-                recognition = new SpeechRecognition(); /* ... */
-                 micBtn.addEventListener('click', () => { /* ... */ });
-                 recognition.onresult = event => { /* ... */ };
-                 recognition.onerror = event => { /* ... */ };
-                 recognition.onend = () => { /* ... */ };
-            } else { /* ... */ }
-
-
-            // --- Event Listeners Setup ---
-            if (chatForm) { // Check if form exists
-                chatForm.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                     if (!userInput || !sendBtn) return; // Check required elements
-
-                    let userMessage = userInput.value.trim();
-                    if (!userMessage && !selectedFile) {
-                        userInput.focus();
-                        return;
-                    }
-
-                    addMessageToUI('user', { text: userMessage, imageUrl: selectedFile ? imagePreview.src : null });
-
-                    const messageForApi = (selectedFile && !userMessage) ? "Analyze the attached image" : userMessage;
-                    const tempSelectedFile = selectedFile;
-
-                    userInput.value = '';
-                    resetImageInput();
-                    sendBtn.disabled = true;
-
-                    let thinkingBubble = null; // Declare here
-                    try {
-                        const apiUrl = `${API_BASE_URL}/api/chat`;
-                        const formData = new FormData();
-                        formData.append('message', messageForApi);
-                        formData.append('language', currentLanguage);
-                        if (tempSelectedFile) {
-                            formData.append('image', tempSelectedFile, tempSelectedFile.name);
-                        }
-                        if (currentChatId) {
-                             formData.append('chatId', currentChatId);
-                        }
-
-                        thinkingBubble = addMessageToUI('bot', { text: 'Thinking...' }); // Assign here
-
-                        const response = await fetchWithAuth(apiUrl, { method: 'POST', body: formData });
-
-                        if (thinkingBubble) thinkingBubble.closest('.message')?.remove(); // Check before removing
-
-                        if (!response) return; // Exit if fetch failed (e.g., auth error)
-
-                        // No need to check response.ok here, fetchWithAuth does it
-
-                        const data = await response.json();
-
-                        if (data.reply && data.reply.trim() !== '') {
-                            streamBotResponse(data.reply);
-                        } else {
-                            addMessageToUI('bot', { text: "I received your message but couldn't generate a response." });
-                        }
-
-                        if (!currentChatId && data.newChatId) {
-                            currentChatId = data.newChatId;
-                            await fetchRecentChats();
-                             const activeLi = recentChatsList?.querySelector(`button[data-chat-id="${currentChatId}"]`)?.closest('li');
-                             if (activeLi) activeLi.classList.add('active');
-                        }
-                         else if (currentChatId) {
-                             // Maybe refresh list to update sorting?
-                             // await fetchRecentChats();
-                         }
-
-                    } catch (error) {
-                         if (thinkingBubble) thinkingBubble.closest('.message')?.remove(); // Check before removing
-
-                        if (error.message !== 'Session expired') {
-                            console.error('Send message error:', error);
-                            addMessageToUI('bot', { text: `Sorry, an error occurred: ${error.message}` });
-                        }
-                    } finally {
-                        if (sendBtn) sendBtn.disabled = userInput.value.trim() === '' && !selectedFile;
-                        if (userInput) userInput.focus();
-                    }
-                });
-            } else {
-                console.error("Critical Error: chatForm not found.");
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- CONFIG & STATE ---
+        const API_BASE_URL = 'https://main-back-g4pq.onrender.com'; // Your actual API URL
+        let currentChatId = null;
+        let selectedFile = null;
+
+        // --- DOM ELEMENT SELECTORS ---
+        const body = document.body;
+        const messageContainer = document.getElementById('message-container');
+        const chatMain = document.getElementById('chat-main');
+        const newChatBtn = document.getElementById('new-chat-btn');
+        const recentChatsList = document.getElementById('recent-chats-list');
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        const imageBtn = document.getElementById('image-btn');
+        const imageInput = document.getElementById('image-input');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const imagePreview = document.getElementById('image-preview');
+        const removeImageBtn = document.getElementById('remove-image-btn');
+        const menuToggleBtn = document.getElementById('menu-toggle-btn');
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const chatHeaderTitle = document.getElementById('chat-header-title'); // Added
+        const sidebarOverlay = document.getElementById('sidebar-overlay'); // Added
+        const logoutBtn = document.getElementById('logout-btn'); // Added
+
+
+        // --- API HELPERS ---
+        const fetchWithAuth = async (url, options = {}) => {
+            const token = localStorage.getItem('token');
+            // Auth guard moved to top-level script for immediate redirect
+            // if (!token) { /* ... */ }
+
+            const headers = { ...(options.headers || {}), 'x-auth-token': token };
+
+            if (options.body instanceof FormData) {
+                delete headers['Content-Type']; // Browser sets this with boundary
+            } else if (options.body && typeof options.body === 'object') {
+                // Ensure body is stringified if it's a JSON object and not FormData
+                options.body = JSON.stringify(options.body);
+                headers['Content-Type'] = 'application/json';
             }
 
-            if (newChatBtn) newChatBtn.addEventListener('click', startNewChat);
+            try {
+                const response = await fetch(url, { ...options, headers });
 
-            // Theme Toggle
-            if (themeToggleBtn) themeToggleBtn.addEventListener('click', () => {
-                const newTheme = document.documentElement.classList.contains('dark-mode') ? 'light' : 'dark';
-                localStorage.setItem('theme', newTheme);
-                applyTheme(newTheme);
-            });
+                if (response.status === 401) {
+                    localStorage.clear(); // Use clear to remove token and potentially other user data
+                    alert('Your session is invalid or expired. Please log in again.');
+                    window.location.href = 'login.html';
+                    throw new Error('Session expired'); // Stop further execution
+                }
 
-            // Sidebar Toggle (Menu Button)
-            if (menuToggleBtn) menuToggleBtn.addEventListener('click', (e) => {
-                 e.stopPropagation();
-                 body.classList.toggle('sidebar-open');
-                 if (window.innerWidth <= 768 && sidebarOverlay) {
-                    sidebarOverlay.style.display = body.classList.contains('sidebar-open') ? 'block' : 'none';
+                 // Handle other non-OK responses generically
+                 if (!response.ok) {
+                    let errorMsg = `HTTP error! Status: ${response.status}`;
+                    try {
+                        const errorData = await response.json();
+                        errorMsg = errorData.message || errorMsg; // Use server message if available
+                    } catch (e) { /* Ignore parsing error if body isn't JSON */ }
+                    throw new Error(errorMsg);
+                }
+
+                return response; // Return the successful response
+            } catch (error) {
+                 console.error('Fetch Error:', error);
+                 if (error.message !== 'Session expired') { // Avoid double alert
+                    alert(`Network error or server unavailable: ${error.message}`);
                  }
-            });
-             // Sidebar Overlay Click Listener
-             if (sidebarOverlay) sidebarOverlay.addEventListener('click', () => {
-                 body.classList.remove('sidebar-open');
-                 sidebarOverlay.style.display = 'none';
+                throw error; // Re-throw needed for caller's catch block
+            }
+        };
+
+        // --- UI & CHAT FUNCTIONS ---
+
+        // addMessage function (corrected version with safety checks)
+         const addMessage = (sender, contentParts, isThinking = false) => {
+             // **Safety Check 1: Ensure container exists**
+             if (!messageContainer) {
+                 console.error("Critical Error: messageContainer element not found.");
+                 return null;
+             }
+
+             const messageDiv = document.createElement('div');
+             messageDiv.classList.add('message', `${sender}-message`);
+
+             const avatarIcon = sender === 'user' ? 'fa-user' : 'fa-robot';
+             const messageContentDiv = document.createElement('div');
+             messageContentDiv.className = 'message-content';
+
+             let hasContent = false; // Track if anything was added
+
+             if (contentParts && Array.isArray(contentParts) && contentParts.length > 0) {
+                 contentParts.forEach(part => {
+                     // Check part structure before accessing properties
+                     if (part && part.type === 'text' && part.text != null && part.text.trim() !== '') {
+                         const p = document.createElement('p');
+                         p.textContent = part.text;
+                         messageContentDiv.appendChild(p);
+                         hasContent = true;
+                     } else if (part && part.type === 'image_url' && part.image_url && part.image_url.url) {
+                          const img = document.createElement('img');
+                          img.src = part.image_url.url;
+                          img.alt = "Chat image";
+                          img.onerror = () => { img.alt = "Image failed to load"; img.style.display = 'none'; };
+                          messageContentDiv.appendChild(img);
+                          hasContent = true;
+                     } else if (part && part.inlineData && part.inlineData.data && part.inlineData.mimeType) {
+                          // Handle inlineData if present in history (e.g., from backend)
+                          const img = document.createElement('img');
+                          img.src = `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
+                          img.alt = "Chat image from history";
+                          img.onerror = () => { img.alt = "Image failed to load"; img.style.display = 'none'; };
+                          messageContentDiv.appendChild(img);
+                          hasContent = true;
+                     }
+                     // Add speaker button logic if needed (can be added later after text is complete)
+                 });
+             } else if (isThinking) {
+                 const p = document.createElement('p');
+                 p.textContent = 'Thinking...'; // Use more descriptive text
+                 p.style.opacity = '0.7'; // Make it visually distinct
+                 messageContentDiv.appendChild(p);
+                 hasContent = true;
+             }
+
+             // Only append if there's actual content or it's a thinking message
+             if (hasContent) {
+                messageDiv.innerHTML = `<div class="avatar"><i class="fa-solid ${avatarIcon}"></i></div>`;
+                const messageBubble = document.createElement('div');
+                messageBubble.className = 'message-bubble';
+                messageBubble.appendChild(messageContentDiv);
+                messageDiv.appendChild(messageBubble);
+
+                messageContainer.appendChild(messageDiv); // **appendChild call**
+
+                // **Safety Check 2: Ensure chatMain exists before scrolling**
+                if (chatMain) {
+                    chatMain.scrollTo({ top: chatMain.scrollHeight, behavior: 'smooth' });
+                } else {
+                    console.error("Error: chatMain element not found for scrolling.");
+                }
+                return messageDiv; // Return the whole message div for potential modification (like removing 'thinking')
+            }
+            return null; // Return null if nothing was added
+         };
+
+
+        const startNewChat = () => {
+            currentChatId = null;
+             if (chatHeaderTitle) chatHeaderTitle.textContent = "FarmWise Bot"; // Reset title
+            if (messageContainer) messageContainer.innerHTML = '';
+            if (userInput) userInput.value = '';
+            removeImage(); // Also disables send button if input is empty
+            addMessage('bot', [{ type: 'text', text: 'Hello! Ask me anything about agriculture, or upload a plant image for diagnosis.' }]);
+            document.querySelectorAll('#recent-chats-list li.active').forEach(li => li.classList.remove('active'));
+
+            // Close sidebar on mobile
+            if (window.innerWidth <= 768) {
+                 body.classList.remove('sidebar-open'); // Change to remove
+                 if (sidebarOverlay) sidebarOverlay.style.display = 'none';
+            }
+            if (userInput) userInput.focus();
+        };
+
+        const removeImage = () => {
+            selectedFile = null;
+            if (imageInput) imageInput.value = ''; // Clear file input value
+            if (imagePreviewContainer) imagePreviewContainer.style.display = 'none';
+            if (imagePreview && imagePreview.src) {
+                URL.revokeObjectURL(imagePreview.src); // Clean up blob URL
+                imagePreview.src = '';
+            }
+             // Update send button state
+             if (sendBtn && userInput) {
+                sendBtn.disabled = userInput.value.trim() === '' && !selectedFile;
+             }
+        };
+
+        const fetchRecentChats = async () => {
+            // **Safety Check:** Ensure list element exists
+            if (!recentChatsList) {
+                console.error("Cannot fetch chats: recentChatsList element not found.");
+                return;
+            }
+            try {
+                const response = await fetchWithAuth(`${API_BASE_URL}/api/chats`);
+                 if (!response) return; // fetchWithAuth handles errors/redirects
+
+                const chats = await response.json();
+                recentChatsList.innerHTML = ''; // Clear list
+
+                if (!Array.isArray(chats) || chats.length === 0) {
+                     recentChatsList.innerHTML = '<li style="color: var(--text-secondary); padding-left: 15px; cursor: default;">No recent chats.</li>';
+                     return;
+                }
+
+                chats.forEach(chat => {
+                    const li = document.createElement('li');
+                    li.dataset.chatId = chat._id; // Use dataset for easier access
+                    if (chat._id === currentChatId) li.classList.add('active');
+                    li.innerHTML = `
+                        <span class="chat-title" title="${chat.title || 'Untitled Chat'}">${chat.title || 'Untitled Chat'}</span>
+                        <button class="delete-chat-btn" data-chat-id="${chat._id}"><i class="fa-solid fa-trash-can"></i></button>
+                    `;
+                    // Add click listener directly to li for loading chat
+                    li.addEventListener('click', (e) => {
+                         // Only load if the click wasn't on the delete button itself
+                         if (!e.target.closest('.delete-chat-btn')) {
+                            loadChatHistory(chat._id);
+                         }
+                    });
+                    recentChatsList.appendChild(li); // **appendChild call**
+                });
+
+                // Add delete listeners after all items are in the DOM
+                 addDeleteButtonListeners();
+
+            } catch (error) {
+                 if (error.message !== 'Session expired') { // Avoid double alerts
+                    console.error('Failed to load recent chats:', error);
+                    if (recentChatsList) recentChatsList.innerHTML = '<li>Error loading chats.</li>';
+                 }
+            }
+        };
+
+        // --- FIXED loadChatHistory ---
+        const loadChatHistory = async (chatId) => {
+             if (currentChatId === chatId) return; // Prevent unnecessary reloads
+
+             // **Safety Checks**
+             if (!messageContainer || !chatHeaderTitle || !recentChatsList) {
+                 console.error("Cannot load history: Required container elements not found.");
+                 return;
+             }
+
+             currentChatId = chatId;
+             messageContainer.innerHTML = ''; // Clear previous messages
+             addMessage('bot', [{ type: 'text', text: 'Loading chat history...' }], true); // Show loading indicator
+             removeImage(); // Clear any pending image/input
+
+             // Update sidebar active state
+             document.querySelectorAll('#recent-chats-list li').forEach(li => {
+                 li.classList.toggle('active', li.dataset.chatId === chatId);
              });
 
+             // Update header title (find title from sidebar list item)
+             const activeLi = recentChatsList.querySelector(`li[data-chat-id="${chatId}"] .chat-title`);
+             chatHeaderTitle.textContent = activeLi ? activeLi.textContent : "FarmWise Bot";
 
-            // Hamburger Button (Mobile Nav Toggle)
-            if (hamburgerBtn) hamburgerBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (mobileNavDropdown) mobileNavDropdown.classList.toggle('show');
-                 if (dropdownContent) dropdownContent.classList.remove('show'); // Close lang dropdown
-            });
+             // Close sidebar on mobile
+             if (window.innerWidth <= 768) {
+                 body.classList.remove('sidebar-open');
+                 if (sidebarOverlay) sidebarOverlay.style.display = 'none';
+             }
 
-            // Language Selector Dropdown Toggle
-            if (languageSelectorBtn) languageSelectorBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (dropdownContent) dropdownContent.classList.toggle('show');
-                 if (mobileNavDropdown) mobileNavDropdown.classList.remove('show'); // Close mobile nav
-            });
+             try {
+                 const response = await fetchWithAuth(`${API_BASE_URL}/api/chat/${chatId}`);
+                 if (!response) return; // Exit if fetch failed
 
-            // Language Selection from Dropdown
-            if (dropdownContent) dropdownContent.addEventListener('click', (event) => {
-                const link = event.target.closest('a[data-lang]');
-                if (link) {
-                    event.preventDefault();
-                    setLanguage(link.getAttribute('data-lang'));
-                    dropdownContent.classList.remove('show');
+                 const chatData = await response.json(); // Expect full chat object { _id, title, history: [...] }
+                 const history = chatData.history || []; // Get history array, default to empty
+
+                 messageContainer.innerHTML = ''; // Clear loading message
+
+                 if (history.length === 0) {
+                    addMessage('bot', [{ type: 'text', text: 'This chat seems empty.' }]);
+                 } else {
+                     history.forEach(msg => {
+                         const sender = msg.role === 'model' ? 'bot' : 'user';
+
+                         // **CRITICAL FIX: Process the 'parts' array**
+                         let contentToAdd = [];
+                         if (Array.isArray(msg.parts)) {
+                             msg.parts.forEach(part => {
+                                 if (part.text) {
+                                     contentToAdd.push({ type: 'text', text: part.text });
+                                 } else if (part.inlineData && part.inlineData.data && part.inlineData.mimeType) {
+                                     // Construct data URL for images stored in history
+                                     contentToAdd.push({ type: 'image_url', image_url: { url: `data:${part.inlineData.mimeType};base64,${part.inlineData.data}` } });
+                                 }
+                             });
+                         }
+                         // Only add if we found valid parts
+                         if (contentToAdd.length > 0) {
+                            addMessage(sender, contentToAdd);
+                         }
+                         // --- END FIX ---
+                     });
+                 }
+                 // Scroll to bottom after loading all messages
+                 if (chatMain) chatMain.scrollTop = chatMain.scrollHeight;
+
+             } catch (error) {
+                  if (error.message !== 'Session expired') {
+                     console.error('Failed to load chat history:', error);
+                     if (messageContainer) { // Check exists before modifying
+                        messageContainer.innerHTML = ''; // Clear loading message
+                        addMessage('bot', [{ type: 'text', text: `Error loading chat: ${error.message}` }]);
+                     }
+                  }
+             }
+        };
+
+
+        const deleteChat = async (chatId) => {
+            if (!confirm('Are you sure you want to delete this chat?')) return;
+            try {
+                const response = await fetchWithAuth(`${API_BASE_URL}/api/chat/${chatId}`, { method: 'DELETE' });
+                if (!response) return; // Exit if fetch failed
+
+                 // Check server response status explicitly
+                 if (response.status !== 200 && response.status !== 204) { // Allow OK or No Content
+                     const errorData = await response.json().catch(() => ({}));
+                     throw new Error(errorData.message || `Failed to delete chat (Status: ${response.status})`);
+                 }
+
+
+                if (currentChatId === chatId) {
+                    startNewChat(); // Start new if active chat deleted
                 }
-            });
+                // Visually remove from list
+                const listItem = recentChatsList?.querySelector(`li[data-chat-id="${chatId}"]`);
+                if (listItem) listItem.remove();
 
-            // Image Upload Handling
-            if (imageBtn) imageBtn.addEventListener('click', () => imageInput?.click()); // Optional chaining
-            if (removeImageBtn) removeImageBtn.addEventListener('click', resetImageInput);
-            if (imageInput) imageInput.addEventListener('change', () => {
-                const file = imageInput.files[0];
-                if (file) {
-                    if (!file.type.startsWith('image/')) {
-                         alert('Please select an image file.');
-                         resetImageInput();
-                         return;
-                    }
-                    selectedFile = file;
-                     if (imagePreview.src) URL.revokeObjectURL(imagePreview.src);
-                    imagePreview.src = URL.createObjectURL(file);
-                    if (imagePreviewContainer) imagePreviewContainer.style.display = 'block';
-                     if (sendBtn) sendBtn.disabled = false;
-                } else {
-                     resetImageInput();
+                // Check if list is now empty
+                if (recentChatsList && recentChatsList.children.length === 0) {
+                     recentChatsList.innerHTML = '<li style="color: var(--text-secondary); padding-left: 15px; cursor: default;">No recent chats.</li>';
                 }
-            });
 
-             // Enable/Disable Send Button based on input
-             if (userInput && sendBtn) { // Check both exist
-                 userInput.addEventListener('input', () => {
-                     sendBtn.disabled = userInput.value.trim() === '' && !selectedFile;
+            } catch (error) {
+                 if (error.message !== 'Session expired') {
+                    console.error('Delete chat error:', error);
+                    alert(`Error deleting chat: ${error.message}`);
+                 }
+            }
+        };
+
+        // Helper to attach listeners to delete buttons
+        const addDeleteButtonListeners = () => {
+             if (!recentChatsList) return;
+             recentChatsList.querySelectorAll('.delete-chat-btn').forEach(button => {
+                 // Clone and replace to ensure only one listener is attached
+                 const newButton = button.cloneNode(true);
+                 button.parentNode.replaceChild(newButton, button);
+                 newButton.addEventListener('click', (e) => {
+                     e.stopPropagation(); // VERY important to prevent li click
+                     deleteChat(newButton.dataset.chatId);
                  });
+             });
+        };
+
+
+        // --- EVENT LISTENERS ---
+        if (chatForm) chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+             if (!userInput || !sendBtn) return; // Safety check
+
+            const userText = userInput.value.trim();
+            if (!userText && !selectedFile) return;
+
+            // Optimistic UI update
+            const userMessageContent = [];
+            if (selectedFile && imagePreview && imagePreview.src) userMessageContent.push({ type: 'image_url', image_url: { url: imagePreview.src } });
+            if (userText) userMessageContent.push({ type: 'text', text: userText });
+            addMessage('user', userMessageContent);
+
+            const thinkingMessageDiv = addMessage('bot', null, true); // Add thinking message
+
+            // Prepare form data
+            const formData = new FormData();
+            // Use a default message if only image exists
+            formData.append('message', (selectedFile && !userText) ? "Analyze the attached image" : userText);
+            if (selectedFile) formData.append('image', selectedFile, selectedFile.name); // Include filename
+            if (currentChatId) formData.append('chatId', currentChatId);
+            // Append language if needed by backend (check api.js)
+            // formData.append('language', currentLanguage);
+
+            // Store file reference before resetting UI
+            const tempSelectedFile = selectedFile;
+
+            // Reset UI
+            userInput.value = '';
+            removeImage(); // This handles disabling sendBtn too
+            sendBtn.disabled = true; // Explicitly disable during request
+
+
+            try {
+                const response = await fetchWithAuth(`${API_BASE_URL}/api/chat`, { method: 'POST', body: formData });
+                if (!response) return; // Exit if fetch failed
+
+                const data = await response.json(); // Assume response is always JSON
+
+                // Remove thinking message before adding actual reply
+                if (thinkingMessageDiv) thinkingMessageDiv.remove();
+
+                if (data.reply && data.reply.trim() !== '') {
+                    addMessage('bot', [{ type: 'text', text: data.reply }]);
+                } else {
+                    addMessage('bot', [{ type: 'text', text: "Sorry, I couldn't generate a response." }]);
+                }
+
+                const wasNewChat = !currentChatId;
+                if (data.newChatId) {
+                    currentChatId = data.newChatId;
+                }
+                if (wasNewChat && data.newChatId) { // Only refresh if it was genuinely new
+                    await fetchRecentChats(); // Refresh sidebar
+                     // Highlight the new chat
+                     const newLi = recentChatsList?.querySelector(`li[data-chat-id="${currentChatId}"]`);
+                     if (newLi) newLi.classList.add('active');
+                     // Update header title if it's a new chat
+                     if (chatHeaderTitle && newLi) {
+                        chatHeaderTitle.textContent = newLi.querySelector('.chat-title')?.textContent || "FarmWise Bot";
+                     }
+                } else if (currentChatId) {
+                     // Optionally refresh to update sorting by 'updatedAt'
+                     // await fetchRecentChats();
+                }
+
+            } catch (error) {
+                if (thinkingMessageDiv) thinkingMessageDiv.remove(); // Remove thinking on error too
+                 if (error.message !== 'Session expired') {
+                    console.error('Send message error:', error);
+                    addMessage('bot', [{ type: 'text', text: `Sorry, an error occurred: ${error.message}` }]);
+                 }
+            } finally {
+                // Re-enable button only if input/image allows
+                 if(userInput && sendBtn) sendBtn.disabled = userInput.value.trim() === '' && !selectedFile;
+                 if(userInput) userInput.focus();
+            }
+        });
+
+        if (newChatBtn) newChatBtn.addEventListener('click', startNewChat);
+
+        // Sidebar List Click (delegated listener) - Moved inside fetchRecentChats
+
+        // Image Button & Input
+        if (imageBtn) imageBtn.addEventListener('click', () => imageInput?.click());
+        if (imageInput) imageInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                 if (!file.type.startsWith('image/')) {
+                     alert('Please select an image file.');
+                     removeImage(); // Reset if invalid
+                     return;
+                 }
+                selectedFile = file;
+                 if (imagePreview.src) URL.revokeObjectURL(imagePreview.src);
+                imagePreview.src = URL.createObjectURL(file);
+                if (imagePreviewContainer) imagePreviewContainer.style.display = 'block';
+                if (sendBtn) sendBtn.disabled = false; // Enable send when image is added
+            } else {
+                 removeImage(); // Reset if no file selected/cancelled
+            }
+        });
+        if (removeImageBtn) removeImageBtn.addEventListener('click', removeImage);
+
+        // Sidebar Toggle Button
+        if (menuToggleBtn) menuToggleBtn.addEventListener('click', (e) => {
+             e.stopPropagation();
+             body.classList.toggle('sidebar-closed'); // Toggle the class on body
+             // Toggle overlay visibility on mobile
+             if (window.innerWidth <= 768) {
+                 if (!body.classList.contains('sidebar-closed')) {
+                     if (sidebarOverlay) sidebarOverlay.style.display = 'block';
+                 } else {
+                     if (sidebarOverlay) sidebarOverlay.style.display = 'none';
+                 }
+             }
+        });
+
+         // Sidebar Overlay Click
+         if (sidebarOverlay) sidebarOverlay.addEventListener('click', () => {
+             body.classList.add('sidebar-closed');
+             sidebarOverlay.style.display = 'none';
+         });
+
+
+        // Theme Toggle Button
+        if (themeToggleBtn) themeToggleBtn.addEventListener('click', () => {
+            const newTheme = document.documentElement.classList.contains('dark-mode') ? 'light' : 'dark';
+            localStorage.setItem('theme', newTheme);
+            applyTheme(newTheme);
+        });
+
+        // Enable/Disable Send Button based on input
+         if (userInput && sendBtn) {
+            userInput.addEventListener('input', () => {
+                sendBtn.disabled = userInput.value.trim() === '' && !selectedFile;
+            });
+         }
+
+
+        // --- INITIALIZATION ---
+        const initializeApp = async () => {
+            // Apply theme first
+            const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            applyTheme(savedTheme);
+
+            // Set initial sidebar state based on screen size
+             if (window.innerWidth <= 768) {
+                 body.classList.add('sidebar-closed');
+             } else {
+                 body.classList.remove('sidebar-closed');
              }
 
 
-            // Text-to-Speech Trigger
-            if (messageContainer) messageContainer.addEventListener('click', (e) => { // Check container exists
-                const speakerBtn = e.target.closest('.speaker-btn');
-                if (speakerBtn) {
-                     const messageBubble = speakerBtn.closest('.message-bubble');
-                     const textToSpeak = messageBubble?.querySelector('.message-content p')?.textContent;
-                    if (textToSpeak) {
-                         speakText(textToSpeak, currentLanguage);
-                     } else {
-                         console.warn("Could not find text to speak.");
-                     }
-                }
-            });
+            // Auth check already done at top level script
 
-            // Global Click Listener (for closing dropdowns/mobile sidebar)
-            window.addEventListener('click', (e) => {
-                if (dropdownContent && !languageDropdown?.contains(e.target)) { // Optional chaining
-                    dropdownContent.classList.remove('show');
-                }
-                if (mobileNavDropdown?.classList.contains('show') && !hamburgerBtn?.contains(e.target) && !mobileNavDropdown?.contains(e.target)) {
-                    mobileNavDropdown.classList.remove('show');
-                }
-                if (body.classList.contains('sidebar-open') && window.innerWidth > 768) {
-                      const sidebar = document.getElementById('sidebar');
-                     if (sidebar && !sidebar.contains(e.target) && !menuToggleBtn?.contains(e.target)) { // Optional chaining
-                         body.classList.remove('sidebar-open');
-                     }
-                 }
-            });
+            // Fetch initial data if logged in
+            if (localStorage.getItem('token')) {
+                await fetchRecentChats();
+                startNewChat(); // Always start with a new chat view
+            }
+             // Ensure send button initial state is correct
+             if(userInput && sendBtn) sendBtn.disabled = userInput.value.trim() === '' && !selectedFile;
+        };
 
-
-            // --- Initialization ---
-            const initializeApp = async () => {
-                const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-                applyTheme(savedTheme);
-                const savedLang = localStorage.getItem('chatLanguage') || 'en';
-                setLanguage(savedLang);
-
-                if (localStorage.getItem('token')) {
-                    // Fetch chats only if the list element exists
-                    if (recentChatsList) await fetchRecentChats();
-                    startNewChat(); // Start new chat UI
-                } else {
-                     alert('Please log in to use the chatbot.');
-                     window.location.href = 'login.html';
-                }
-            };
-
-            initializeApp();
-        });
+        initializeApp(); // Run initialization
+    });
     </script>
 </body>
 </html>
