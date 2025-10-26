@@ -237,7 +237,7 @@
             gap: 30px;
         }
         .desktop-nav {
-             display: flex;
+            display: flex;
         }
 
         .nav-menu a {
@@ -260,10 +260,10 @@
         }
         
         .icon-btn {
-             background: none; border: none; color: var(--text-secondary); font-size: 18px;
-             cursor: pointer; border-radius: 50%; width: 40px; height: 40px;
-             display: flex; align-items: center; justify-content: center;
-             transition: background-color 0.2s ease, color 0.2s ease;
+           background: none; border: none; color: var(--text-secondary); font-size: 18px;
+           cursor: pointer; border-radius: 50%; width: 40px; height: 40px;
+           display: flex; align-items: center; justify-content: center;
+           transition: background-color 0.2s ease, color 0.2s ease;
         }
         .icon-btn:hover {
             background-color: var(--sidebar-hover-bg);
@@ -345,7 +345,7 @@
              line-height: 1.6;
              box-shadow: 0 2px 4px var(--shadow-color);
              position: relative;
-        }
+         }
 
         .bot-message {
             align-self: flex-start;
@@ -354,7 +354,7 @@
              background-color: var(--bot-bubble-bg);
              border: 1px solid var(--border-color);
              border-top-left-radius: 4px;
-        }
+         }
 
         .user-message {
             align-self: flex-end;
@@ -764,11 +764,30 @@
                 try {
                     const response = await fetchWithAuth(`${API_BASE_URL}/api/chat/${chatId}`);
                     if (!response || !response.ok) throw new Error('Could not fetch history.');
-                    const history = await response.json();
+                    // This is a correction from your backend: /api/chat/:chatId returns the *full chat document*, not just history.
+                    // The history is in a property called 'history'.
+                    const chatDoc = await response.json();
                     messageContainer.innerHTML = ''; // Clear "Loading..." message
-                    history.forEach(msg => {
+                    
+                    // Iterate over chatDoc.history, which is an array of { role, parts }
+                    chatDoc.history.forEach(msg => {
                         const sender = msg.role === 'model' ? 'bot' : 'user';
-                        addMessageToUI(sender, { text: msg.content });
+                        let textContent = '';
+                        let imageUrl = null;
+                        
+                        // Process the 'parts' array
+                        if (Array.isArray(msg.parts)) {
+                            for (const part of msg.parts) {
+                                if (part.text) {
+                                    textContent += part.text;
+                                }
+                                // Note: We don't re-render images from history for now,
+                                // as they are not stored as simple URLs.
+                                // If your frontend code *did* save the base64 preview, you could add it here.
+                            }
+                        }
+
+                        addMessageToUI(sender, { text: textContent, imageUrl: imageUrl });
                     });
                      if (window.innerWidth <= 768) body.classList.remove('sidebar-open');
                 } catch (error) {
@@ -829,6 +848,7 @@
 
                 addMessageToUI('user', { text: userMessage, imageUrl: selectedFile ? imagePreview.src : null });
 
+                // Your backend logic expects a 'message' field even if an image is sent.
                 const messageForApi = (selectedFile && !userMessage) ? "Analyze the attached image" : userMessage;
                 const tempSelectedFile = selectedFile;
                 userInput.value = '';
