@@ -16,7 +16,7 @@ const upload = multer({ storage: multer.memoryStorage() });
 
 // --- GEMINI API DETAILS ---
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_MODEL_NAME = "gemini-2.0-flash"; // Or your preferred model
+const GEMINI_MODEL_NAME = "gemini-2.5-flash"; // Or your preferred model
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL_NAME}:generateContent?key=${GEMINI_API_KEY}`;
 
 // --- AUTHENTICATION MIDDLEWARE ---
@@ -381,3 +381,4 @@ router.get('/weather/forecast', authMiddleware, async (req, res) => {
 });
 
 module.exports = router;
+
